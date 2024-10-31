@@ -33,10 +33,10 @@ pub fn process_update_weight_table(
     load_token_mint(mint)?;
     WeightTable::load(program_id, weight_table, ncn, ncn_epoch, true)?;
 
-    if restaking_program_id.key.ne(&jito_restaking_program::id()) {
-        msg!("Incorrect restaking program ID");
-        return Err(ProgramError::InvalidAccountData);
-    }
+    // if restaking_program_id.key.ne(&jito_restaking_program::id()) {
+    //     msg!("Incorrect restaking program ID");
+    //     return Err(ProgramError::InvalidAccountData);
+    // }
 
     if ncn_weight_table_admin.ne(weight_table_admin.key) {
         msg!("Vault update delegations ticket is not at the correct PDA");

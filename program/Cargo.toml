@@ -9,6 +9,10 @@ license = { workspace = true }
 edition = { workspace = true }
 readme = { workspace = true }
 
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "jito_mev_tip_distribution_ncn_program"
+
 [features]
 no-entrypoint = []
 no-idl = []

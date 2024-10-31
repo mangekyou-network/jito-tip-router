@@ -6,4 +6,7 @@ cargo fmt --all
 cargo nextest run --all-features
 cargo clippy --all-features -- -D warnings -D clippy::all -D clippy::nursery -D clippy::integer_division -D clippy::arithmetic_side_effects -D clippy::style -D clippy::perf
 
-cargo b && ./target/debug/jito-mev-tip-distribution-ncn-shank-cli && yarn generate-clients && cargo b
+
+cargo b && ./target/debug/jito-mev-tip-distribution-ncn-shank-cli && yarn install && yarn generate-clients && cargo b
+cargo-build-sbf
+
