@@ -23,13 +23,13 @@ declare_id!(str_to_pubkey(env!("MEV_TIP_DISTRIBUTION_NCN_PROGRAM_ID")));
 #[cfg(not(feature = "no-entrypoint"))]
 security_txt! {
     // Required fields
-    name: "Jito's Weight Table Program",
+    name: "Jito's MEV Tip Distribution NCN Program",
     project_url: "https://jito.network/",
     contacts: "email:team@jito.network",
-    policy: "https://github.com/jito-foundation/jito-rewards-ncn",
+    policy: "https://github.com/jito-foundation/jito-mev-tip-distribution-ncn",
     // Optional Fields
     preferred_languages: "en",
-    source_code: "https://github.com/jito-foundation/jito-rewards-ncn"
+    source_code: "https://github.com/jito-foundation/jito-mev-tip-distribution-ncn"
 }
 
 #[cfg(not(feature = "no-entrypoint"))]

@@ -38,12 +38,12 @@ jobs:
           components: rustfmt, clippy
           toolchain: nightly-2024-07-25
       - name: Regenerate Shank IDL files
-        run: cargo b --release -p jito-shank-cli && ./target/release/jito-shank-cli
+        run: cargo b --release -p jito-mev-tip-distribution-ncn-shank-cli && ./target/release/jito-mev-tip-distribution-ncn-shank-cli
       - name: Verify no changed files
         uses: tj-actions/verify-changed-files@v20
         with:
           fail-if-changed: true
-          fail-message: 'Unexpected changes in the shank IDL files. Please run `./target/release/jito-shank-cli` to regenerate the files.'
+          fail-message: 'Unexpected changes in the shank IDL files. Please run `./target/release/jito-mev-tip-distribution-ncn-shank-cli` to regenerate the files.'
       - name: Set Node.js 22.x
         uses: actions/setup-node@v3
         with:
@@ -104,43 +104,35 @@ jobs:
       - name: Building programs
         run: cargo-build-sbf
         env:
-          RESTAKING_PROGRAM_ID: ${{ env.RESTAKING_PROGRAM_ID }}
-          VAULT_PROGRAM_ID: ${{ env.VAULT_PROGRAM_ID }}
-      - name: Upload restaking program
+          MEV_TIP_DISTRIBUTION_NCN_PROGRAM_ID: ${{ env.MEV_TIP_DISTRIBUTION_NCN_PROGRAM_ID }}
+      - name: Upload MEV Tip Distribution NCN program
         uses: actions/upload-artifact@v4
         with:
-          name: jito_restaking_program.so
-          path: target/sbf-solana-solana/release/jito_restaking_program.so
-          if-no-files-found: error
-      - name: Upload vault program
-        uses: actions/upload-artifact@v4
-        with:
-          name: jito_vault_program.so
-          path: target/sbf-solana-solana/release/jito_vault_program.so
+          name: jito_mev_tip_distribution_ncn_program.so
+          path: target/sbf-solana-solana/release/jito_mev_tip_distribution_ncn_program.so
           if-no-files-found: error
 
-  coverage:
-    name: coverage
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          components: rustfmt, clippy
-          toolchain: nightly-2024-07-25
-      - name: Install cargo-llvm-cov
-        uses: taiki-e/install-action@cargo-llvm-cov
-      - name: Generate code coverage
-        run: cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
-        env:
-          RESTAKING_PROGRAM_ID: Cnp3S1G3JaaAoFpFR3FhM94DdEF1mMBqy5vjwtDaVZLi
-          VAULT_PROGRAM_ID: 94sqeuUnjJCmwZUp8nGK7Q7o8YnHSW9Y3TcPZJY2PycN
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4.5.0
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: jito-foundation/restaking
-          fail_ci_if_error: true
+  # coverage:
+  #   name: coverage
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions-rust-lang/setup-rust-toolchain@v1
+  #       with:
+  #         components: rustfmt, clippy
+  #         toolchain: nightly-2024-07-25
+  #     - name: Install cargo-llvm-cov
+  #       uses: taiki-e/install-action@cargo-llvm-cov
+  #     - name: Generate code coverage
+  #       run: cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
+  #       env:
+  #         MEV_TIP_DISTRIBUTION_NCN_PROGRAM_ID: Fv9aHCgvPQSr4jg9W8eTS6Ys1SNmh2qjyATrbsjEMaSH
+  #     - name: Upload coverage to Codecov
+  #       uses: codecov/codecov-action@v4.5.0
+  #       with:
+  #         token: ${{ secrets.CODECOV_TOKEN }}
+  #         slug: jito-foundation/jito-mev-tip-distribution-ncn
+  #         fail_ci_if_error: true
 
   test_sbf:
     name: cargo test
@@ -151,41 +143,36 @@ jobs:
       - uses: actions/checkout@v4
       - uses: aarcangeli/load-dotenv@v1.0.0
         with:
-          path: config
-          filenames: program.env
+          path: .cargo
+          filenames: programs.env
       - uses: actions-rust-lang/setup-rust-toolchain@v1
-      - name: Download restaking program
+      - name: Download MEV Tip Distribution NCN program
         uses: actions/download-artifact@v4
         with:
-          name: jito_restaking_program.so
-          path: target/sbf-solana-solana/release/
-      - name: Download vault program
-        uses: actions/download-artifact@v4
-        with:
-          name: jito_vault_program.so
+          name: jito_mev_tip_distribution_ncn_program.so
           path: target/sbf-solana-solana/release/
       - uses: taiki-e/install-action@nextest
       - run: cargo nextest run --all-features
         env:
           SBF_OUT_DIR: ${{ github.workspace }}/target/sbf-solana-solana/release
 
-  create_release:
-    name: Create Release
-    needs:
-      - build
-      - test_sbf
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
-    steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          merge-multiple: true
-      - run: ls -lh
-      - name: Release
-        uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: |
-            *.so
-          fail_on_unmatched_files: true
+  # create_release:
+  #   name: Create Release
+  #   needs:
+  #     - build
+  #     - test_sbf
+  #   runs-on: ubuntu-latest
+  #   if: startsWith(github.ref, 'refs/tags/')
+  #   steps:
+  #     - name: Download all artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         merge-multiple: true
+  #     - run: ls -lh
+  #     - name: Release
+  #       uses: softprops/action-gh-release@v2
+  #       if: startsWith(github.ref, 'refs/tags/')
+  #       with:
+  #         files: |
+  #           *.so
+  #         fail_on_unmatched_files: true
