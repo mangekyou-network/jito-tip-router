@@ -38,12 +38,12 @@ jobs:
           components: rustfmt, clippy
           toolchain: nightly-2024-07-25
       - name: Regenerate Shank IDL files
-        run: cargo b --release -p jito-mev-tip-distribution-ncn-shank-cli && ./target/release/jito-mev-tip-distribution-ncn-shank-cli
+        run: cargo b --release -p jito-tip-router-shank-cli && ./target/release/jito-tip-router-shank-cli
       - name: Verify no changed files
         uses: tj-actions/verify-changed-files@v20
         with:
           fail-if-changed: true
-          fail-message: 'Unexpected changes in the shank IDL files. Please run `./target/release/jito-mev-tip-distribution-ncn-shank-cli` to regenerate the files.'
+          fail-message: 'Unexpected changes in the shank IDL files. Please run `./target/release/jito-tip-router-shank-cli` to regenerate the files.'
       - name: Set Node.js 22.x
         uses: actions/setup-node@v3
         with:
@@ -104,12 +104,12 @@ jobs:
       - name: Building programs
         run: cargo-build-sbf
         env:
-          MEV_TIP_DISTRIBUTION_NCN_PROGRAM_ID: ${{ env.MEV_TIP_DISTRIBUTION_NCN_PROGRAM_ID }}
+          TIP_ROUTER_PROGRAM_ID: ${{ env.TIP_ROUTER_PROGRAM_ID }}
       - name: Upload MEV Tip Distribution NCN program
         uses: actions/upload-artifact@v4
         with:
-          name: jito_mev_tip_distribution_ncn_program.so
-          path: target/sbf-solana-solana/release/jito_mev_tip_distribution_ncn_program.so
+          name: jito_tip_router_program.so
+          path: target/sbf-solana-solana/release/jito_tip_router_program.so
           if-no-files-found: error
 
   # coverage:
@@ -126,12 +126,12 @@ jobs:
   #     - name: Generate code coverage
   #       run: cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
   #       env:
-  #         MEV_TIP_DISTRIBUTION_NCN_PROGRAM_ID: Fv9aHCgvPQSr4jg9W8eTS6Ys1SNmh2qjyATrbsjEMaSH
+  #         TIP_ROUTER_PROGRAM_ID: Fv9aHCgvPQSr4jg9W8eTS6Ys1SNmh2qjyATrbsjEMaSH
   #     - name: Upload coverage to Codecov
   #       uses: codecov/codecov-action@v4.5.0
   #       with:
   #         token: ${{ secrets.CODECOV_TOKEN }}
-  #         slug: jito-foundation/jito-mev-tip-distribution-ncn
+  #         slug: jito-foundation/jito-tip-router
   #         fail_ci_if_error: true
 
   test_sbf:
@@ -149,7 +149,7 @@ jobs:
       - name: Download MEV Tip Distribution NCN program
         uses: actions/download-artifact@v4
         with:
-          name: jito_mev_tip_distribution_ncn_program.so
+          name: jito_tip_router_program.so
           path: target/sbf-solana-solana/release/
       - uses: taiki-e/install-action@nextest
       - run: cargo nextest run --all-features

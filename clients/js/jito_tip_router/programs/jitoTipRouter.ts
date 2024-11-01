@@ -18,46 +18,46 @@ import {
   type ParsedUpdateWeightTableInstruction,
 } from '../instructions';
 
-export const JITO_MEV_TIP_DISTRIBUTION_NCN_PROGRAM_ADDRESS =
+export const JITO_TIP_ROUTER_PROGRAM_ADDRESS =
   'Fv9aHCgvPQSr4jg9W8eTS6Ys1SNmh2qjyATrbsjEMaSH' as Address<'Fv9aHCgvPQSr4jg9W8eTS6Ys1SNmh2qjyATrbsjEMaSH'>;
 
-export enum JitoMevTipDistributionNcnAccount {
+export enum JitoTipRouterAccount {
   WeightTable,
 }
 
-export enum JitoMevTipDistributionNcnInstruction {
+export enum JitoTipRouterInstruction {
   InitializeWeightTable,
   UpdateWeightTable,
   FinalizeWeightTable,
 }
 
-export function identifyJitoMevTipDistributionNcnInstruction(
+export function identifyJitoTipRouterInstruction(
   instruction: { data: ReadonlyUint8Array } | ReadonlyUint8Array
-): JitoMevTipDistributionNcnInstruction {
+): JitoTipRouterInstruction {
   const data = 'data' in instruction ? instruction.data : instruction;
   if (containsBytes(data, getU8Encoder().encode(0), 0)) {
-    return JitoMevTipDistributionNcnInstruction.InitializeWeightTable;
+    return JitoTipRouterInstruction.InitializeWeightTable;
   }
   if (containsBytes(data, getU8Encoder().encode(1), 0)) {
-    return JitoMevTipDistributionNcnInstruction.UpdateWeightTable;
+    return JitoTipRouterInstruction.UpdateWeightTable;
   }
   if (containsBytes(data, getU8Encoder().encode(2), 0)) {
-    return JitoMevTipDistributionNcnInstruction.FinalizeWeightTable;
+    return JitoTipRouterInstruction.FinalizeWeightTable;
   }
   throw new Error(
-    'The provided instruction could not be identified as a jitoMevTipDistributionNcn instruction.'
+    'The provided instruction could not be identified as a jitoTipRouter instruction.'
   );
 }
 
-export type ParsedJitoMevTipDistributionNcnInstruction<
+export type ParsedJitoTipRouterInstruction<
   TProgram extends string = 'Fv9aHCgvPQSr4jg9W8eTS6Ys1SNmh2qjyATrbsjEMaSH',
 > =
   | ({
-      instructionType: JitoMevTipDistributionNcnInstruction.InitializeWeightTable;
+      instructionType: JitoTipRouterInstruction.InitializeWeightTable;
     } & ParsedInitializeWeightTableInstruction<TProgram>)
   | ({
-      instructionType: JitoMevTipDistributionNcnInstruction.UpdateWeightTable;
+      instructionType: JitoTipRouterInstruction.UpdateWeightTable;
     } & ParsedUpdateWeightTableInstruction<TProgram>)
   | ({
-      instructionType: JitoMevTipDistributionNcnInstruction.FinalizeWeightTable;
+      instructionType: JitoTipRouterInstruction.FinalizeWeightTable;
     } & ParsedFinalizeWeightTableInstruction<TProgram>);

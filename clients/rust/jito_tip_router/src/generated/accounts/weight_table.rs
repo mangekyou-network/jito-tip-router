@@ -59,7 +59,7 @@ impl anchor_lang::AccountSerialize for WeightTable {}
 #[cfg(feature = "anchor")]
 impl anchor_lang::Owner for WeightTable {
     fn owner() -> Pubkey {
-        crate::JITO_MEV_TIP_DISTRIBUTION_NCN_ID
+        crate::JITO_TIP_ROUTER_ID
     }
 }
 

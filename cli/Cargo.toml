@@ -1,5 +1,5 @@
 [package]
-name = "jito-mev-tip-distribution-ncn-cli"
+name = "jito-tip-router-cli"
 description = "Jito MEV Tip Distribution NCN CLI"
 version = { workspace = true }
 authors = { workspace = true }
@@ -37,5 +37,5 @@ tokio = { workspace = true }
 assert_matches = { workspace = true }
 
 [[bin]]
-name = "jito-mev-tip-distribution-ncn-cli"
+name = "jito-tip-router-cli"
 path = "src/bin/main.rs"

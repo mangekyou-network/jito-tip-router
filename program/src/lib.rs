@@ -4,7 +4,7 @@ mod update_weight_table;
 
 use borsh::BorshDeserialize;
 use const_str_to_pubkey::str_to_pubkey;
-use jito_mev_tip_distribution_ncn_core::instruction::WeightTableInstruction;
+use jito_tip_router_core::instruction::WeightTableInstruction;
 use solana_program::{
     account_info::AccountInfo, declare_id, entrypoint::ProgramResult, msg,
     program_error::ProgramError, pubkey::Pubkey,
@@ -18,7 +18,7 @@ use crate::{
     update_weight_table::process_update_weight_table,
 };
 
-declare_id!(str_to_pubkey(env!("MEV_TIP_DISTRIBUTION_NCN_PROGRAM_ID")));
+declare_id!(str_to_pubkey(env!("TIP_ROUTER_PROGRAM_ID")));
 
 #[cfg(not(feature = "no-entrypoint"))]
 security_txt! {
@@ -26,10 +26,10 @@ security_txt! {
     name: "Jito's MEV Tip Distribution NCN Program",
     project_url: "https://jito.network/",
     contacts: "email:team@jito.network",
-    policy: "https://github.com/jito-foundation/jito-mev-tip-distribution-ncn",
+    policy: "https://github.com/jito-foundation/jito-tip-router",
     // Optional Fields
     preferred_languages: "en",
-    source_code: "https://github.com/jito-foundation/jito-mev-tip-distribution-ncn"
+    source_code: "https://github.com/jito-foundation/jito-tip-router"
 }
 
 #[cfg(not(feature = "no-entrypoint"))]

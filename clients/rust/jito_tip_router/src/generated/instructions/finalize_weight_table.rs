@@ -54,7 +54,7 @@ impl FinalizeWeightTable {
         data.append(&mut args);
 
         solana_program::instruction::Instruction {
-            program_id: crate::JITO_MEV_TIP_DISTRIBUTION_NCN_ID,
+            program_id: crate::JITO_TIP_ROUTER_ID,
             accounts,
             data,
         }
@@ -281,7 +281,7 @@ impl<'a, 'b> FinalizeWeightTableCpi<'a, 'b> {
         data.append(&mut args);
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::JITO_MEV_TIP_DISTRIBUTION_NCN_ID,
+            program_id: crate::JITO_TIP_ROUTER_ID,
             accounts,
             data,
         };

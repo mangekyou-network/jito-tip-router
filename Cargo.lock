@@ -2377,135 +2377,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "jito-mev-tip-distribution-ncn-cli"
-version = "0.0.1"
-dependencies = [
- "anyhow",
- "assert_matches",
- "borsh 0.10.4",
- "bytemuck",
- "chrono",
- "clap 4.5.20",
- "env_logger 0.10.2",
- "jito-bytemuck",
- "jito-restaking-client",
- "jito-restaking-core",
- "jito-vault-client",
- "jito-vault-core",
- "log",
- "solana-account-decoder",
- "solana-cli-config",
- "solana-program",
- "solana-rpc-client",
- "solana-rpc-client-api",
- "solana-sdk",
- "spl-associated-token-account",
- "spl-token",
- "thiserror",
- "tokio",
-]
-
-[[package]]
-name = "jito-mev-tip-distribution-ncn-client"
-version = "0.0.1"
-dependencies = [
- "anchor-lang",
- "borsh 0.10.4",
- "bytemuck",
- "num-derive 0.4.2",
- "num-traits",
- "serde",
- "serde_with 3.11.0",
- "solana-program",
- "solana-sdk",
- "thiserror",
-]
-
-[[package]]
-name = "jito-mev-tip-distribution-ncn-core"
-version = "0.0.1"
-dependencies = [
- "assert_matches",
- "borsh 0.10.4",
- "bytemuck",
- "jito-bytemuck",
- "jito-jsm-core",
- "jito-restaking-core",
- "jito-restaking-sdk",
- "jito-vault-core",
- "jito-vault-sdk",
- "shank",
- "solana-program",
- "spl-associated-token-account",
- "spl-token",
- "thiserror",
-]
-
-[[package]]
-name = "jito-mev-tip-distribution-ncn-integration-tests"
-version = "0.0.1"
-dependencies = [
- "borsh 0.10.4",
- "jito-bytemuck",
- "jito-jsm-core",
- "jito-mev-tip-distribution-ncn-client",
- "jito-restaking-core",
- "jito-restaking-program",
- "jito-restaking-sdk",
- "jito-vault-core",
- "jito-vault-program",
- "jito-vault-sdk",
- "log",
- "shank",
- "solana-program",
- "solana-program-test",
- "solana-sdk",
- "solana-security-txt",
- "spl-associated-token-account",
- "spl-token",
- "thiserror",
- "tokio",
-]
-
-[[package]]
-name = "jito-mev-tip-distribution-ncn-program"
-version = "0.0.1"
-dependencies = [
- "assert_matches",
- "borsh 0.10.4",
- "bytemuck",
- "cfg-if",
- "const_str_to_pubkey",
- "jito-bytemuck",
- "jito-jsm-core",
- "jito-mev-tip-distribution-ncn-core",
- "jito-restaking-core",
- "jito-restaking-program",
- "jito-restaking-sdk",
- "jito-vault-core",
- "jito-vault-sdk",
- "shank",
- "solana-program",
- "solana-security-txt",
- "spl-associated-token-account",
- "spl-token",
- "thiserror",
-]
-
-[[package]]
-name = "jito-mev-tip-distribution-ncn-shank-cli"
-version = "0.0.1"
-dependencies = [
- "anyhow",
- "clap 4.5.20",
- "env_logger 0.10.2",
- "envfile",
- "log",
- "shank",
- "shank_idl",
-]
-
-[[package]]
 name = "jito-restaking-client"
 version = "0.0.3"
 source = "git+https://github.com/jito-foundation/restaking.git#6dab154dbf8a60176a0b510aa74f17140288496e"
@@ -2570,6 +2441,135 @@ dependencies = [
  "shank",
  "solana-program",
  "thiserror",
+]
+
+[[package]]
+name = "jito-tip-router-cli"
+version = "0.0.1"
+dependencies = [
+ "anyhow",
+ "assert_matches",
+ "borsh 0.10.4",
+ "bytemuck",
+ "chrono",
+ "clap 4.5.20",
+ "env_logger 0.10.2",
+ "jito-bytemuck",
+ "jito-restaking-client",
+ "jito-restaking-core",
+ "jito-vault-client",
+ "jito-vault-core",
+ "log",
+ "solana-account-decoder",
+ "solana-cli-config",
+ "solana-program",
+ "solana-rpc-client",
+ "solana-rpc-client-api",
+ "solana-sdk",
+ "spl-associated-token-account",
+ "spl-token",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
+name = "jito-tip-router-client"
+version = "0.0.1"
+dependencies = [
+ "anchor-lang",
+ "borsh 0.10.4",
+ "bytemuck",
+ "num-derive 0.4.2",
+ "num-traits",
+ "serde",
+ "serde_with 3.11.0",
+ "solana-program",
+ "solana-sdk",
+ "thiserror",
+]
+
+[[package]]
+name = "jito-tip-router-core"
+version = "0.0.1"
+dependencies = [
+ "assert_matches",
+ "borsh 0.10.4",
+ "bytemuck",
+ "jito-bytemuck",
+ "jito-jsm-core",
+ "jito-restaking-core",
+ "jito-restaking-sdk",
+ "jito-vault-core",
+ "jito-vault-sdk",
+ "shank",
+ "solana-program",
+ "spl-associated-token-account",
+ "spl-token",
+ "thiserror",
+]
+
+[[package]]
+name = "jito-tip-router-integration-tests"
+version = "0.0.1"
+dependencies = [
+ "borsh 0.10.4",
+ "jito-bytemuck",
+ "jito-jsm-core",
+ "jito-restaking-core",
+ "jito-restaking-program",
+ "jito-restaking-sdk",
+ "jito-tip-router-client",
+ "jito-vault-core",
+ "jito-vault-program",
+ "jito-vault-sdk",
+ "log",
+ "shank",
+ "solana-program",
+ "solana-program-test",
+ "solana-sdk",
+ "solana-security-txt",
+ "spl-associated-token-account",
+ "spl-token",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
+name = "jito-tip-router-program"
+version = "0.0.1"
+dependencies = [
+ "assert_matches",
+ "borsh 0.10.4",
+ "bytemuck",
+ "cfg-if",
+ "const_str_to_pubkey",
+ "jito-bytemuck",
+ "jito-jsm-core",
+ "jito-restaking-core",
+ "jito-restaking-program",
+ "jito-restaking-sdk",
+ "jito-tip-router-core",
+ "jito-vault-core",
+ "jito-vault-sdk",
+ "shank",
+ "solana-program",
+ "solana-security-txt",
+ "spl-associated-token-account",
+ "spl-token",
+ "thiserror",
+]
+
+[[package]]
+name = "jito-tip-router-shank-cli"
+version = "0.0.1"
+dependencies = [
+ "anyhow",
+ "clap 4.5.20",
+ "env_logger 0.10.2",
+ "envfile",
+ "log",
+ "shank",
+ "shank_idl",
 ]
 
 [[package]]

@@ -1,5 +1,5 @@
 [package]
-name = "jito-mev-tip-distribution-ncn-client"
+name = "jito-tip-router-client"
 description = "Jito MEV Tip Distribution NCN Client"
 version = { workspace = true }
 authors = { workspace = true }

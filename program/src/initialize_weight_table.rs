@@ -5,10 +5,8 @@ use jito_jsm_core::{
     create_account,
     loader::{load_signer, load_system_account, load_system_program},
 };
-use jito_mev_tip_distribution_ncn_core::{
-    error::MEVTipDistributionNCNError, weight_table::WeightTable,
-};
 use jito_restaking_core::{config::Config, ncn::Ncn};
+use jito_tip_router_core::{error::TipRouterError, weight_table::WeightTable};
 use solana_program::{
     account_info::AccountInfo, clock::Clock, entrypoint::ProgramResult, msg,
     program_error::ProgramError, pubkey::Pubkey, rent::Rent, sysvar::Sysvar,
@@ -52,22 +50,22 @@ pub fn process_initialize_weight_table(
 
     if ncn_weight_table_admin.ne(weight_table_admin.key) {
         msg!("Vault update delegations ticket is not at the correct PDA");
-        return Err(MEVTipDistributionNCNError::IncorrectWeightTableAdmin.into());
+        return Err(TipRouterError::IncorrectWeightTableAdmin.into());
     }
 
     let current_slot = Clock::get()?.slot;
     let current_ncn_epoch = current_slot
         .checked_div(ncn_epoch_length)
-        .ok_or(MEVTipDistributionNCNError::DenominatorIsZero)?;
+        .ok_or(TipRouterError::DenominatorIsZero)?;
 
     let ncn_epoch_slot = first_slot_of_ncn_epoch.unwrap_or(current_slot);
     let ncn_epoch = ncn_epoch_slot
         .checked_div(ncn_epoch_length)
-        .ok_or(MEVTipDistributionNCNError::DenominatorIsZero)?;
+        .ok_or(TipRouterError::DenominatorIsZero)?;
 
     if ncn_epoch > current_ncn_epoch {
         msg!("Weight tables can only be initialized for current or past epochs");
-        return Err(MEVTipDistributionNCNError::CannotCreateFutureWeightTables.into());
+        return Err(TipRouterError::CannotCreateFutureWeightTables.into());
     }
 
     let (weight_table_pubkey, weight_table_bump, mut weight_table_seeds) =

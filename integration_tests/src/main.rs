@@ -1,5 +1,5 @@
-use jito_mev_tip_distribution_ncn_client::programs::JITO_MEV_TIP_DISTRIBUTION_NCN_ID;
+use jito_tip_router_client::programs::JITO_TIP_ROUTER_ID;
 
 pub fn main() {
-    println!("Hello, world! {:?}", JITO_MEV_TIP_DISTRIBUTION_NCN_ID);
+    println!("Hello, world! {:?}", JITO_TIP_ROUTER_ID);
 }

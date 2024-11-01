@@ -1,9 +1,7 @@
 use jito_bytemuck::{types::PodU64, AccountDeserialize};
 use jito_jsm_core::loader::{load_signer, load_token_mint};
-use jito_mev_tip_distribution_ncn_core::{
-    error::MEVTipDistributionNCNError, weight_table::WeightTable,
-};
 use jito_restaking_core::ncn::Ncn;
+use jito_tip_router_core::{error::TipRouterError, weight_table::WeightTable};
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, msg, program_error::ProgramError,
     pubkey::Pubkey,
@@ -40,7 +38,7 @@ pub fn process_update_weight_table(
 
     if ncn_weight_table_admin.ne(weight_table_admin.key) {
         msg!("Vault update delegations ticket is not at the correct PDA");
-        return Err(MEVTipDistributionNCNError::IncorrectWeightTableAdmin.into());
+        return Err(TipRouterError::IncorrectWeightTableAdmin.into());
     }
 
     let mut weight_table_data = weight_table.try_borrow_mut_data()?;
@@ -51,7 +49,7 @@ pub fn process_update_weight_table(
         PodU64::from(
             weight_numerator
                 .checked_div(weight_denominator)
-                .ok_or(MEVTipDistributionNCNError::DenominatorIsZero)?,
+                .ok_or(TipRouterError::DenominatorIsZero)?,
         ),
     )?;
 

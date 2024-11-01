@@ -8,7 +8,7 @@ use num_derive::FromPrimitive;
 use thiserror::Error;
 
 #[derive(Clone, Debug, Eq, Error, FromPrimitive, PartialEq)]
-pub enum JitoMevTipDistributionNcnError {
+pub enum JitoTipRouterError {
     /// 8192 - No more table slots available
     #[error("No more table slots available")]
     NoMoreTableSlots = 0x2000,
@@ -29,7 +29,7 @@ pub enum JitoMevTipDistributionNcnError {
     CannotCreateFutureWeightTables = 0x2201,
 }
 
-impl solana_program::program_error::PrintProgramError for JitoMevTipDistributionNcnError {
+impl solana_program::program_error::PrintProgramError for JitoTipRouterError {
     fn print<E>(&self) {
         solana_program::msg!(&self.to_string());
     }

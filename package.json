@@ -1,5 +1,5 @@
 {
-  "name": "jito-mev-tip-distribution-ncn",
+  "name": "jito-tip-router",
   "version": "0.0.1",
   "description": "Jito MEV Tip Distribution NCN",
   "dependencies": {

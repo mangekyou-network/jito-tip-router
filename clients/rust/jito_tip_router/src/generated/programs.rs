@@ -6,6 +6,5 @@
 
 use solana_program::{pubkey, pubkey::Pubkey};
 
-/// `jito_mev_tip_distribution_ncn` program ID.
-pub const JITO_MEV_TIP_DISTRIBUTION_NCN_ID: Pubkey =
-    pubkey!("Fv9aHCgvPQSr4jg9W8eTS6Ys1SNmh2qjyATrbsjEMaSH");
+/// `jito_tip_router` program ID.
+pub const JITO_TIP_ROUTER_ID: Pubkey = pubkey!("Fv9aHCgvPQSr4jg9W8eTS6Ys1SNmh2qjyATrbsjEMaSH");

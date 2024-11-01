@@ -12,9 +12,9 @@ const rustClientsDir = path.join(__dirname, "..", "clients", "rust");
 const jsClientsDir = path.join(__dirname, "..", "clients", "js");
 
 // Generate the weight table client in Rust and JavaScript.
-const rustWeightTableClientDir = path.join(rustClientsDir, "jito_mev_tip_distribution_ncn");
-const jsWeightTableClientDir = path.join(jsClientsDir, "jito_mev_tip_distribution_ncn");
-const weightTableRootNode = anchorIdl.rootNodeFromAnchor(require(path.join(idlDir, "jito_mev_tip_distribution_ncn.json")));
+const rustWeightTableClientDir = path.join(rustClientsDir, "jito_tip_router");
+const jsWeightTableClientDir = path.join(jsClientsDir, "jito_tip_router");
+const weightTableRootNode = anchorIdl.rootNodeFromAnchor(require(path.join(idlDir, "jito_tip_router.json")));
 const weightTableKinobi = kinobi.createFromRoot(weightTableRootNode);
 weightTableKinobi.update(kinobi.bottomUpTransformerVisitor([
     {

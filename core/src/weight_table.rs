@@ -3,7 +3,7 @@ use jito_bytemuck::{types::PodU64, AccountDeserialize, Discriminator};
 use shank::{ShankAccount, ShankType};
 use solana_program::{account_info::AccountInfo, msg, program_error::ProgramError, pubkey::Pubkey};
 
-use crate::{discriminators::Discriminators, error::MEVTipDistributionNCNError};
+use crate::{discriminators::Discriminators, error::TipRouterError};
 
 // PDA'd ["WEIGHT_TABLE", NCN, NCN_EPOCH_SLOT]
 #[derive(Debug, Clone, Copy, Zeroable, ShankType, Pod, AccountDeserialize, ShankAccount)]
@@ -86,11 +86,7 @@ impl WeightTable {
             .map(|entry| entry.weight)
     }
 
-    pub fn set_weight(
-        &mut self,
-        mint: &Pubkey,
-        weight: PodU64,
-    ) -> Result<(), MEVTipDistributionNCNError> {
+    pub fn set_weight(&mut self, mint: &Pubkey, weight: PodU64) -> Result<(), TipRouterError> {
         let entry = self
             .table
             .iter_mut()
@@ -104,7 +100,7 @@ impl WeightTable {
                     entry.mint = *mint;
                 }
             }
-            None => return Err(MEVTipDistributionNCNError::NoMoreTableSlots),
+            None => return Err(TipRouterError::NoMoreTableSlots),
         }
 
         Ok(())

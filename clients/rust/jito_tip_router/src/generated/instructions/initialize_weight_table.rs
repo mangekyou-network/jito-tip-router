@@ -7,7 +7,9 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 
 /// Accounts.
-pub struct UpdateWeightTable {
+pub struct InitializeWeightTable {
+    pub restaking_config: solana_program::pubkey::Pubkey,
+
     pub ncn: solana_program::pubkey::Pubkey,
 
     pub weight_table: solana_program::pubkey::Pubkey,
@@ -15,30 +17,36 @@ pub struct UpdateWeightTable {
     pub weight_table_admin: solana_program::pubkey::Pubkey,
 
     pub restaking_program_id: solana_program::pubkey::Pubkey,
+
+    pub system_program: solana_program::pubkey::Pubkey,
 }
 
-impl UpdateWeightTable {
+impl InitializeWeightTable {
     pub fn instruction(
         &self,
-        args: UpdateWeightTableInstructionArgs,
+        args: InitializeWeightTableInstructionArgs,
     ) -> solana_program::instruction::Instruction {
         self.instruction_with_remaining_accounts(args, &[])
     }
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction_with_remaining_accounts(
         &self,
-        args: UpdateWeightTableInstructionArgs,
+        args: InitializeWeightTableInstructionArgs,
         remaining_accounts: &[solana_program::instruction::AccountMeta],
     ) -> solana_program::instruction::Instruction {
-        let mut accounts = Vec::with_capacity(4 + remaining_accounts.len());
+        let mut accounts = Vec::with_capacity(6 + remaining_accounts.len());
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+            self.restaking_config,
+            false,
+        ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.ncn, false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.weight_table,
-            false,
+            true,
         ));
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+        accounts.push(solana_program::instruction::AccountMeta::new(
             self.weight_table_admin,
             true,
         ));
@@ -46,15 +54,19 @@ impl UpdateWeightTable {
             self.restaking_program_id,
             false,
         ));
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+            self.system_program,
+            false,
+        ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = UpdateWeightTableInstructionData::new()
+        let mut data = InitializeWeightTableInstructionData::new()
             .try_to_vec()
             .unwrap();
         let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
         solana_program::instruction::Instruction {
-            program_id: crate::JITO_MEV_TIP_DISTRIBUTION_NCN_ID,
+            program_id: crate::JITO_TIP_ROUTER_ID,
             accounts,
             data,
         }
@@ -62,17 +74,17 @@ impl UpdateWeightTable {
 }
 
 #[derive(BorshDeserialize, BorshSerialize)]
-pub struct UpdateWeightTableInstructionData {
+pub struct InitializeWeightTableInstructionData {
     discriminator: u8,
 }
 
-impl UpdateWeightTableInstructionData {
+impl InitializeWeightTableInstructionData {
     pub fn new() -> Self {
-        Self { discriminator: 1 }
+        Self { discriminator: 0 }
     }
 }
 
-impl Default for UpdateWeightTableInstructionData {
+impl Default for InitializeWeightTableInstructionData {
     fn default() -> Self {
         Self::new()
     }
@@ -80,35 +92,43 @@ impl Default for UpdateWeightTableInstructionData {
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct UpdateWeightTableInstructionArgs {
-    pub ncn_epoch: u64,
-    pub weight_numerator: u64,
-    pub weight_denominator: u64,
+pub struct InitializeWeightTableInstructionArgs {
+    pub first_slot_of_ncn_epoch: Option<u64>,
 }
 
-/// Instruction builder for `UpdateWeightTable`.
+/// Instruction builder for `InitializeWeightTable`.
 ///
 /// ### Accounts:
 ///
-///   0. `[]` ncn
-///   1. `[writable]` weight_table
-///   2. `[signer]` weight_table_admin
-///   3. `[]` restaking_program_id
+///   0. `[]` restaking_config
+///   1. `[]` ncn
+///   2. `[writable, signer]` weight_table
+///   3. `[writable, signer]` weight_table_admin
+///   4. `[]` restaking_program_id
+///   5. `[optional]` system_program (default to `11111111111111111111111111111111`)
 #[derive(Clone, Debug, Default)]
-pub struct UpdateWeightTableBuilder {
+pub struct InitializeWeightTableBuilder {
+    restaking_config: Option<solana_program::pubkey::Pubkey>,
     ncn: Option<solana_program::pubkey::Pubkey>,
     weight_table: Option<solana_program::pubkey::Pubkey>,
     weight_table_admin: Option<solana_program::pubkey::Pubkey>,
     restaking_program_id: Option<solana_program::pubkey::Pubkey>,
-    ncn_epoch: Option<u64>,
-    weight_numerator: Option<u64>,
-    weight_denominator: Option<u64>,
+    system_program: Option<solana_program::pubkey::Pubkey>,
+    first_slot_of_ncn_epoch: Option<u64>,
     __remaining_accounts: Vec<solana_program::instruction::AccountMeta>,
 }
 
-impl UpdateWeightTableBuilder {
+impl InitializeWeightTableBuilder {
     pub fn new() -> Self {
         Self::default()
+    }
+    #[inline(always)]
+    pub fn restaking_config(
+        &mut self,
+        restaking_config: solana_program::pubkey::Pubkey,
+    ) -> &mut Self {
+        self.restaking_config = Some(restaking_config);
+        self
     }
     #[inline(always)]
     pub fn ncn(&mut self, ncn: solana_program::pubkey::Pubkey) -> &mut Self {
@@ -136,19 +156,16 @@ impl UpdateWeightTableBuilder {
         self.restaking_program_id = Some(restaking_program_id);
         self
     }
+    /// `[optional account, default to '11111111111111111111111111111111']`
     #[inline(always)]
-    pub fn ncn_epoch(&mut self, ncn_epoch: u64) -> &mut Self {
-        self.ncn_epoch = Some(ncn_epoch);
+    pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
+        self.system_program = Some(system_program);
         self
     }
+    /// `[optional argument]`
     #[inline(always)]
-    pub fn weight_numerator(&mut self, weight_numerator: u64) -> &mut Self {
-        self.weight_numerator = Some(weight_numerator);
-        self
-    }
-    #[inline(always)]
-    pub fn weight_denominator(&mut self, weight_denominator: u64) -> &mut Self {
-        self.weight_denominator = Some(weight_denominator);
+    pub fn first_slot_of_ncn_epoch(&mut self, first_slot_of_ncn_epoch: u64) -> &mut Self {
+        self.first_slot_of_ncn_epoch = Some(first_slot_of_ncn_epoch);
         self
     }
     /// Add an additional account to the instruction.
@@ -171,7 +188,8 @@ impl UpdateWeightTableBuilder {
     }
     #[allow(clippy::clone_on_copy)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let accounts = UpdateWeightTable {
+        let accounts = InitializeWeightTable {
+            restaking_config: self.restaking_config.expect("restaking_config is not set"),
             ncn: self.ncn.expect("ncn is not set"),
             weight_table: self.weight_table.expect("weight_table is not set"),
             weight_table_admin: self
@@ -180,25 +198,22 @@ impl UpdateWeightTableBuilder {
             restaking_program_id: self
                 .restaking_program_id
                 .expect("restaking_program_id is not set"),
+            system_program: self
+                .system_program
+                .unwrap_or(solana_program::pubkey!("11111111111111111111111111111111")),
         };
-        let args = UpdateWeightTableInstructionArgs {
-            ncn_epoch: self.ncn_epoch.clone().expect("ncn_epoch is not set"),
-            weight_numerator: self
-                .weight_numerator
-                .clone()
-                .expect("weight_numerator is not set"),
-            weight_denominator: self
-                .weight_denominator
-                .clone()
-                .expect("weight_denominator is not set"),
+        let args = InitializeWeightTableInstructionArgs {
+            first_slot_of_ncn_epoch: self.first_slot_of_ncn_epoch.clone(),
         };
 
         accounts.instruction_with_remaining_accounts(args, &self.__remaining_accounts)
     }
 }
 
-/// `update_weight_table` CPI accounts.
-pub struct UpdateWeightTableCpiAccounts<'a, 'b> {
+/// `initialize_weight_table` CPI accounts.
+pub struct InitializeWeightTableCpiAccounts<'a, 'b> {
+    pub restaking_config: &'b solana_program::account_info::AccountInfo<'a>,
+
     pub ncn: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub weight_table: &'b solana_program::account_info::AccountInfo<'a>,
@@ -206,13 +221,17 @@ pub struct UpdateWeightTableCpiAccounts<'a, 'b> {
     pub weight_table_admin: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub restaking_program_id: &'b solana_program::account_info::AccountInfo<'a>,
+
+    pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
-/// `update_weight_table` CPI instruction.
-pub struct UpdateWeightTableCpi<'a, 'b> {
+/// `initialize_weight_table` CPI instruction.
+pub struct InitializeWeightTableCpi<'a, 'b> {
     /// The program to invoke.
     pub __program: &'b solana_program::account_info::AccountInfo<'a>,
 
+    pub restaking_config: &'b solana_program::account_info::AccountInfo<'a>,
+
     pub ncn: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub weight_table: &'b solana_program::account_info::AccountInfo<'a>,
@@ -220,22 +239,26 @@ pub struct UpdateWeightTableCpi<'a, 'b> {
     pub weight_table_admin: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub restaking_program_id: &'b solana_program::account_info::AccountInfo<'a>,
+
+    pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// The arguments for the instruction.
-    pub __args: UpdateWeightTableInstructionArgs,
+    pub __args: InitializeWeightTableInstructionArgs,
 }
 
-impl<'a, 'b> UpdateWeightTableCpi<'a, 'b> {
+impl<'a, 'b> InitializeWeightTableCpi<'a, 'b> {
     pub fn new(
         program: &'b solana_program::account_info::AccountInfo<'a>,
-        accounts: UpdateWeightTableCpiAccounts<'a, 'b>,
-        args: UpdateWeightTableInstructionArgs,
+        accounts: InitializeWeightTableCpiAccounts<'a, 'b>,
+        args: InitializeWeightTableInstructionArgs,
     ) -> Self {
         Self {
             __program: program,
+            restaking_config: accounts.restaking_config,
             ncn: accounts.ncn,
             weight_table: accounts.weight_table,
             weight_table_admin: accounts.weight_table_admin,
             restaking_program_id: accounts.restaking_program_id,
+            system_program: accounts.system_program,
             __args: args,
         }
     }
@@ -272,21 +295,29 @@ impl<'a, 'b> UpdateWeightTableCpi<'a, 'b> {
             bool,
         )],
     ) -> solana_program::entrypoint::ProgramResult {
-        let mut accounts = Vec::with_capacity(4 + remaining_accounts.len());
+        let mut accounts = Vec::with_capacity(6 + remaining_accounts.len());
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+            *self.restaking_config.key,
+            false,
+        ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.ncn.key,
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.weight_table.key,
-            false,
+            true,
         ));
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+        accounts.push(solana_program::instruction::AccountMeta::new(
             *self.weight_table_admin.key,
             true,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.restaking_program_id.key,
+            false,
+        ));
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+            *self.system_program.key,
             false,
         ));
         remaining_accounts.iter().for_each(|remaining_account| {
@@ -296,23 +327,25 @@ impl<'a, 'b> UpdateWeightTableCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = UpdateWeightTableInstructionData::new()
+        let mut data = InitializeWeightTableInstructionData::new()
             .try_to_vec()
             .unwrap();
         let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::JITO_MEV_TIP_DISTRIBUTION_NCN_ID,
+            program_id: crate::JITO_TIP_ROUTER_ID,
             accounts,
             data,
         };
-        let mut account_infos = Vec::with_capacity(4 + 1 + remaining_accounts.len());
+        let mut account_infos = Vec::with_capacity(6 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
+        account_infos.push(self.restaking_config.clone());
         account_infos.push(self.ncn.clone());
         account_infos.push(self.weight_table.clone());
         account_infos.push(self.weight_table_admin.clone());
         account_infos.push(self.restaking_program_id.clone());
+        account_infos.push(self.system_program.clone());
         remaining_accounts
             .iter()
             .for_each(|remaining_account| account_infos.push(remaining_account.0.clone()));
@@ -325,33 +358,43 @@ impl<'a, 'b> UpdateWeightTableCpi<'a, 'b> {
     }
 }
 
-/// Instruction builder for `UpdateWeightTable` via CPI.
+/// Instruction builder for `InitializeWeightTable` via CPI.
 ///
 /// ### Accounts:
 ///
-///   0. `[]` ncn
-///   1. `[writable]` weight_table
-///   2. `[signer]` weight_table_admin
-///   3. `[]` restaking_program_id
+///   0. `[]` restaking_config
+///   1. `[]` ncn
+///   2. `[writable, signer]` weight_table
+///   3. `[writable, signer]` weight_table_admin
+///   4. `[]` restaking_program_id
+///   5. `[]` system_program
 #[derive(Clone, Debug)]
-pub struct UpdateWeightTableCpiBuilder<'a, 'b> {
-    instruction: Box<UpdateWeightTableCpiBuilderInstruction<'a, 'b>>,
+pub struct InitializeWeightTableCpiBuilder<'a, 'b> {
+    instruction: Box<InitializeWeightTableCpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a, 'b> UpdateWeightTableCpiBuilder<'a, 'b> {
+impl<'a, 'b> InitializeWeightTableCpiBuilder<'a, 'b> {
     pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
-        let instruction = Box::new(UpdateWeightTableCpiBuilderInstruction {
+        let instruction = Box::new(InitializeWeightTableCpiBuilderInstruction {
             __program: program,
+            restaking_config: None,
             ncn: None,
             weight_table: None,
             weight_table_admin: None,
             restaking_program_id: None,
-            ncn_epoch: None,
-            weight_numerator: None,
-            weight_denominator: None,
+            system_program: None,
+            first_slot_of_ncn_epoch: None,
             __remaining_accounts: Vec::new(),
         });
         Self { instruction }
+    }
+    #[inline(always)]
+    pub fn restaking_config(
+        &mut self,
+        restaking_config: &'b solana_program::account_info::AccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.restaking_config = Some(restaking_config);
+        self
     }
     #[inline(always)]
     pub fn ncn(&mut self, ncn: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
@@ -383,18 +426,17 @@ impl<'a, 'b> UpdateWeightTableCpiBuilder<'a, 'b> {
         self
     }
     #[inline(always)]
-    pub fn ncn_epoch(&mut self, ncn_epoch: u64) -> &mut Self {
-        self.instruction.ncn_epoch = Some(ncn_epoch);
+    pub fn system_program(
+        &mut self,
+        system_program: &'b solana_program::account_info::AccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.system_program = Some(system_program);
         self
     }
+    /// `[optional argument]`
     #[inline(always)]
-    pub fn weight_numerator(&mut self, weight_numerator: u64) -> &mut Self {
-        self.instruction.weight_numerator = Some(weight_numerator);
-        self
-    }
-    #[inline(always)]
-    pub fn weight_denominator(&mut self, weight_denominator: u64) -> &mut Self {
-        self.instruction.weight_denominator = Some(weight_denominator);
+    pub fn first_slot_of_ncn_epoch(&mut self, first_slot_of_ncn_epoch: u64) -> &mut Self {
+        self.instruction.first_slot_of_ncn_epoch = Some(first_slot_of_ncn_epoch);
         self
     }
     /// Add an additional account to the instruction.
@@ -438,25 +480,16 @@ impl<'a, 'b> UpdateWeightTableCpiBuilder<'a, 'b> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = UpdateWeightTableInstructionArgs {
-            ncn_epoch: self
-                .instruction
-                .ncn_epoch
-                .clone()
-                .expect("ncn_epoch is not set"),
-            weight_numerator: self
-                .instruction
-                .weight_numerator
-                .clone()
-                .expect("weight_numerator is not set"),
-            weight_denominator: self
-                .instruction
-                .weight_denominator
-                .clone()
-                .expect("weight_denominator is not set"),
+        let args = InitializeWeightTableInstructionArgs {
+            first_slot_of_ncn_epoch: self.instruction.first_slot_of_ncn_epoch.clone(),
         };
-        let instruction = UpdateWeightTableCpi {
+        let instruction = InitializeWeightTableCpi {
             __program: self.instruction.__program,
+
+            restaking_config: self
+                .instruction
+                .restaking_config
+                .expect("restaking_config is not set"),
 
             ncn: self.instruction.ncn.expect("ncn is not set"),
 
@@ -474,6 +507,11 @@ impl<'a, 'b> UpdateWeightTableCpiBuilder<'a, 'b> {
                 .instruction
                 .restaking_program_id
                 .expect("restaking_program_id is not set"),
+
+            system_program: self
+                .instruction
+                .system_program
+                .expect("system_program is not set"),
             __args: args,
         };
         instruction.invoke_signed_with_remaining_accounts(
@@ -484,15 +522,15 @@ impl<'a, 'b> UpdateWeightTableCpiBuilder<'a, 'b> {
 }
 
 #[derive(Clone, Debug)]
-struct UpdateWeightTableCpiBuilderInstruction<'a, 'b> {
+struct InitializeWeightTableCpiBuilderInstruction<'a, 'b> {
     __program: &'b solana_program::account_info::AccountInfo<'a>,
+    restaking_config: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ncn: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     weight_table: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     weight_table_admin: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     restaking_program_id: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    ncn_epoch: Option<u64>,
-    weight_numerator: Option<u64>,
-    weight_denominator: Option<u64>,
+    system_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    first_slot_of_ncn_epoch: Option<u64>,
     /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
     __remaining_accounts: Vec<(
         &'b solana_program::account_info::AccountInfo<'a>,

@@ -1,5 +1,5 @@
 [package]
-name = "jito-mev-tip-distribution-ncn-integration-tests"
+name = "jito-tip-router-integration-tests"
 description = "Jito's MEV Tip Distribution NCN Tests"
 version = { workspace = true }
 authors = { workspace = true }
@@ -30,6 +30,6 @@ thiserror = { workspace = true }
 tokio = { workspace = true }
 
 [dependencies]
-jito-mev-tip-distribution-ncn-client = { workspace = true }
+jito-tip-router-client = { workspace = true }
 log = "0.4.21"
 

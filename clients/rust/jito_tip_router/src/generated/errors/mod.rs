@@ -4,6 +4,6 @@
 //!
 //! <https://github.com/kinobi-so/kinobi>
 
-pub(crate) mod jito_mev_tip_distribution_ncn;
+pub(crate) mod jito_tip_router;
 
-pub use self::jito_mev_tip_distribution_ncn::JitoMevTipDistributionNcnError;
+pub use self::jito_tip_router::JitoTipRouterError;

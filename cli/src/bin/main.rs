@@ -1,5 +1,5 @@
 use clap::Parser;
-use jito_mev_tip_distribution_ncn_cli::cli_args::Args;
+use jito_tip_router_cli::cli_args::Args;
 
 fn main() {
     let args = Args::parse();

@@ -1,5 +1,5 @@
 [package]
-name = "jito-mev-tip-distribution-ncn-shank-cli"
+name = "jito-tip-router-shank-cli"
 description = "Jito MEV Tip Distribution Shank CLI"
 version = { workspace = true }
 authors = { workspace = true }
