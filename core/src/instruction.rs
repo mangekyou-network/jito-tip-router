@@ -23,8 +23,7 @@ pub enum WeightTableInstruction {
     #[account(3, name = "restaking_program_id")]
     UpdateWeightTable{
         ncn_epoch: u64,
-        weight_numerator: u64,
-        weight_denominator: u64,
+        weight: u128,
     },
 
     #[account(0, name = "ncn")]
@@ -33,6 +32,8 @@ pub enum WeightTableInstruction {
     #[account(3, name = "restaking_program_id")]
     FinalizeWeightTable{
         ncn_epoch: u64,
+        mint_hash: u64,
+        mint_count: u8,
     },
 
 }

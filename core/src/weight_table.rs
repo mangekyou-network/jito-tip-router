@@ -3,7 +3,7 @@ use jito_bytemuck::{types::PodU64, AccountDeserialize, Discriminator};
 use shank::{ShankAccount, ShankType};
 use solana_program::{account_info::AccountInfo, msg, program_error::ProgramError, pubkey::Pubkey};
 
-use crate::{discriminators::Discriminators, error::TipRouterError};
+use crate::{discriminators::Discriminators, error::TipRouterError, jito_number::JitoNumber};
 
 // PDA'd ["WEIGHT_TABLE", NCN, NCN_EPOCH_SLOT]
 #[derive(Debug, Clone, Copy, Zeroable, ShankType, Pod, AccountDeserialize, ShankAccount)]
@@ -11,10 +11,10 @@ use crate::{discriminators::Discriminators, error::TipRouterError};
 pub struct WeightTable {
     /// The NCN on-chain program is the signer to create and update this account,
     /// this pushes the responsibility of managing the account to the NCN program.
-    pub ncn: Pubkey,
+    ncn: Pubkey,
 
     /// The NCN epoch for which the weight table is valid
-    pub ncn_epoch: PodU64,
+    ncn_epoch: PodU64,
 
     /// Slot weight table was created
     slot_created: PodU64,
@@ -23,13 +23,13 @@ pub struct WeightTable {
     slot_finalized: PodU64,
 
     /// Bump seed for the PDA
-    pub bump: u8,
+    bump: u8,
 
     /// Reserved space
     reserved: [u8; 128],
 
     /// The weight table
-    pub table: [WeightEntry; 32],
+    table: [WeightEntry; 32],
 }
 
 impl Discriminator for WeightTable {
@@ -75,35 +75,79 @@ impl WeightTable {
         (pda, bump, seeds)
     }
 
+    pub fn get_mints(&self) -> Vec<Pubkey> {
+        self.table
+            .iter()
+            .filter(|entry| !entry.is_empty())
+            .map(|entry| entry.mint)
+            .collect()
+    }
+
+    pub fn get_mint_hash(mints: Vec<Pubkey>) -> u64 {
+        let mut hash = 0;
+
+        // Makes sure the hash is the same regardless of the order of the mints
+        let mut sorted_mints = mints;
+        sorted_mints.sort();
+
+        for mint in sorted_mints {
+            let bytes = mint.to_bytes();
+            let u64_slice = u64::from_le_bytes(bytes[0..8].try_into().unwrap());
+
+            hash ^= u64_slice;
+        }
+
+        hash
+    }
+
+    pub fn check_mints_okay(&self, mint_hash: u64, mint_count: u8) -> Result<(), TipRouterError> {
+        if mint_count != self.entry_count() as u8 {
+            return Err(TipRouterError::WeightMintsDoNotMatchLength);
+        }
+
+        let table_mint_hash = Self::get_mint_hash(self.get_mints());
+        if mint_hash != table_mint_hash {
+            return Err(TipRouterError::WeightMintsDoNotMatchMintHash);
+        }
+
+        Ok(())
+    }
+
     pub fn entry_count(&self) -> usize {
         self.table.iter().filter(|entry| !entry.is_empty()).count()
     }
 
-    pub fn find_weight(&self, mint: &Pubkey) -> Option<PodU64> {
+    pub fn find_weight(&self, mint: &Pubkey) -> Option<JitoNumber> {
         self.table
             .iter()
             .find(|entry| entry.mint == *mint)
             .map(|entry| entry.weight)
     }
 
-    pub fn set_weight(&mut self, mint: &Pubkey, weight: PodU64) -> Result<(), TipRouterError> {
-        let entry = self
-            .table
-            .iter_mut()
-            .find(|entry| entry.mint == *mint || entry.is_empty());
-
-        match entry {
-            Some(entry) => {
-                entry.weight = weight;
-
-                if entry.mint == Pubkey::default() {
-                    entry.mint = *mint;
-                }
-            }
-            None => return Err(TipRouterError::NoMoreTableSlots),
+    pub fn set_weight(&mut self, mint: &Pubkey, weight: JitoNumber) -> Result<(), TipRouterError> {
+        // First, try to find an existing entry with the given mint
+        if let Some(entry) = self.table.iter_mut().find(|entry| entry.mint == *mint) {
+            entry.weight = weight;
+            return Ok(());
         }
 
-        Ok(())
+        // If no existing entry found, look for the first empty slot
+        if let Some(entry) = self.table.iter_mut().find(|entry| entry.is_empty()) {
+            entry.mint = *mint;
+            entry.weight = weight;
+            return Ok(());
+        }
+
+        // If no existing entry and no empty slots, return error
+        Err(TipRouterError::NoMoreTableSlots)
+    }
+
+    pub const fn ncn(&self) -> Pubkey {
+        self.ncn
+    }
+
+    pub fn ncn_epoch(&self) -> u64 {
+        self.ncn_epoch.into()
     }
 
     pub fn slot_created(&self) -> u64 {
@@ -134,7 +178,7 @@ impl WeightTable {
             return Err(ProgramError::InvalidAccountOwner);
         }
         if weight_table.data_is_empty() {
-            msg!("Weight table is empty");
+            msg!("Weight table account is empty");
             return Err(ProgramError::InvalidAccountData);
         }
         if expect_writable && !weight_table.is_writable {
@@ -158,18 +202,16 @@ impl WeightTable {
 #[repr(C)]
 pub struct WeightEntry {
     pub mint: Pubkey,
-    pub weight: PodU64, //TODO Change
-                        // pub weight: Weight,
+    pub weight: JitoNumber,
 }
 
 impl WeightEntry {
-    pub const fn new(mint: Pubkey, weight: PodU64) -> Self {
+    pub const fn new(mint: Pubkey, weight: JitoNumber) -> Self {
         Self { weight, mint }
     }
 
     pub fn is_empty(&self) -> bool {
-        self.weight.eq(&PodU64::from(0))
-        // self.weight.denominator() == 0 || self.mint.eq(&Pubkey::default())
+        self.mint.eq(&Pubkey::default())
     }
 }
 

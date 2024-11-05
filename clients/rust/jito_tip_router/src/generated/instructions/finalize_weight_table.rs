@@ -82,6 +82,8 @@ impl Default for FinalizeWeightTableInstructionData {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FinalizeWeightTableInstructionArgs {
     pub ncn_epoch: u64,
+    pub mint_hash: u64,
+    pub mint_count: u8,
 }
 
 /// Instruction builder for `FinalizeWeightTable`.
@@ -99,6 +101,8 @@ pub struct FinalizeWeightTableBuilder {
     weight_table_admin: Option<solana_program::pubkey::Pubkey>,
     restaking_program_id: Option<solana_program::pubkey::Pubkey>,
     ncn_epoch: Option<u64>,
+    mint_hash: Option<u64>,
+    mint_count: Option<u8>,
     __remaining_accounts: Vec<solana_program::instruction::AccountMeta>,
 }
 
@@ -137,6 +141,16 @@ impl FinalizeWeightTableBuilder {
         self.ncn_epoch = Some(ncn_epoch);
         self
     }
+    #[inline(always)]
+    pub fn mint_hash(&mut self, mint_hash: u64) -> &mut Self {
+        self.mint_hash = Some(mint_hash);
+        self
+    }
+    #[inline(always)]
+    pub fn mint_count(&mut self, mint_count: u8) -> &mut Self {
+        self.mint_count = Some(mint_count);
+        self
+    }
     /// Add an additional account to the instruction.
     #[inline(always)]
     pub fn add_remaining_account(
@@ -169,6 +183,8 @@ impl FinalizeWeightTableBuilder {
         };
         let args = FinalizeWeightTableInstructionArgs {
             ncn_epoch: self.ncn_epoch.clone().expect("ncn_epoch is not set"),
+            mint_hash: self.mint_hash.clone().expect("mint_hash is not set"),
+            mint_count: self.mint_count.clone().expect("mint_count is not set"),
         };
 
         accounts.instruction_with_remaining_accounts(args, &self.__remaining_accounts)
@@ -325,6 +341,8 @@ impl<'a, 'b> FinalizeWeightTableCpiBuilder<'a, 'b> {
             weight_table_admin: None,
             restaking_program_id: None,
             ncn_epoch: None,
+            mint_hash: None,
+            mint_count: None,
             __remaining_accounts: Vec::new(),
         });
         Self { instruction }
@@ -361,6 +379,16 @@ impl<'a, 'b> FinalizeWeightTableCpiBuilder<'a, 'b> {
     #[inline(always)]
     pub fn ncn_epoch(&mut self, ncn_epoch: u64) -> &mut Self {
         self.instruction.ncn_epoch = Some(ncn_epoch);
+        self
+    }
+    #[inline(always)]
+    pub fn mint_hash(&mut self, mint_hash: u64) -> &mut Self {
+        self.instruction.mint_hash = Some(mint_hash);
+        self
+    }
+    #[inline(always)]
+    pub fn mint_count(&mut self, mint_count: u8) -> &mut Self {
+        self.instruction.mint_count = Some(mint_count);
         self
     }
     /// Add an additional account to the instruction.
@@ -410,6 +438,16 @@ impl<'a, 'b> FinalizeWeightTableCpiBuilder<'a, 'b> {
                 .ncn_epoch
                 .clone()
                 .expect("ncn_epoch is not set"),
+            mint_hash: self
+                .instruction
+                .mint_hash
+                .clone()
+                .expect("mint_hash is not set"),
+            mint_count: self
+                .instruction
+                .mint_count
+                .clone()
+                .expect("mint_count is not set"),
         };
         let instruction = FinalizeWeightTableCpi {
             __program: self.instruction.__program,
@@ -447,6 +485,8 @@ struct FinalizeWeightTableCpiBuilderInstruction<'a, 'b> {
     weight_table_admin: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     restaking_program_id: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ncn_epoch: Option<u64>,
+    mint_hash: Option<u64>,
+    mint_count: Option<u8>,
     /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
     __remaining_accounts: Vec<(
         &'b solana_program::account_info::AccountInfo<'a>,

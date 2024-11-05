@@ -21,12 +21,24 @@ pub enum JitoTipRouterError {
     /// 8450 - Modulo Overflow
     #[error("Modulo Overflow")]
     ModuloOverflow = 0x2102,
+    /// 8451 - New precise number error
+    #[error("New precise number error")]
+    NewPreciseNumberError = 0x2103,
+    /// 8452 - Cast to imprecise number error
+    #[error("Cast to imprecise number error")]
+    CastToImpreciseNumberError = 0x2104,
     /// 8704 - Incorrect weight table admin
     #[error("Incorrect weight table admin")]
     IncorrectWeightTableAdmin = 0x2200,
     /// 8705 - Cannnot create future weight tables
     #[error("Cannnot create future weight tables")]
     CannotCreateFutureWeightTables = 0x2201,
+    /// 8706 - Weight mints do not match - length
+    #[error("Weight mints do not match - length")]
+    WeightMintsDoNotMatchLength = 0x2202,
+    /// 8707 - Weight mints do not match - mint hash
+    #[error("Weight mints do not match - mint hash")]
+    WeightMintsDoNotMatchMintHash = 0x2203,
 }
 
 impl solana_program::program_error::PrintProgramError for JitoTipRouterError {

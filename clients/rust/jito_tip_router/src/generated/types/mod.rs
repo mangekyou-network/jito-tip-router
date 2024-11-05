@@ -4,6 +4,7 @@
 //!
 //! <https://github.com/kinobi-so/kinobi>
 
+pub(crate) mod r#jito_number;
 pub(crate) mod r#weight_entry;
 
-pub use self::r#weight_entry::*;
+pub use self::{r#jito_number::*, r#weight_entry::*};

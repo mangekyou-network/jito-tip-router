@@ -59,26 +59,20 @@ pub fn process_instruction(
         // ------------------------------------------
         // Update
         // ------------------------------------------
-        WeightTableInstruction::UpdateWeightTable {
-            ncn_epoch,
-            weight_numerator,
-            weight_denominator,
-        } => {
+        WeightTableInstruction::UpdateWeightTable { ncn_epoch, weight } => {
             msg!("Instruction: UpdateWeightTable");
-            process_update_weight_table(
-                program_id,
-                accounts,
-                ncn_epoch,
-                weight_numerator,
-                weight_denominator,
-            )
+            process_update_weight_table(program_id, accounts, ncn_epoch, weight)
         }
         // ------------------------------------------
         // Finalization
         // ------------------------------------------
-        WeightTableInstruction::FinalizeWeightTable { ncn_epoch } => {
+        WeightTableInstruction::FinalizeWeightTable {
+            ncn_epoch,
+            mint_hash,
+            mint_count,
+        } => {
             msg!("Instruction: FinalizeWeightTable");
-            process_finalize_weight_table(program_id, accounts, ncn_epoch)
+            process_finalize_weight_table(program_id, accounts, ncn_epoch, mint_hash, mint_count)
         }
     }
 }

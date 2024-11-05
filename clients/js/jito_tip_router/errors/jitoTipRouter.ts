@@ -22,28 +22,44 @@ export const JITO_TIP_ROUTER_ERROR__DENOMINATOR_IS_ZERO = 0x2100; // 8448
 export const JITO_TIP_ROUTER_ERROR__ARITHMETIC_OVERFLOW = 0x2101; // 8449
 /** ModuloOverflow: Modulo Overflow */
 export const JITO_TIP_ROUTER_ERROR__MODULO_OVERFLOW = 0x2102; // 8450
+/** NewPreciseNumberError: New precise number error */
+export const JITO_TIP_ROUTER_ERROR__NEW_PRECISE_NUMBER_ERROR = 0x2103; // 8451
+/** CastToImpreciseNumberError: Cast to imprecise number error */
+export const JITO_TIP_ROUTER_ERROR__CAST_TO_IMPRECISE_NUMBER_ERROR = 0x2104; // 8452
 /** IncorrectWeightTableAdmin: Incorrect weight table admin */
 export const JITO_TIP_ROUTER_ERROR__INCORRECT_WEIGHT_TABLE_ADMIN = 0x2200; // 8704
 /** CannotCreateFutureWeightTables: Cannnot create future weight tables */
 export const JITO_TIP_ROUTER_ERROR__CANNOT_CREATE_FUTURE_WEIGHT_TABLES = 0x2201; // 8705
+/** WeightMintsDoNotMatchLength: Weight mints do not match - length */
+export const JITO_TIP_ROUTER_ERROR__WEIGHT_MINTS_DO_NOT_MATCH_LENGTH = 0x2202; // 8706
+/** WeightMintsDoNotMatchMintHash: Weight mints do not match - mint hash */
+export const JITO_TIP_ROUTER_ERROR__WEIGHT_MINTS_DO_NOT_MATCH_MINT_HASH = 0x2203; // 8707
 
 export type JitoTipRouterError =
   | typeof JITO_TIP_ROUTER_ERROR__ARITHMETIC_OVERFLOW
   | typeof JITO_TIP_ROUTER_ERROR__CANNOT_CREATE_FUTURE_WEIGHT_TABLES
+  | typeof JITO_TIP_ROUTER_ERROR__CAST_TO_IMPRECISE_NUMBER_ERROR
   | typeof JITO_TIP_ROUTER_ERROR__DENOMINATOR_IS_ZERO
   | typeof JITO_TIP_ROUTER_ERROR__INCORRECT_WEIGHT_TABLE_ADMIN
   | typeof JITO_TIP_ROUTER_ERROR__MODULO_OVERFLOW
-  | typeof JITO_TIP_ROUTER_ERROR__NO_MORE_TABLE_SLOTS;
+  | typeof JITO_TIP_ROUTER_ERROR__NEW_PRECISE_NUMBER_ERROR
+  | typeof JITO_TIP_ROUTER_ERROR__NO_MORE_TABLE_SLOTS
+  | typeof JITO_TIP_ROUTER_ERROR__WEIGHT_MINTS_DO_NOT_MATCH_LENGTH
+  | typeof JITO_TIP_ROUTER_ERROR__WEIGHT_MINTS_DO_NOT_MATCH_MINT_HASH;
 
 let jitoTipRouterErrorMessages: Record<JitoTipRouterError, string> | undefined;
 if (process.env.NODE_ENV !== 'production') {
   jitoTipRouterErrorMessages = {
     [JITO_TIP_ROUTER_ERROR__ARITHMETIC_OVERFLOW]: `Overflow`,
     [JITO_TIP_ROUTER_ERROR__CANNOT_CREATE_FUTURE_WEIGHT_TABLES]: `Cannnot create future weight tables`,
+    [JITO_TIP_ROUTER_ERROR__CAST_TO_IMPRECISE_NUMBER_ERROR]: `Cast to imprecise number error`,
     [JITO_TIP_ROUTER_ERROR__DENOMINATOR_IS_ZERO]: `Zero in the denominator`,
     [JITO_TIP_ROUTER_ERROR__INCORRECT_WEIGHT_TABLE_ADMIN]: `Incorrect weight table admin`,
     [JITO_TIP_ROUTER_ERROR__MODULO_OVERFLOW]: `Modulo Overflow`,
+    [JITO_TIP_ROUTER_ERROR__NEW_PRECISE_NUMBER_ERROR]: `New precise number error`,
     [JITO_TIP_ROUTER_ERROR__NO_MORE_TABLE_SLOTS]: `No more table slots available`,
+    [JITO_TIP_ROUTER_ERROR__WEIGHT_MINTS_DO_NOT_MATCH_LENGTH]: `Weight mints do not match - length`,
+    [JITO_TIP_ROUTER_ERROR__WEIGHT_MINTS_DO_NOT_MATCH_MINT_HASH]: `Weight mints do not match - mint hash`,
   };
 }
 

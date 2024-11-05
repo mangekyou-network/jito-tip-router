@@ -79,12 +79,8 @@
           "type": "u64"
         },
         {
-          "name": "weightNumerator",
-          "type": "u64"
-        },
-        {
-          "name": "weightDenominator",
-          "type": "u64"
+          "name": "weight",
+          "type": "u128"
         }
       ],
       "discriminant": {
@@ -120,6 +116,14 @@
         {
           "name": "ncnEpoch",
           "type": "u64"
+        },
+        {
+          "name": "mintHash",
+          "type": "u64"
+        },
+        {
+          "name": "mintCount",
+          "type": "u8"
         }
       ],
       "discriminant": {
@@ -186,6 +190,23 @@
   ],
   "types": [
     {
+      "name": "JitoNumber",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "value",
+            "type": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "WeightEntry",
       "type": {
         "kind": "struct",
@@ -197,7 +218,7 @@
           {
             "name": "weight",
             "type": {
-              "defined": "PodU64"
+              "defined": "JitoNumber"
             }
           }
         ]
@@ -226,6 +247,16 @@
       "msg": "Modulo Overflow"
     },
     {
+      "code": 8451,
+      "name": "NewPreciseNumberError",
+      "msg": "New precise number error"
+    },
+    {
+      "code": 8452,
+      "name": "CastToImpreciseNumberError",
+      "msg": "Cast to imprecise number error"
+    },
+    {
       "code": 8704,
       "name": "IncorrectWeightTableAdmin",
       "msg": "Incorrect weight table admin"
@@ -234,6 +265,16 @@
       "code": 8705,
       "name": "CannotCreateFutureWeightTables",
       "msg": "Cannnot create future weight tables"
+    },
+    {
+      "code": 8706,
+      "name": "WeightMintsDoNotMatchLength",
+      "msg": "Weight mints do not match - length"
+    },
+    {
+      "code": 8707,
+      "name": "WeightMintsDoNotMatchMintHash",
+      "msg": "Weight mints do not match - mint hash"
     }
   ],
   "metadata": {

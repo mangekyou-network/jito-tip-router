@@ -12,29 +12,33 @@ import {
   getAddressEncoder,
   getStructDecoder,
   getStructEncoder,
-  getU64Decoder,
-  getU64Encoder,
   type Address,
   type Codec,
   type Decoder,
   type Encoder,
 } from '@solana/web3.js';
+import {
+  getJitoNumberDecoder,
+  getJitoNumberEncoder,
+  type JitoNumber,
+  type JitoNumberArgs,
+} from '.';
 
-export type WeightEntry = { mint: Address; weight: bigint };
+export type WeightEntry = { mint: Address; weight: JitoNumber };
 
-export type WeightEntryArgs = { mint: Address; weight: number | bigint };
+export type WeightEntryArgs = { mint: Address; weight: JitoNumberArgs };
 
 export function getWeightEntryEncoder(): Encoder<WeightEntryArgs> {
   return getStructEncoder([
     ['mint', getAddressEncoder()],
-    ['weight', getU64Encoder()],
+    ['weight', getJitoNumberEncoder()],
   ]);
 }
 
 export function getWeightEntryDecoder(): Decoder<WeightEntry> {
   return getStructDecoder([
     ['mint', getAddressDecoder()],
-    ['weight', getU64Decoder()],
+    ['weight', getJitoNumberDecoder()],
   ]);
 }
 

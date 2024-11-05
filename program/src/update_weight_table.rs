@@ -1,7 +1,9 @@
-use jito_bytemuck::{types::PodU64, AccountDeserialize};
+use jito_bytemuck::AccountDeserialize;
 use jito_jsm_core::loader::{load_signer, load_token_mint};
 use jito_restaking_core::ncn::Ncn;
-use jito_tip_router_core::{error::TipRouterError, weight_table::WeightTable};
+use jito_tip_router_core::{
+    error::TipRouterError, jito_number::JitoNumber, weight_table::WeightTable,
+};
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, msg, program_error::ProgramError,
     pubkey::Pubkey,
@@ -12,8 +14,7 @@ pub fn process_update_weight_table(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
     ncn_epoch: u64,
-    weight_numerator: u64,
-    weight_denominator: u64,
+    weight: u128,
 ) -> ProgramResult {
     let [ncn, weight_table, weight_table_admin, mint, restaking_program_id] = accounts else {
         return Err(ProgramError::NotEnoughAccountKeys);
@@ -44,14 +45,7 @@ pub fn process_update_weight_table(
     let mut weight_table_data = weight_table.try_borrow_mut_data()?;
     let weight_table_account = WeightTable::try_from_slice_unchecked_mut(&mut weight_table_data)?;
 
-    weight_table_account.set_weight(
-        mint.key,
-        PodU64::from(
-            weight_numerator
-                .checked_div(weight_denominator)
-                .ok_or(TipRouterError::DenominatorIsZero)?,
-        ),
-    )?;
+    weight_table_account.set_weight(mint.key, JitoNumber::from_weight(weight))?;
 
     Ok(())
 }

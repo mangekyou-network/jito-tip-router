@@ -12,6 +12,8 @@ pub fn process_finalize_weight_table(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
     ncn_epoch: u64,
+    mint_hash: u64,
+    mint_count: u8,
 ) -> ProgramResult {
     let [ncn, weight_table, weight_table_admin, restaking_program_id] = accounts else {
         return Err(ProgramError::NotEnoughAccountKeys);
@@ -19,10 +21,9 @@ pub fn process_finalize_weight_table(
 
     Ncn::load(restaking_program_id.key, ncn, false)?;
     let ncn_weight_table_admin = {
-        //TODO switch to weight table admin when that is merged
         let ncn_data = ncn.data.borrow();
         let ncn = Ncn::try_from_slice_unchecked(&ncn_data)?;
-        ncn.admin
+        ncn.weight_table_admin
     };
 
     load_signer(weight_table_admin, true)?;
@@ -40,6 +41,8 @@ pub fn process_finalize_weight_table(
 
     let mut weight_table_data = weight_table.try_borrow_mut_data()?;
     let weight_table_account = WeightTable::try_from_slice_unchecked_mut(&mut weight_table_data)?;
+
+    weight_table_account.check_mints_okay(mint_hash, mint_count)?;
 
     let current_slot = Clock::get()?.slot;
     weight_table_account.finalize(current_slot);

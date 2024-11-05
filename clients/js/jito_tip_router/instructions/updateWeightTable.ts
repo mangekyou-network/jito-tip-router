@@ -10,6 +10,8 @@ import {
   combineCodec,
   getStructDecoder,
   getStructEncoder,
+  getU128Decoder,
+  getU128Encoder,
   getU64Decoder,
   getU64Encoder,
   getU8Decoder,
@@ -67,14 +69,12 @@ export type UpdateWeightTableInstruction<
 export type UpdateWeightTableInstructionData = {
   discriminator: number;
   ncnEpoch: bigint;
-  weightNumerator: bigint;
-  weightDenominator: bigint;
+  weight: bigint;
 };
 
 export type UpdateWeightTableInstructionDataArgs = {
   ncnEpoch: number | bigint;
-  weightNumerator: number | bigint;
-  weightDenominator: number | bigint;
+  weight: number | bigint;
 };
 
 export function getUpdateWeightTableInstructionDataEncoder(): Encoder<UpdateWeightTableInstructionDataArgs> {
@@ -82,8 +82,7 @@ export function getUpdateWeightTableInstructionDataEncoder(): Encoder<UpdateWeig
     getStructEncoder([
       ['discriminator', getU8Encoder()],
       ['ncnEpoch', getU64Encoder()],
-      ['weightNumerator', getU64Encoder()],
-      ['weightDenominator', getU64Encoder()],
+      ['weight', getU128Encoder()],
     ]),
     (value) => ({ ...value, discriminator: UPDATE_WEIGHT_TABLE_DISCRIMINATOR })
   );
@@ -93,8 +92,7 @@ export function getUpdateWeightTableInstructionDataDecoder(): Decoder<UpdateWeig
   return getStructDecoder([
     ['discriminator', getU8Decoder()],
     ['ncnEpoch', getU64Decoder()],
-    ['weightNumerator', getU64Decoder()],
-    ['weightDenominator', getU64Decoder()],
+    ['weight', getU128Decoder()],
   ]);
 }
 
@@ -119,8 +117,7 @@ export type UpdateWeightTableInput<
   weightTableAdmin: TransactionSigner<TAccountWeightTableAdmin>;
   restakingProgramId: Address<TAccountRestakingProgramId>;
   ncnEpoch: UpdateWeightTableInstructionDataArgs['ncnEpoch'];
-  weightNumerator: UpdateWeightTableInstructionDataArgs['weightNumerator'];
-  weightDenominator: UpdateWeightTableInstructionDataArgs['weightDenominator'];
+  weight: UpdateWeightTableInstructionDataArgs['weight'];
 };
 
 export function getUpdateWeightTableInstruction<

@@ -67,10 +67,14 @@ export type FinalizeWeightTableInstruction<
 export type FinalizeWeightTableInstructionData = {
   discriminator: number;
   ncnEpoch: bigint;
+  mintHash: bigint;
+  mintCount: number;
 };
 
 export type FinalizeWeightTableInstructionDataArgs = {
   ncnEpoch: number | bigint;
+  mintHash: number | bigint;
+  mintCount: number;
 };
 
 export function getFinalizeWeightTableInstructionDataEncoder(): Encoder<FinalizeWeightTableInstructionDataArgs> {
@@ -78,6 +82,8 @@ export function getFinalizeWeightTableInstructionDataEncoder(): Encoder<Finalize
     getStructEncoder([
       ['discriminator', getU8Encoder()],
       ['ncnEpoch', getU64Encoder()],
+      ['mintHash', getU64Encoder()],
+      ['mintCount', getU8Encoder()],
     ]),
     (value) => ({
       ...value,
@@ -90,6 +96,8 @@ export function getFinalizeWeightTableInstructionDataDecoder(): Decoder<Finalize
   return getStructDecoder([
     ['discriminator', getU8Decoder()],
     ['ncnEpoch', getU64Decoder()],
+    ['mintHash', getU64Decoder()],
+    ['mintCount', getU8Decoder()],
   ]);
 }
 
@@ -114,6 +122,8 @@ export type FinalizeWeightTableInput<
   weightTableAdmin: TransactionSigner<TAccountWeightTableAdmin>;
   restakingProgramId: Address<TAccountRestakingProgramId>;
   ncnEpoch: FinalizeWeightTableInstructionDataArgs['ncnEpoch'];
+  mintHash: FinalizeWeightTableInstructionDataArgs['mintHash'];
+  mintCount: FinalizeWeightTableInstructionDataArgs['mintCount'];
 };
 
 export function getFinalizeWeightTableInstruction<

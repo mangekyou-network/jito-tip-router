@@ -82,8 +82,7 @@ impl Default for UpdateWeightTableInstructionData {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct UpdateWeightTableInstructionArgs {
     pub ncn_epoch: u64,
-    pub weight_numerator: u64,
-    pub weight_denominator: u64,
+    pub weight: u128,
 }
 
 /// Instruction builder for `UpdateWeightTable`.
@@ -101,8 +100,7 @@ pub struct UpdateWeightTableBuilder {
     weight_table_admin: Option<solana_program::pubkey::Pubkey>,
     restaking_program_id: Option<solana_program::pubkey::Pubkey>,
     ncn_epoch: Option<u64>,
-    weight_numerator: Option<u64>,
-    weight_denominator: Option<u64>,
+    weight: Option<u128>,
     __remaining_accounts: Vec<solana_program::instruction::AccountMeta>,
 }
 
@@ -142,13 +140,8 @@ impl UpdateWeightTableBuilder {
         self
     }
     #[inline(always)]
-    pub fn weight_numerator(&mut self, weight_numerator: u64) -> &mut Self {
-        self.weight_numerator = Some(weight_numerator);
-        self
-    }
-    #[inline(always)]
-    pub fn weight_denominator(&mut self, weight_denominator: u64) -> &mut Self {
-        self.weight_denominator = Some(weight_denominator);
+    pub fn weight(&mut self, weight: u128) -> &mut Self {
+        self.weight = Some(weight);
         self
     }
     /// Add an additional account to the instruction.
@@ -183,14 +176,7 @@ impl UpdateWeightTableBuilder {
         };
         let args = UpdateWeightTableInstructionArgs {
             ncn_epoch: self.ncn_epoch.clone().expect("ncn_epoch is not set"),
-            weight_numerator: self
-                .weight_numerator
-                .clone()
-                .expect("weight_numerator is not set"),
-            weight_denominator: self
-                .weight_denominator
-                .clone()
-                .expect("weight_denominator is not set"),
+            weight: self.weight.clone().expect("weight is not set"),
         };
 
         accounts.instruction_with_remaining_accounts(args, &self.__remaining_accounts)
@@ -347,8 +333,7 @@ impl<'a, 'b> UpdateWeightTableCpiBuilder<'a, 'b> {
             weight_table_admin: None,
             restaking_program_id: None,
             ncn_epoch: None,
-            weight_numerator: None,
-            weight_denominator: None,
+            weight: None,
             __remaining_accounts: Vec::new(),
         });
         Self { instruction }
@@ -388,13 +373,8 @@ impl<'a, 'b> UpdateWeightTableCpiBuilder<'a, 'b> {
         self
     }
     #[inline(always)]
-    pub fn weight_numerator(&mut self, weight_numerator: u64) -> &mut Self {
-        self.instruction.weight_numerator = Some(weight_numerator);
-        self
-    }
-    #[inline(always)]
-    pub fn weight_denominator(&mut self, weight_denominator: u64) -> &mut Self {
-        self.instruction.weight_denominator = Some(weight_denominator);
+    pub fn weight(&mut self, weight: u128) -> &mut Self {
+        self.instruction.weight = Some(weight);
         self
     }
     /// Add an additional account to the instruction.
@@ -444,16 +424,7 @@ impl<'a, 'b> UpdateWeightTableCpiBuilder<'a, 'b> {
                 .ncn_epoch
                 .clone()
                 .expect("ncn_epoch is not set"),
-            weight_numerator: self
-                .instruction
-                .weight_numerator
-                .clone()
-                .expect("weight_numerator is not set"),
-            weight_denominator: self
-                .instruction
-                .weight_denominator
-                .clone()
-                .expect("weight_denominator is not set"),
+            weight: self.instruction.weight.clone().expect("weight is not set"),
         };
         let instruction = UpdateWeightTableCpi {
             __program: self.instruction.__program,
@@ -491,8 +462,7 @@ struct UpdateWeightTableCpiBuilderInstruction<'a, 'b> {
     weight_table_admin: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     restaking_program_id: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ncn_epoch: Option<u64>,
-    weight_numerator: Option<u64>,
-    weight_denominator: Option<u64>,
+    weight: Option<u128>,
     /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
     __remaining_accounts: Vec<(
         &'b solana_program::account_info::AccountInfo<'a>,
