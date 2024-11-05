@@ -1,18 +1,3 @@
-// How will this differ from the other clients? will i need the other clients just to function?
-// Preference using the generated clients here instead of writing SDK
-
-// Future testing schemes:
-// - Create lots of vaults (need )
-// - Create lots of operators
-//   - Operators are gonna be voting
-// - register them all (or not)
-//   - Lots of ticket creating instructions
-// - make sure they all get the right fees
-//
-
-// Tip router setups
-// - Run the instrucitons
-
 use jito_bytemuck::AccountDeserialize;
 use jito_tip_router_client::instructions::{InitializeConfigBuilder, SetConfigFeesBuilder};
 use jito_tip_router_core::{error::TipRouterError, ncn_config::NcnConfig};
