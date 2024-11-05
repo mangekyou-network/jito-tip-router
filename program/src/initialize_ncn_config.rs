@@ -4,7 +4,7 @@ use jito_jsm_core::{
     loader::{load_signer, load_system_account, load_system_program},
 };
 use jito_restaking_core::ncn::Ncn;
-use jito_tip_router_core::ncn_config::NcnConfig;
+use jito_tip_router_core::{error::TipRouterError, ncn_config::NcnConfig};
 use solana_program::{
     account_info::AccountInfo, clock::Clock, entrypoint::ProgramResult,
     program_error::ProgramError, pubkey::Pubkey, rent::Rent, sysvar::Sysvar,
@@ -34,6 +34,16 @@ pub fn process_initialize_ncn_config(
 
     if config_pda != *config.key {
         return Err(ProgramError::InvalidSeeds);
+    }
+
+    if dao_fee_bps > 10_000 {
+        return Err(TipRouterError::FeeCapExceeded.into());
+    }
+    if ncn_fee_bps > 10_000 {
+        return Err(TipRouterError::FeeCapExceeded.into());
+    }
+    if block_engine_fee_bps > 10_000 {
+        return Err(TipRouterError::FeeCapExceeded.into());
     }
 
     create_account(

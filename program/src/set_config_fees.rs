@@ -1,7 +1,7 @@
 use jito_bytemuck::{AccountDeserialize, Discriminator};
-use jito_jsm_core::loader::{load_signer, load_system_account};
+use jito_jsm_core::loader::load_signer;
 use jito_restaking_core::ncn::Ncn;
-use jito_tip_router_core::ncn_config::NcnConfig;
+use jito_tip_router_core::{error::TipRouterError, ncn_config::NcnConfig};
 use solana_program::{
     account_info::AccountInfo, clock::Clock, entrypoint::ProgramResult,
     program_error::ProgramError, pubkey::Pubkey, sysvar::Sysvar,
@@ -19,7 +19,6 @@ pub fn process_set_config_fees(
         return Err(ProgramError::NotEnoughAccountKeys);
     };
 
-    load_system_account(config, true)?;
     load_signer(ncn_admin, true)?;
 
     NcnConfig::load(program_id, config, true)?;
@@ -33,13 +32,13 @@ pub fn process_set_config_fees(
 
     // Verify NCN and Admin
     if config.ncn != *ncn_account.key {
-        return Err(ProgramError::InvalidArgument);
+        return Err(TipRouterError::IncorrectNcn.into());
     }
 
     let ncn_data = ncn_account.data.borrow();
     let ncn = Ncn::try_from_slice_unchecked(&ncn_data)?;
     if ncn.admin != *ncn_admin.key {
-        return Err(ProgramError::InvalidArgument);
+        return Err(TipRouterError::IncorrectNcnAdmin.into());
     }
 
     let epoch = Clock::get()?.epoch;

@@ -30,6 +30,12 @@ pub enum JitoTipRouterError {
     /// 8960 - Fee cap exceeded
     #[error("Fee cap exceeded")]
     FeeCapExceeded = 0x2300,
+    /// 9216 - Incorrect NCN Admin
+    #[error("Incorrect NCN Admin")]
+    IncorrectNcnAdmin = 0x2400,
+    /// 9217 - Incorrect NCN
+    #[error("Incorrect NCN")]
+    IncorrectNcn = 0x2401,
 }
 
 impl solana_program::program_error::PrintProgramError for JitoTipRouterError {

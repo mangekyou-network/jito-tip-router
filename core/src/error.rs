@@ -18,6 +18,10 @@ pub enum TipRouterError {
     CannotCreateFutureWeightTables = 0x2201,
     #[error("Fee cap exceeded")]
     FeeCapExceeded = 0x2300,
+    #[error("Incorrect NCN Admin")]
+    IncorrectNcnAdmin = 0x2400,
+    #[error("Incorrect NCN")]
+    IncorrectNcn = 0x2401,
 }
 
 impl<T> DecodeError<T> for TipRouterError {

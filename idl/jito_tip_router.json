@@ -435,6 +435,16 @@
       "code": 8960,
       "name": "FeeCapExceeded",
       "msg": "Fee cap exceeded"
+    },
+    {
+      "code": 9216,
+      "name": "IncorrectNcnAdmin",
+      "msg": "Incorrect NCN Admin"
+    },
+    {
+      "code": 9217,
+      "name": "IncorrectNcn",
+      "msg": "Incorrect NCN"
     }
   ],
   "metadata": {

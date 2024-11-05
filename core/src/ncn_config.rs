@@ -123,7 +123,7 @@ pub struct Fees {
 }
 
 impl Fees {
-    pub fn new(
+    pub const fn new(
         wallet: Pubkey,
         dao_fee_share_bps: u64,
         ncn_fee_share_bps: u64,
@@ -160,21 +160,39 @@ impl Fees {
         }
     }
 
-    pub fn block_engine_fee(&self, current_epoch: u64) -> u64 {
+    pub const fn block_engine_fee(&self, current_epoch: u64) -> u64 {
         self.current_fee(current_epoch).block_engine_fee_bps
     }
 
-    pub fn dao_fee(&self, current_epoch: u64) -> u64 {
-        // TODO adjust based on block engine fee
-        self.current_fee(current_epoch).dao_share_bps
+    /// Calculate fee as a portion of remaining BPS after block engine fee
+    /// new_fee = dao_fee_bps / ((10000 - block_engine_fee_bps) / 10000)
+    /// = dao_fee_bps * 10000 / (10000 - block_engine_fee_bps)
+    pub fn dao_fee(&self, current_epoch: u64) -> Result<u64, TipRouterError> {
+        let fee = self.current_fee(current_epoch);
+        let remaining_bps = MAX_FEE_BPS
+            .checked_sub(fee.block_engine_fee_bps)
+            .ok_or(TipRouterError::ArithmeticOverflow)?;
+        fee.dao_share_bps
+            .checked_mul(MAX_FEE_BPS)
+            .and_then(|x| x.checked_div(remaining_bps))
+            .ok_or(TipRouterError::ArithmeticOverflow)
     }
 
-    pub fn ncn_fee(&self, current_epoch: u64) -> u64 {
-        // TODO adjust based on block engine fee
-        self.current_fee(current_epoch).ncn_share_bps
+    /// Calculate fee as a portion of remaining BPS after block engine fee
+    /// new_fee = ncn_fee_bps / ((10000 - block_engine_fee_bps) / 10000)
+    /// = ncn_fee_bps * 10000 / (10000 - block_engine_fee_bps)
+    pub fn ncn_fee(&self, current_epoch: u64) -> Result<u64, TipRouterError> {
+        let fee = self.current_fee(current_epoch);
+        let remaining_bps = MAX_FEE_BPS
+            .checked_sub(fee.block_engine_fee_bps)
+            .ok_or(TipRouterError::ArithmeticOverflow)?;
+        fee.ncn_share_bps
+            .checked_mul(MAX_FEE_BPS)
+            .and_then(|x| x.checked_div(remaining_bps))
+            .ok_or(TipRouterError::ArithmeticOverflow)
     }
 
-    pub fn fee_wallet(&self, current_epoch: u64) -> Pubkey {
+    pub const fn fee_wallet(&self, current_epoch: u64) -> Pubkey {
         self.current_fee(current_epoch).wallet
     }
 
