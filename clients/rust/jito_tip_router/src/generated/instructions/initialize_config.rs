@@ -7,48 +7,53 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 
 /// Accounts.
-pub struct InitializeWeightTable {
-    pub restaking_config: solana_program::pubkey::Pubkey,
+pub struct InitializeConfig {
+    pub config: solana_program::pubkey::Pubkey,
 
     pub ncn: solana_program::pubkey::Pubkey,
 
-    pub weight_table: solana_program::pubkey::Pubkey,
+    pub fee_wallet: solana_program::pubkey::Pubkey,
 
-    pub weight_table_admin: solana_program::pubkey::Pubkey,
+    pub tie_breaker_admin: solana_program::pubkey::Pubkey,
+
+    pub payer: solana_program::pubkey::Pubkey,
 
     pub restaking_program_id: solana_program::pubkey::Pubkey,
 
     pub system_program: solana_program::pubkey::Pubkey,
 }
 
-impl InitializeWeightTable {
+impl InitializeConfig {
     pub fn instruction(
         &self,
-        args: InitializeWeightTableInstructionArgs,
+        args: InitializeConfigInstructionArgs,
     ) -> solana_program::instruction::Instruction {
         self.instruction_with_remaining_accounts(args, &[])
     }
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction_with_remaining_accounts(
         &self,
-        args: InitializeWeightTableInstructionArgs,
+        args: InitializeConfigInstructionArgs,
         remaining_accounts: &[solana_program::instruction::AccountMeta],
     ) -> solana_program::instruction::Instruction {
-        let mut accounts = Vec::with_capacity(6 + remaining_accounts.len());
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            self.restaking_config,
+        let mut accounts = Vec::with_capacity(7 + remaining_accounts.len());
+        accounts.push(solana_program::instruction::AccountMeta::new(
+            self.config,
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.ncn, false,
         ));
-        accounts.push(solana_program::instruction::AccountMeta::new(
-            self.weight_table,
-            true,
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+            self.fee_wallet,
+            false,
+        ));
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+            self.tie_breaker_admin,
+            false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new(
-            self.weight_table_admin,
-            true,
+            self.payer, false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.restaking_program_id,
@@ -59,9 +64,7 @@ impl InitializeWeightTable {
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = InitializeWeightTableInstructionData::new()
-            .try_to_vec()
-            .unwrap();
+        let mut data = InitializeConfigInstructionData::new().try_to_vec().unwrap();
         let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
@@ -74,17 +77,17 @@ impl InitializeWeightTable {
 }
 
 #[derive(BorshDeserialize, BorshSerialize)]
-pub struct InitializeWeightTableInstructionData {
+pub struct InitializeConfigInstructionData {
     discriminator: u8,
 }
 
-impl InitializeWeightTableInstructionData {
+impl InitializeConfigInstructionData {
     pub fn new() -> Self {
-        Self { discriminator: 1 }
+        Self { discriminator: 0 }
     }
 }
 
-impl Default for InitializeWeightTableInstructionData {
+impl Default for InitializeConfigInstructionData {
     fn default() -> Self {
         Self::new()
     }
@@ -92,42 +95,45 @@ impl Default for InitializeWeightTableInstructionData {
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct InitializeWeightTableInstructionArgs {
-    pub first_slot_of_ncn_epoch: Option<u64>,
+pub struct InitializeConfigInstructionArgs {
+    pub dao_fee_bps: u64,
+    pub ncn_fee_bps: u64,
+    pub block_engine_fee_bps: u64,
 }
 
-/// Instruction builder for `InitializeWeightTable`.
+/// Instruction builder for `InitializeConfig`.
 ///
 /// ### Accounts:
 ///
-///   0. `[]` restaking_config
+///   0. `[writable]` config
 ///   1. `[]` ncn
-///   2. `[writable, signer]` weight_table
-///   3. `[writable, signer]` weight_table_admin
-///   4. `[]` restaking_program_id
-///   5. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   2. `[]` fee_wallet
+///   3. `[]` tie_breaker_admin
+///   4. `[writable]` payer
+///   5. `[]` restaking_program_id
+///   6. `[optional]` system_program (default to `11111111111111111111111111111111`)
 #[derive(Clone, Debug, Default)]
-pub struct InitializeWeightTableBuilder {
-    restaking_config: Option<solana_program::pubkey::Pubkey>,
+pub struct InitializeConfigBuilder {
+    config: Option<solana_program::pubkey::Pubkey>,
     ncn: Option<solana_program::pubkey::Pubkey>,
-    weight_table: Option<solana_program::pubkey::Pubkey>,
-    weight_table_admin: Option<solana_program::pubkey::Pubkey>,
+    fee_wallet: Option<solana_program::pubkey::Pubkey>,
+    tie_breaker_admin: Option<solana_program::pubkey::Pubkey>,
+    payer: Option<solana_program::pubkey::Pubkey>,
     restaking_program_id: Option<solana_program::pubkey::Pubkey>,
     system_program: Option<solana_program::pubkey::Pubkey>,
-    first_slot_of_ncn_epoch: Option<u64>,
+    dao_fee_bps: Option<u64>,
+    ncn_fee_bps: Option<u64>,
+    block_engine_fee_bps: Option<u64>,
     __remaining_accounts: Vec<solana_program::instruction::AccountMeta>,
 }
 
-impl InitializeWeightTableBuilder {
+impl InitializeConfigBuilder {
     pub fn new() -> Self {
         Self::default()
     }
     #[inline(always)]
-    pub fn restaking_config(
-        &mut self,
-        restaking_config: solana_program::pubkey::Pubkey,
-    ) -> &mut Self {
-        self.restaking_config = Some(restaking_config);
+    pub fn config(&mut self, config: solana_program::pubkey::Pubkey) -> &mut Self {
+        self.config = Some(config);
         self
     }
     #[inline(always)]
@@ -136,16 +142,21 @@ impl InitializeWeightTableBuilder {
         self
     }
     #[inline(always)]
-    pub fn weight_table(&mut self, weight_table: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.weight_table = Some(weight_table);
+    pub fn fee_wallet(&mut self, fee_wallet: solana_program::pubkey::Pubkey) -> &mut Self {
+        self.fee_wallet = Some(fee_wallet);
         self
     }
     #[inline(always)]
-    pub fn weight_table_admin(
+    pub fn tie_breaker_admin(
         &mut self,
-        weight_table_admin: solana_program::pubkey::Pubkey,
+        tie_breaker_admin: solana_program::pubkey::Pubkey,
     ) -> &mut Self {
-        self.weight_table_admin = Some(weight_table_admin);
+        self.tie_breaker_admin = Some(tie_breaker_admin);
+        self
+    }
+    #[inline(always)]
+    pub fn payer(&mut self, payer: solana_program::pubkey::Pubkey) -> &mut Self {
+        self.payer = Some(payer);
         self
     }
     #[inline(always)]
@@ -162,10 +173,19 @@ impl InitializeWeightTableBuilder {
         self.system_program = Some(system_program);
         self
     }
-    /// `[optional argument]`
     #[inline(always)]
-    pub fn first_slot_of_ncn_epoch(&mut self, first_slot_of_ncn_epoch: u64) -> &mut Self {
-        self.first_slot_of_ncn_epoch = Some(first_slot_of_ncn_epoch);
+    pub fn dao_fee_bps(&mut self, dao_fee_bps: u64) -> &mut Self {
+        self.dao_fee_bps = Some(dao_fee_bps);
+        self
+    }
+    #[inline(always)]
+    pub fn ncn_fee_bps(&mut self, ncn_fee_bps: u64) -> &mut Self {
+        self.ncn_fee_bps = Some(ncn_fee_bps);
+        self
+    }
+    #[inline(always)]
+    pub fn block_engine_fee_bps(&mut self, block_engine_fee_bps: u64) -> &mut Self {
+        self.block_engine_fee_bps = Some(block_engine_fee_bps);
         self
     }
     /// Add an additional account to the instruction.
@@ -188,13 +208,14 @@ impl InitializeWeightTableBuilder {
     }
     #[allow(clippy::clone_on_copy)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let accounts = InitializeWeightTable {
-            restaking_config: self.restaking_config.expect("restaking_config is not set"),
+        let accounts = InitializeConfig {
+            config: self.config.expect("config is not set"),
             ncn: self.ncn.expect("ncn is not set"),
-            weight_table: self.weight_table.expect("weight_table is not set"),
-            weight_table_admin: self
-                .weight_table_admin
-                .expect("weight_table_admin is not set"),
+            fee_wallet: self.fee_wallet.expect("fee_wallet is not set"),
+            tie_breaker_admin: self
+                .tie_breaker_admin
+                .expect("tie_breaker_admin is not set"),
+            payer: self.payer.expect("payer is not set"),
             restaking_program_id: self
                 .restaking_program_id
                 .expect("restaking_program_id is not set"),
@@ -202,61 +223,71 @@ impl InitializeWeightTableBuilder {
                 .system_program
                 .unwrap_or(solana_program::pubkey!("11111111111111111111111111111111")),
         };
-        let args = InitializeWeightTableInstructionArgs {
-            first_slot_of_ncn_epoch: self.first_slot_of_ncn_epoch.clone(),
+        let args = InitializeConfigInstructionArgs {
+            dao_fee_bps: self.dao_fee_bps.clone().expect("dao_fee_bps is not set"),
+            ncn_fee_bps: self.ncn_fee_bps.clone().expect("ncn_fee_bps is not set"),
+            block_engine_fee_bps: self
+                .block_engine_fee_bps
+                .clone()
+                .expect("block_engine_fee_bps is not set"),
         };
 
         accounts.instruction_with_remaining_accounts(args, &self.__remaining_accounts)
     }
 }
 
-/// `initialize_weight_table` CPI accounts.
-pub struct InitializeWeightTableCpiAccounts<'a, 'b> {
-    pub restaking_config: &'b solana_program::account_info::AccountInfo<'a>,
+/// `initialize_config` CPI accounts.
+pub struct InitializeConfigCpiAccounts<'a, 'b> {
+    pub config: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub ncn: &'b solana_program::account_info::AccountInfo<'a>,
 
-    pub weight_table: &'b solana_program::account_info::AccountInfo<'a>,
+    pub fee_wallet: &'b solana_program::account_info::AccountInfo<'a>,
 
-    pub weight_table_admin: &'b solana_program::account_info::AccountInfo<'a>,
+    pub tie_breaker_admin: &'b solana_program::account_info::AccountInfo<'a>,
+
+    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub restaking_program_id: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
-/// `initialize_weight_table` CPI instruction.
-pub struct InitializeWeightTableCpi<'a, 'b> {
+/// `initialize_config` CPI instruction.
+pub struct InitializeConfigCpi<'a, 'b> {
     /// The program to invoke.
     pub __program: &'b solana_program::account_info::AccountInfo<'a>,
 
-    pub restaking_config: &'b solana_program::account_info::AccountInfo<'a>,
+    pub config: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub ncn: &'b solana_program::account_info::AccountInfo<'a>,
 
-    pub weight_table: &'b solana_program::account_info::AccountInfo<'a>,
+    pub fee_wallet: &'b solana_program::account_info::AccountInfo<'a>,
 
-    pub weight_table_admin: &'b solana_program::account_info::AccountInfo<'a>,
+    pub tie_breaker_admin: &'b solana_program::account_info::AccountInfo<'a>,
+
+    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub restaking_program_id: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// The arguments for the instruction.
-    pub __args: InitializeWeightTableInstructionArgs,
+    pub __args: InitializeConfigInstructionArgs,
 }
 
-impl<'a, 'b> InitializeWeightTableCpi<'a, 'b> {
+impl<'a, 'b> InitializeConfigCpi<'a, 'b> {
     pub fn new(
         program: &'b solana_program::account_info::AccountInfo<'a>,
-        accounts: InitializeWeightTableCpiAccounts<'a, 'b>,
-        args: InitializeWeightTableInstructionArgs,
+        accounts: InitializeConfigCpiAccounts<'a, 'b>,
+        args: InitializeConfigInstructionArgs,
     ) -> Self {
         Self {
             __program: program,
-            restaking_config: accounts.restaking_config,
+            config: accounts.config,
             ncn: accounts.ncn,
-            weight_table: accounts.weight_table,
-            weight_table_admin: accounts.weight_table_admin,
+            fee_wallet: accounts.fee_wallet,
+            tie_breaker_admin: accounts.tie_breaker_admin,
+            payer: accounts.payer,
             restaking_program_id: accounts.restaking_program_id,
             system_program: accounts.system_program,
             __args: args,
@@ -295,22 +326,26 @@ impl<'a, 'b> InitializeWeightTableCpi<'a, 'b> {
             bool,
         )],
     ) -> solana_program::entrypoint::ProgramResult {
-        let mut accounts = Vec::with_capacity(6 + remaining_accounts.len());
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            *self.restaking_config.key,
+        let mut accounts = Vec::with_capacity(7 + remaining_accounts.len());
+        accounts.push(solana_program::instruction::AccountMeta::new(
+            *self.config.key,
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.ncn.key,
             false,
         ));
-        accounts.push(solana_program::instruction::AccountMeta::new(
-            *self.weight_table.key,
-            true,
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+            *self.fee_wallet.key,
+            false,
+        ));
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+            *self.tie_breaker_admin.key,
+            false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new(
-            *self.weight_table_admin.key,
-            true,
+            *self.payer.key,
+            false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.restaking_program_id.key,
@@ -327,9 +362,7 @@ impl<'a, 'b> InitializeWeightTableCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = InitializeWeightTableInstructionData::new()
-            .try_to_vec()
-            .unwrap();
+        let mut data = InitializeConfigInstructionData::new().try_to_vec().unwrap();
         let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
@@ -338,12 +371,13 @@ impl<'a, 'b> InitializeWeightTableCpi<'a, 'b> {
             accounts,
             data,
         };
-        let mut account_infos = Vec::with_capacity(6 + 1 + remaining_accounts.len());
+        let mut account_infos = Vec::with_capacity(7 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
-        account_infos.push(self.restaking_config.clone());
+        account_infos.push(self.config.clone());
         account_infos.push(self.ncn.clone());
-        account_infos.push(self.weight_table.clone());
-        account_infos.push(self.weight_table_admin.clone());
+        account_infos.push(self.fee_wallet.clone());
+        account_infos.push(self.tie_breaker_admin.clone());
+        account_infos.push(self.payer.clone());
         account_infos.push(self.restaking_program_id.clone());
         account_infos.push(self.system_program.clone());
         remaining_accounts
@@ -358,42 +392,46 @@ impl<'a, 'b> InitializeWeightTableCpi<'a, 'b> {
     }
 }
 
-/// Instruction builder for `InitializeWeightTable` via CPI.
+/// Instruction builder for `InitializeConfig` via CPI.
 ///
 /// ### Accounts:
 ///
-///   0. `[]` restaking_config
+///   0. `[writable]` config
 ///   1. `[]` ncn
-///   2. `[writable, signer]` weight_table
-///   3. `[writable, signer]` weight_table_admin
-///   4. `[]` restaking_program_id
-///   5. `[]` system_program
+///   2. `[]` fee_wallet
+///   3. `[]` tie_breaker_admin
+///   4. `[writable]` payer
+///   5. `[]` restaking_program_id
+///   6. `[]` system_program
 #[derive(Clone, Debug)]
-pub struct InitializeWeightTableCpiBuilder<'a, 'b> {
-    instruction: Box<InitializeWeightTableCpiBuilderInstruction<'a, 'b>>,
+pub struct InitializeConfigCpiBuilder<'a, 'b> {
+    instruction: Box<InitializeConfigCpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a, 'b> InitializeWeightTableCpiBuilder<'a, 'b> {
+impl<'a, 'b> InitializeConfigCpiBuilder<'a, 'b> {
     pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
-        let instruction = Box::new(InitializeWeightTableCpiBuilderInstruction {
+        let instruction = Box::new(InitializeConfigCpiBuilderInstruction {
             __program: program,
-            restaking_config: None,
+            config: None,
             ncn: None,
-            weight_table: None,
-            weight_table_admin: None,
+            fee_wallet: None,
+            tie_breaker_admin: None,
+            payer: None,
             restaking_program_id: None,
             system_program: None,
-            first_slot_of_ncn_epoch: None,
+            dao_fee_bps: None,
+            ncn_fee_bps: None,
+            block_engine_fee_bps: None,
             __remaining_accounts: Vec::new(),
         });
         Self { instruction }
     }
     #[inline(always)]
-    pub fn restaking_config(
+    pub fn config(
         &mut self,
-        restaking_config: &'b solana_program::account_info::AccountInfo<'a>,
+        config: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
-        self.instruction.restaking_config = Some(restaking_config);
+        self.instruction.config = Some(config);
         self
     }
     #[inline(always)]
@@ -402,19 +440,24 @@ impl<'a, 'b> InitializeWeightTableCpiBuilder<'a, 'b> {
         self
     }
     #[inline(always)]
-    pub fn weight_table(
+    pub fn fee_wallet(
         &mut self,
-        weight_table: &'b solana_program::account_info::AccountInfo<'a>,
+        fee_wallet: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
-        self.instruction.weight_table = Some(weight_table);
+        self.instruction.fee_wallet = Some(fee_wallet);
         self
     }
     #[inline(always)]
-    pub fn weight_table_admin(
+    pub fn tie_breaker_admin(
         &mut self,
-        weight_table_admin: &'b solana_program::account_info::AccountInfo<'a>,
+        tie_breaker_admin: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
-        self.instruction.weight_table_admin = Some(weight_table_admin);
+        self.instruction.tie_breaker_admin = Some(tie_breaker_admin);
+        self
+    }
+    #[inline(always)]
+    pub fn payer(&mut self, payer: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
+        self.instruction.payer = Some(payer);
         self
     }
     #[inline(always)]
@@ -433,10 +476,19 @@ impl<'a, 'b> InitializeWeightTableCpiBuilder<'a, 'b> {
         self.instruction.system_program = Some(system_program);
         self
     }
-    /// `[optional argument]`
     #[inline(always)]
-    pub fn first_slot_of_ncn_epoch(&mut self, first_slot_of_ncn_epoch: u64) -> &mut Self {
-        self.instruction.first_slot_of_ncn_epoch = Some(first_slot_of_ncn_epoch);
+    pub fn dao_fee_bps(&mut self, dao_fee_bps: u64) -> &mut Self {
+        self.instruction.dao_fee_bps = Some(dao_fee_bps);
+        self
+    }
+    #[inline(always)]
+    pub fn ncn_fee_bps(&mut self, ncn_fee_bps: u64) -> &mut Self {
+        self.instruction.ncn_fee_bps = Some(ncn_fee_bps);
+        self
+    }
+    #[inline(always)]
+    pub fn block_engine_fee_bps(&mut self, block_engine_fee_bps: u64) -> &mut Self {
+        self.instruction.block_engine_fee_bps = Some(block_engine_fee_bps);
         self
     }
     /// Add an additional account to the instruction.
@@ -480,28 +532,38 @@ impl<'a, 'b> InitializeWeightTableCpiBuilder<'a, 'b> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = InitializeWeightTableInstructionArgs {
-            first_slot_of_ncn_epoch: self.instruction.first_slot_of_ncn_epoch.clone(),
+        let args = InitializeConfigInstructionArgs {
+            dao_fee_bps: self
+                .instruction
+                .dao_fee_bps
+                .clone()
+                .expect("dao_fee_bps is not set"),
+            ncn_fee_bps: self
+                .instruction
+                .ncn_fee_bps
+                .clone()
+                .expect("ncn_fee_bps is not set"),
+            block_engine_fee_bps: self
+                .instruction
+                .block_engine_fee_bps
+                .clone()
+                .expect("block_engine_fee_bps is not set"),
         };
-        let instruction = InitializeWeightTableCpi {
+        let instruction = InitializeConfigCpi {
             __program: self.instruction.__program,
 
-            restaking_config: self
-                .instruction
-                .restaking_config
-                .expect("restaking_config is not set"),
+            config: self.instruction.config.expect("config is not set"),
 
             ncn: self.instruction.ncn.expect("ncn is not set"),
 
-            weight_table: self
-                .instruction
-                .weight_table
-                .expect("weight_table is not set"),
+            fee_wallet: self.instruction.fee_wallet.expect("fee_wallet is not set"),
 
-            weight_table_admin: self
+            tie_breaker_admin: self
                 .instruction
-                .weight_table_admin
-                .expect("weight_table_admin is not set"),
+                .tie_breaker_admin
+                .expect("tie_breaker_admin is not set"),
+
+            payer: self.instruction.payer.expect("payer is not set"),
 
             restaking_program_id: self
                 .instruction
@@ -522,15 +584,18 @@ impl<'a, 'b> InitializeWeightTableCpiBuilder<'a, 'b> {
 }
 
 #[derive(Clone, Debug)]
-struct InitializeWeightTableCpiBuilderInstruction<'a, 'b> {
+struct InitializeConfigCpiBuilderInstruction<'a, 'b> {
     __program: &'b solana_program::account_info::AccountInfo<'a>,
-    restaking_config: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    config: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ncn: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    weight_table: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    weight_table_admin: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    fee_wallet: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    tie_breaker_admin: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    payer: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     restaking_program_id: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     system_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    first_slot_of_ncn_epoch: Option<u64>,
+    dao_fee_bps: Option<u64>,
+    ncn_fee_bps: Option<u64>,
+    block_engine_fee_bps: Option<u64>,
     /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
     __remaining_accounts: Vec<(
         &'b solana_program::account_info::AccountInfo<'a>,

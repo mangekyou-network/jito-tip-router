@@ -16,6 +16,8 @@ pub enum TipRouterError {
     IncorrectWeightTableAdmin = 0x2200,
     #[error("Cannnot create future weight tables")]
     CannotCreateFutureWeightTables = 0x2201,
+    #[error("Fee cap exceeded")]
+    FeeCapExceeded = 0x2300,
 }
 
 impl<T> DecodeError<T> for TipRouterError {

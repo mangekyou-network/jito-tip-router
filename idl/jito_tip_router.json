@@ -3,6 +3,64 @@
   "name": "jito_tip_router",
   "instructions": [
     {
+      "name": "InitializeConfig",
+      "accounts": [
+        {
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "ncn",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "feeWallet",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tieBreakerAdmin",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "restakingProgramId",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "daoFeeBps",
+          "type": "u64"
+        },
+        {
+          "name": "ncnFeeBps",
+          "type": "u64"
+        },
+        {
+          "name": "blockEngineFeeBps",
+          "type": "u64"
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 0
+      }
+    },
+    {
       "name": "InitializeWeightTable",
       "accounts": [
         {
@@ -46,7 +104,7 @@
       ],
       "discriminant": {
         "type": "u8",
-        "value": 0
+        "value": 1
       }
     },
     {
@@ -89,7 +147,7 @@
       ],
       "discriminant": {
         "type": "u8",
-        "value": 1
+        "value": 2
       }
     },
     {
@@ -124,11 +182,101 @@
       ],
       "discriminant": {
         "type": "u8",
-        "value": 2
+        "value": 3
+      }
+    },
+    {
+      "name": "SetConfigFees",
+      "accounts": [
+        {
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "ncn",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "ncnAdmin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "restakingProgramId",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "newDaoFeeBps",
+          "type": {
+            "option": "u64"
+          }
+        },
+        {
+          "name": "newNcnFeeBps",
+          "type": {
+            "option": "u64"
+          }
+        },
+        {
+          "name": "newBlockEngineFeeBps",
+          "type": {
+            "option": "u64"
+          }
+        },
+        {
+          "name": "newFeeWallet",
+          "type": {
+            "option": "publicKey"
+          }
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 4
       }
     }
   ],
   "accounts": [
+    {
+      "name": "NcnConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "ncn",
+            "type": "publicKey"
+          },
+          {
+            "name": "tieBreakerAdmin",
+            "type": "publicKey"
+          },
+          {
+            "name": "fees",
+            "type": {
+              "defined": "Fees"
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "reserved",
+            "type": {
+              "array": [
+                "u8",
+                127
+              ]
+            }
+          }
+        ]
+      }
+    },
     {
       "name": "WeightTable",
       "type": {
@@ -186,6 +334,54 @@
   ],
   "types": [
     {
+      "name": "Fees",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "fee1",
+            "type": {
+              "defined": "Fee"
+            }
+          },
+          {
+            "name": "fee2",
+            "type": {
+              "defined": "Fee"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Fee",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "publicKey"
+          },
+          {
+            "name": "daoShareBps",
+            "type": "u64"
+          },
+          {
+            "name": "ncnShareBps",
+            "type": "u64"
+          },
+          {
+            "name": "blockEngineFeeBps",
+            "type": "u64"
+          },
+          {
+            "name": "activationEpoch",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
       "name": "WeightEntry",
       "type": {
         "kind": "struct",
@@ -234,6 +430,11 @@
       "code": 8705,
       "name": "CannotCreateFutureWeightTables",
       "msg": "Cannnot create future weight tables"
+    },
+    {
+      "code": 8960,
+      "name": "FeeCapExceeded",
+      "msg": "Fee cap exceeded"
     }
   ],
   "metadata": {

@@ -6,4 +6,5 @@
  * @see https://github.com/kinobi-so/kinobi
  */
 
+export * from './ncnConfig';
 export * from './weightTable';

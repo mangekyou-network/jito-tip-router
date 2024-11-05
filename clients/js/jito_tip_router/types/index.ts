@@ -6,4 +6,6 @@
  * @see https://github.com/kinobi-so/kinobi
  */
 
+export * from './fee';
+export * from './fees';
 export * from './weightEntry';

@@ -27,6 +27,9 @@ pub enum JitoTipRouterError {
     /// 8705 - Cannnot create future weight tables
     #[error("Cannnot create future weight tables")]
     CannotCreateFutureWeightTables = 0x2201,
+    /// 8960 - Fee cap exceeded
+    #[error("Fee cap exceeded")]
+    FeeCapExceeded = 0x2300,
 }
 
 impl solana_program::program_error::PrintProgramError for JitoTipRouterError {

@@ -26,11 +26,14 @@ export const JITO_TIP_ROUTER_ERROR__MODULO_OVERFLOW = 0x2102; // 8450
 export const JITO_TIP_ROUTER_ERROR__INCORRECT_WEIGHT_TABLE_ADMIN = 0x2200; // 8704
 /** CannotCreateFutureWeightTables: Cannnot create future weight tables */
 export const JITO_TIP_ROUTER_ERROR__CANNOT_CREATE_FUTURE_WEIGHT_TABLES = 0x2201; // 8705
+/** FeeCapExceeded: Fee cap exceeded */
+export const JITO_TIP_ROUTER_ERROR__FEE_CAP_EXCEEDED = 0x2300; // 8960
 
 export type JitoTipRouterError =
   | typeof JITO_TIP_ROUTER_ERROR__ARITHMETIC_OVERFLOW
   | typeof JITO_TIP_ROUTER_ERROR__CANNOT_CREATE_FUTURE_WEIGHT_TABLES
   | typeof JITO_TIP_ROUTER_ERROR__DENOMINATOR_IS_ZERO
+  | typeof JITO_TIP_ROUTER_ERROR__FEE_CAP_EXCEEDED
   | typeof JITO_TIP_ROUTER_ERROR__INCORRECT_WEIGHT_TABLE_ADMIN
   | typeof JITO_TIP_ROUTER_ERROR__MODULO_OVERFLOW
   | typeof JITO_TIP_ROUTER_ERROR__NO_MORE_TABLE_SLOTS;
@@ -41,6 +44,7 @@ if (process.env.NODE_ENV !== 'production') {
     [JITO_TIP_ROUTER_ERROR__ARITHMETIC_OVERFLOW]: `Overflow`,
     [JITO_TIP_ROUTER_ERROR__CANNOT_CREATE_FUTURE_WEIGHT_TABLES]: `Cannnot create future weight tables`,
     [JITO_TIP_ROUTER_ERROR__DENOMINATOR_IS_ZERO]: `Zero in the denominator`,
+    [JITO_TIP_ROUTER_ERROR__FEE_CAP_EXCEEDED]: `Fee cap exceeded`,
     [JITO_TIP_ROUTER_ERROR__INCORRECT_WEIGHT_TABLE_ADMIN]: `Incorrect weight table admin`,
     [JITO_TIP_ROUTER_ERROR__MODULO_OVERFLOW]: `Modulo Overflow`,
     [JITO_TIP_ROUTER_ERROR__NO_MORE_TABLE_SLOTS]: `No more table slots available`,
