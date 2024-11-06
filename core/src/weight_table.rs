@@ -3,7 +3,9 @@ use jito_bytemuck::{types::PodU64, AccountDeserialize, Discriminator};
 use shank::{ShankAccount, ShankType};
 use solana_program::{account_info::AccountInfo, msg, program_error::ProgramError, pubkey::Pubkey};
 
-use crate::{discriminators::Discriminators, error::TipRouterError, jito_number::JitoNumber};
+use crate::{
+    discriminators::Discriminators, error::TipRouterError, precise_numbers::PreciseWeight,
+};
 
 // PDA'd ["WEIGHT_TABLE", NCN, NCN_EPOCH_SLOT]
 #[derive(Debug, Clone, Copy, Zeroable, ShankType, Pod, AccountDeserialize, ShankAccount)]
@@ -117,14 +119,18 @@ impl WeightTable {
         self.table.iter().filter(|entry| !entry.is_empty()).count()
     }
 
-    pub fn find_weight(&self, mint: &Pubkey) -> Option<JitoNumber> {
+    pub fn find_weight(&self, mint: &Pubkey) -> Option<PreciseWeight> {
         self.table
             .iter()
             .find(|entry| entry.mint == *mint)
             .map(|entry| entry.weight)
     }
 
-    pub fn set_weight(&mut self, mint: &Pubkey, weight: JitoNumber) -> Result<(), TipRouterError> {
+    pub fn set_weight(
+        &mut self,
+        mint: &Pubkey,
+        weight: PreciseWeight,
+    ) -> Result<(), TipRouterError> {
         // First, try to find an existing entry with the given mint
         if let Some(entry) = self.table.iter_mut().find(|entry| entry.mint == *mint) {
             entry.weight = weight;
@@ -202,11 +208,11 @@ impl WeightTable {
 #[repr(C)]
 pub struct WeightEntry {
     pub mint: Pubkey,
-    pub weight: JitoNumber,
+    pub weight: PreciseWeight,
 }
 
 impl WeightEntry {
-    pub const fn new(mint: Pubkey, weight: JitoNumber) -> Self {
+    pub const fn new(mint: Pubkey, weight: PreciseWeight) -> Self {
         Self { weight, mint }
     }
 

@@ -19,22 +19,28 @@ import {
   type Encoder,
 } from '@solana/web3.js';
 
-export type JitoNumber = { value: Array<number> };
+export type PreciseNumberWrapper = { value: Array<number> };
 
-export type JitoNumberArgs = JitoNumber;
+export type PreciseNumberWrapperArgs = PreciseNumberWrapper;
 
-export function getJitoNumberEncoder(): Encoder<JitoNumberArgs> {
+export function getPreciseNumberWrapperEncoder(): Encoder<PreciseNumberWrapperArgs> {
   return getStructEncoder([
     ['value', getArrayEncoder(getU8Encoder(), { size: 16 })],
   ]);
 }
 
-export function getJitoNumberDecoder(): Decoder<JitoNumber> {
+export function getPreciseNumberWrapperDecoder(): Decoder<PreciseNumberWrapper> {
   return getStructDecoder([
     ['value', getArrayDecoder(getU8Decoder(), { size: 16 })],
   ]);
 }
 
-export function getJitoNumberCodec(): Codec<JitoNumberArgs, JitoNumber> {
-  return combineCodec(getJitoNumberEncoder(), getJitoNumberDecoder());
+export function getPreciseNumberWrapperCodec(): Codec<
+  PreciseNumberWrapperArgs,
+  PreciseNumberWrapper
+> {
+  return combineCodec(
+    getPreciseNumberWrapperEncoder(),
+    getPreciseNumberWrapperDecoder()
+  );
 }

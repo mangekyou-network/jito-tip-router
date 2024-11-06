@@ -2,7 +2,7 @@ use jito_bytemuck::AccountDeserialize;
 use jito_jsm_core::loader::{load_signer, load_token_mint};
 use jito_restaking_core::ncn::Ncn;
 use jito_tip_router_core::{
-    error::TipRouterError, jito_number::JitoNumber, weight_table::WeightTable,
+    error::TipRouterError, precise_numbers::PreciseWeight, weight_table::WeightTable,
 };
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, msg, program_error::ProgramError,
@@ -45,7 +45,7 @@ pub fn process_update_weight_table(
     let mut weight_table_data = weight_table.try_borrow_mut_data()?;
     let weight_table_account = WeightTable::try_from_slice_unchecked_mut(&mut weight_table_data)?;
 
-    weight_table_account.set_weight(mint.key, JitoNumber::from_weight(weight))?;
+    weight_table_account.set_weight(mint.key, PreciseWeight::from_weight(weight))?;
 
     Ok(())
 }

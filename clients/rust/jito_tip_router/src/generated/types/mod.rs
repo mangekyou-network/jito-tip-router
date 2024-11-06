@@ -4,7 +4,11 @@
 //!
 //! <https://github.com/kinobi-so/kinobi>
 
-pub(crate) mod r#jito_number;
+pub(crate) mod r#precise_number_wrapper;
+pub(crate) mod r#precise_token_supply;
+pub(crate) mod r#precise_weight;
 pub(crate) mod r#weight_entry;
 
-pub use self::{r#jito_number::*, r#weight_entry::*};
+pub use self::{
+    r#precise_number_wrapper::*, r#precise_token_supply::*, r#precise_weight::*, r#weight_entry::*,
+};

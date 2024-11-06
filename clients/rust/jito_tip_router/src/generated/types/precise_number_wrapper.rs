@@ -8,6 +8,6 @@ use borsh::{BorshDeserialize, BorshSerialize};
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct JitoNumber {
+pub struct PreciseNumberWrapper {
     pub value: [u8; 16],
 }
