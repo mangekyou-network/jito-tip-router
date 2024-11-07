@@ -16,7 +16,7 @@ pub enum WeightTableInstruction {
     /// Initialize the global configuration for this NCN
     #[account(0, writable, name = "config")]
     #[account(1, name = "ncn")]
-    #[account(2, writable, name = "ncn_admin")]
+    #[account(2, signer, name = "ncn_admin")]
     #[account(3, name = "fee_wallet")]
     #[account(4, name = "tie_breaker_admin")]
     #[account(5, name = "restaking_program_id")]
