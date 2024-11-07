@@ -20,10 +20,13 @@ import {
   type Decoder,
   type Encoder,
   type IAccountMeta,
+  type IAccountSignerMeta,
   type IInstruction,
   type IInstructionWithAccounts,
   type IInstructionWithData,
   type ReadonlyAccount,
+  type ReadonlySignerAccount,
+  type TransactionSigner,
   type WritableAccount,
 } from '@solana/web3.js';
 import { JITO_TIP_ROUTER_PROGRAM_ADDRESS } from '../programs';
@@ -56,7 +59,8 @@ export type InitializeConfigInstruction<
         : TAccountConfig,
       TAccountNcn extends string ? ReadonlyAccount<TAccountNcn> : TAccountNcn,
       TAccountNcnAdmin extends string
-        ? WritableAccount<TAccountNcnAdmin>
+        ? ReadonlySignerAccount<TAccountNcnAdmin> &
+            IAccountSignerMeta<TAccountNcnAdmin>
         : TAccountNcnAdmin,
       TAccountFeeWallet extends string
         ? ReadonlyAccount<TAccountFeeWallet>
@@ -129,7 +133,7 @@ export type InitializeConfigInput<
 > = {
   config: Address<TAccountConfig>;
   ncn: Address<TAccountNcn>;
-  ncnAdmin: Address<TAccountNcnAdmin>;
+  ncnAdmin: TransactionSigner<TAccountNcnAdmin>;
   feeWallet: Address<TAccountFeeWallet>;
   tieBreakerAdmin: Address<TAccountTieBreakerAdmin>;
   restakingProgramId: Address<TAccountRestakingProgramId>;
@@ -177,7 +181,7 @@ export function getInitializeConfigInstruction<
   const originalAccounts = {
     config: { value: input.config ?? null, isWritable: true },
     ncn: { value: input.ncn ?? null, isWritable: false },
-    ncnAdmin: { value: input.ncnAdmin ?? null, isWritable: true },
+    ncnAdmin: { value: input.ncnAdmin ?? null, isWritable: false },
     feeWallet: { value: input.feeWallet ?? null, isWritable: false },
     tieBreakerAdmin: {
       value: input.tieBreakerAdmin ?? null,

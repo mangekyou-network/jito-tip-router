@@ -17,8 +17,8 @@
         },
         {
           "name": "ncnAdmin",
-          "isMut": true,
-          "isSigner": false
+          "isMut": false,
+          "isSigner": true
         },
         {
           "name": "feeWallet",
