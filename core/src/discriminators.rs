@@ -1,4 +1,5 @@
 #[repr(u8)]
 pub enum Discriminators {
-    WeightTable = 1,
+    Config = 1,
+    WeightTable = 2,
 }

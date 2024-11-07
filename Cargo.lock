@@ -2519,6 +2519,8 @@ dependencies = [
  "jito-restaking-program",
  "jito-restaking-sdk",
  "jito-tip-router-client",
+ "jito-tip-router-core",
+ "jito-tip-router-program",
  "jito-vault-core",
  "jito-vault-program",
  "jito-vault-sdk",

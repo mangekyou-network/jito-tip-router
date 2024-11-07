@@ -7,5 +7,8 @@
  */
 
 export * from './finalizeWeightTable';
+export * from './initializeConfig';
 export * from './initializeWeightTable';
+export * from './setConfigFees';
+export * from './setNewAdmin';
 export * from './updateWeightTable';

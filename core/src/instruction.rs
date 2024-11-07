@@ -1,11 +1,33 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use shank::ShankInstruction;
+use solana_program::pubkey::Pubkey;
+
+#[derive(Debug, BorshSerialize, BorshDeserialize)]
+pub enum ConfigAdminRole {
+    FeeAdmin,
+    TieBreakerAdmin,
+}
 
 #[rustfmt::skip]
 #[derive(Debug, BorshSerialize, BorshDeserialize, ShankInstruction)]
 pub enum WeightTableInstruction {
 
-    /// Initializes global configuration
+
+    /// Initialize the global configuration for this NCN
+    #[account(0, writable, name = "config")]
+    #[account(1, name = "ncn")]
+    #[account(2, signer, name = "ncn_admin")]
+    #[account(3, name = "fee_wallet")]
+    #[account(4, name = "tie_breaker_admin")]
+    #[account(5, name = "restaking_program_id")]
+    #[account(6, name = "system_program")]
+    InitializeConfig {
+        dao_fee_bps: u64,
+        ncn_fee_bps: u64,
+        block_engine_fee_bps: u64,
+    },
+
+    /// Initializes the weight table for a given NCN epoch
     #[account(0, name = "restaking_config")]
     #[account(1, name = "ncn")]
     #[account(2, writable, signer, name = "weight_table")]
@@ -35,4 +57,25 @@ pub enum WeightTableInstruction {
         ncn_epoch: u64,
     },
 
+    /// Updates the fee configuration
+    #[account(0, writable, name = "config")]
+    #[account(1, name = "ncn")]
+    #[account(2, signer, name = "ncn_admin")]
+    #[account(3, name = "restaking_program_id")]
+    SetConfigFees {
+        new_dao_fee_bps: Option<u64>,
+        new_ncn_fee_bps: Option<u64>,
+        new_block_engine_fee_bps: Option<u64>,
+        new_fee_wallet: Option<Pubkey>,
+    },
+
+    /// Sets a new secondary admin for the NCN
+    #[account(0, writable, name = "config")]
+    #[account(1, name = "ncn")]
+    #[account(2, signer, name = "ncn_admin")]
+    #[account(3, name = "new_admin")]
+    #[account(4, name = "restaking_program_id")]
+    SetNewAdmin {
+        role: ConfigAdminRole,
+    },
 }

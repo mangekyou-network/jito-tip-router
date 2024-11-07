@@ -8,6 +8,10 @@
 
 import {
   combineCodec,
+  getAddressDecoder,
+  getAddressEncoder,
+  getOptionDecoder,
+  getOptionEncoder,
   getStructDecoder,
   getStructEncoder,
   getU64Decoder,
@@ -24,6 +28,8 @@ import {
   type IInstruction,
   type IInstructionWithAccounts,
   type IInstructionWithData,
+  type Option,
+  type OptionOrNullable,
   type ReadonlyAccount,
   type ReadonlySignerAccount,
   type TransactionSigner,
@@ -32,31 +38,31 @@ import {
 import { JITO_TIP_ROUTER_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const UPDATE_WEIGHT_TABLE_DISCRIMINATOR = 2;
+export const SET_CONFIG_FEES_DISCRIMINATOR = 4;
 
-export function getUpdateWeightTableDiscriminatorBytes() {
-  return getU8Encoder().encode(UPDATE_WEIGHT_TABLE_DISCRIMINATOR);
+export function getSetConfigFeesDiscriminatorBytes() {
+  return getU8Encoder().encode(SET_CONFIG_FEES_DISCRIMINATOR);
 }
 
-export type UpdateWeightTableInstruction<
+export type SetConfigFeesInstruction<
   TProgram extends string = typeof JITO_TIP_ROUTER_PROGRAM_ADDRESS,
+  TAccountConfig extends string | IAccountMeta<string> = string,
   TAccountNcn extends string | IAccountMeta<string> = string,
-  TAccountWeightTable extends string | IAccountMeta<string> = string,
-  TAccountWeightTableAdmin extends string | IAccountMeta<string> = string,
+  TAccountNcnAdmin extends string | IAccountMeta<string> = string,
   TAccountRestakingProgramId extends string | IAccountMeta<string> = string,
   TRemainingAccounts extends readonly IAccountMeta<string>[] = [],
 > = IInstruction<TProgram> &
   IInstructionWithData<Uint8Array> &
   IInstructionWithAccounts<
     [
+      TAccountConfig extends string
+        ? WritableAccount<TAccountConfig>
+        : TAccountConfig,
       TAccountNcn extends string ? ReadonlyAccount<TAccountNcn> : TAccountNcn,
-      TAccountWeightTable extends string
-        ? WritableAccount<TAccountWeightTable>
-        : TAccountWeightTable,
-      TAccountWeightTableAdmin extends string
-        ? ReadonlySignerAccount<TAccountWeightTableAdmin> &
-            IAccountSignerMeta<TAccountWeightTableAdmin>
-        : TAccountWeightTableAdmin,
+      TAccountNcnAdmin extends string
+        ? ReadonlySignerAccount<TAccountNcnAdmin> &
+            IAccountSignerMeta<TAccountNcnAdmin>
+        : TAccountNcnAdmin,
       TAccountRestakingProgramId extends string
         ? ReadonlyAccount<TAccountRestakingProgramId>
         : TAccountRestakingProgramId,
@@ -64,84 +70,89 @@ export type UpdateWeightTableInstruction<
     ]
   >;
 
-export type UpdateWeightTableInstructionData = {
+export type SetConfigFeesInstructionData = {
   discriminator: number;
-  ncnEpoch: bigint;
-  weightNumerator: bigint;
-  weightDenominator: bigint;
+  newDaoFeeBps: Option<bigint>;
+  newNcnFeeBps: Option<bigint>;
+  newBlockEngineFeeBps: Option<bigint>;
+  newFeeWallet: Option<Address>;
 };
 
-export type UpdateWeightTableInstructionDataArgs = {
-  ncnEpoch: number | bigint;
-  weightNumerator: number | bigint;
-  weightDenominator: number | bigint;
+export type SetConfigFeesInstructionDataArgs = {
+  newDaoFeeBps: OptionOrNullable<number | bigint>;
+  newNcnFeeBps: OptionOrNullable<number | bigint>;
+  newBlockEngineFeeBps: OptionOrNullable<number | bigint>;
+  newFeeWallet: OptionOrNullable<Address>;
 };
 
-export function getUpdateWeightTableInstructionDataEncoder(): Encoder<UpdateWeightTableInstructionDataArgs> {
+export function getSetConfigFeesInstructionDataEncoder(): Encoder<SetConfigFeesInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
       ['discriminator', getU8Encoder()],
-      ['ncnEpoch', getU64Encoder()],
-      ['weightNumerator', getU64Encoder()],
-      ['weightDenominator', getU64Encoder()],
+      ['newDaoFeeBps', getOptionEncoder(getU64Encoder())],
+      ['newNcnFeeBps', getOptionEncoder(getU64Encoder())],
+      ['newBlockEngineFeeBps', getOptionEncoder(getU64Encoder())],
+      ['newFeeWallet', getOptionEncoder(getAddressEncoder())],
     ]),
-    (value) => ({ ...value, discriminator: UPDATE_WEIGHT_TABLE_DISCRIMINATOR })
+    (value) => ({ ...value, discriminator: SET_CONFIG_FEES_DISCRIMINATOR })
   );
 }
 
-export function getUpdateWeightTableInstructionDataDecoder(): Decoder<UpdateWeightTableInstructionData> {
+export function getSetConfigFeesInstructionDataDecoder(): Decoder<SetConfigFeesInstructionData> {
   return getStructDecoder([
     ['discriminator', getU8Decoder()],
-    ['ncnEpoch', getU64Decoder()],
-    ['weightNumerator', getU64Decoder()],
-    ['weightDenominator', getU64Decoder()],
+    ['newDaoFeeBps', getOptionDecoder(getU64Decoder())],
+    ['newNcnFeeBps', getOptionDecoder(getU64Decoder())],
+    ['newBlockEngineFeeBps', getOptionDecoder(getU64Decoder())],
+    ['newFeeWallet', getOptionDecoder(getAddressDecoder())],
   ]);
 }
 
-export function getUpdateWeightTableInstructionDataCodec(): Codec<
-  UpdateWeightTableInstructionDataArgs,
-  UpdateWeightTableInstructionData
+export function getSetConfigFeesInstructionDataCodec(): Codec<
+  SetConfigFeesInstructionDataArgs,
+  SetConfigFeesInstructionData
 > {
   return combineCodec(
-    getUpdateWeightTableInstructionDataEncoder(),
-    getUpdateWeightTableInstructionDataDecoder()
+    getSetConfigFeesInstructionDataEncoder(),
+    getSetConfigFeesInstructionDataDecoder()
   );
 }
 
-export type UpdateWeightTableInput<
+export type SetConfigFeesInput<
+  TAccountConfig extends string = string,
   TAccountNcn extends string = string,
-  TAccountWeightTable extends string = string,
-  TAccountWeightTableAdmin extends string = string,
+  TAccountNcnAdmin extends string = string,
   TAccountRestakingProgramId extends string = string,
 > = {
+  config: Address<TAccountConfig>;
   ncn: Address<TAccountNcn>;
-  weightTable: Address<TAccountWeightTable>;
-  weightTableAdmin: TransactionSigner<TAccountWeightTableAdmin>;
+  ncnAdmin: TransactionSigner<TAccountNcnAdmin>;
   restakingProgramId: Address<TAccountRestakingProgramId>;
-  ncnEpoch: UpdateWeightTableInstructionDataArgs['ncnEpoch'];
-  weightNumerator: UpdateWeightTableInstructionDataArgs['weightNumerator'];
-  weightDenominator: UpdateWeightTableInstructionDataArgs['weightDenominator'];
+  newDaoFeeBps: SetConfigFeesInstructionDataArgs['newDaoFeeBps'];
+  newNcnFeeBps: SetConfigFeesInstructionDataArgs['newNcnFeeBps'];
+  newBlockEngineFeeBps: SetConfigFeesInstructionDataArgs['newBlockEngineFeeBps'];
+  newFeeWallet: SetConfigFeesInstructionDataArgs['newFeeWallet'];
 };
 
-export function getUpdateWeightTableInstruction<
+export function getSetConfigFeesInstruction<
+  TAccountConfig extends string,
   TAccountNcn extends string,
-  TAccountWeightTable extends string,
-  TAccountWeightTableAdmin extends string,
+  TAccountNcnAdmin extends string,
   TAccountRestakingProgramId extends string,
   TProgramAddress extends Address = typeof JITO_TIP_ROUTER_PROGRAM_ADDRESS,
 >(
-  input: UpdateWeightTableInput<
+  input: SetConfigFeesInput<
+    TAccountConfig,
     TAccountNcn,
-    TAccountWeightTable,
-    TAccountWeightTableAdmin,
+    TAccountNcnAdmin,
     TAccountRestakingProgramId
   >,
   config?: { programAddress?: TProgramAddress }
-): UpdateWeightTableInstruction<
+): SetConfigFeesInstruction<
   TProgramAddress,
+  TAccountConfig,
   TAccountNcn,
-  TAccountWeightTable,
-  TAccountWeightTableAdmin,
+  TAccountNcnAdmin,
   TAccountRestakingProgramId
 > {
   // Program address.
@@ -150,12 +161,9 @@ export function getUpdateWeightTableInstruction<
 
   // Original accounts.
   const originalAccounts = {
+    config: { value: input.config ?? null, isWritable: true },
     ncn: { value: input.ncn ?? null, isWritable: false },
-    weightTable: { value: input.weightTable ?? null, isWritable: true },
-    weightTableAdmin: {
-      value: input.weightTableAdmin ?? null,
-      isWritable: false,
-    },
+    ncnAdmin: { value: input.ncnAdmin ?? null, isWritable: false },
     restakingProgramId: {
       value: input.restakingProgramId ?? null,
       isWritable: false,
@@ -172,48 +180,48 @@ export function getUpdateWeightTableInstruction<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   const instruction = {
     accounts: [
+      getAccountMeta(accounts.config),
       getAccountMeta(accounts.ncn),
-      getAccountMeta(accounts.weightTable),
-      getAccountMeta(accounts.weightTableAdmin),
+      getAccountMeta(accounts.ncnAdmin),
       getAccountMeta(accounts.restakingProgramId),
     ],
     programAddress,
-    data: getUpdateWeightTableInstructionDataEncoder().encode(
-      args as UpdateWeightTableInstructionDataArgs
+    data: getSetConfigFeesInstructionDataEncoder().encode(
+      args as SetConfigFeesInstructionDataArgs
     ),
-  } as UpdateWeightTableInstruction<
+  } as SetConfigFeesInstruction<
     TProgramAddress,
+    TAccountConfig,
     TAccountNcn,
-    TAccountWeightTable,
-    TAccountWeightTableAdmin,
+    TAccountNcnAdmin,
     TAccountRestakingProgramId
   >;
 
   return instruction;
 }
 
-export type ParsedUpdateWeightTableInstruction<
+export type ParsedSetConfigFeesInstruction<
   TProgram extends string = typeof JITO_TIP_ROUTER_PROGRAM_ADDRESS,
   TAccountMetas extends readonly IAccountMeta[] = readonly IAccountMeta[],
 > = {
   programAddress: Address<TProgram>;
   accounts: {
-    ncn: TAccountMetas[0];
-    weightTable: TAccountMetas[1];
-    weightTableAdmin: TAccountMetas[2];
+    config: TAccountMetas[0];
+    ncn: TAccountMetas[1];
+    ncnAdmin: TAccountMetas[2];
     restakingProgramId: TAccountMetas[3];
   };
-  data: UpdateWeightTableInstructionData;
+  data: SetConfigFeesInstructionData;
 };
 
-export function parseUpdateWeightTableInstruction<
+export function parseSetConfigFeesInstruction<
   TProgram extends string,
   TAccountMetas extends readonly IAccountMeta[],
 >(
   instruction: IInstruction<TProgram> &
     IInstructionWithAccounts<TAccountMetas> &
     IInstructionWithData<Uint8Array>
-): ParsedUpdateWeightTableInstruction<TProgram, TAccountMetas> {
+): ParsedSetConfigFeesInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 4) {
     // TODO: Coded error.
     throw new Error('Not enough accounts');
@@ -227,11 +235,11 @@ export function parseUpdateWeightTableInstruction<
   return {
     programAddress: instruction.programAddress,
     accounts: {
+      config: getNextAccount(),
       ncn: getNextAccount(),
-      weightTable: getNextAccount(),
-      weightTableAdmin: getNextAccount(),
+      ncnAdmin: getNextAccount(),
       restakingProgramId: getNextAccount(),
     },
-    data: getUpdateWeightTableInstructionDataDecoder().decode(instruction.data),
+    data: getSetConfigFeesInstructionDataDecoder().decode(instruction.data),
   };
 }

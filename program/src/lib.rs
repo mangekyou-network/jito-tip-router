@@ -1,10 +1,14 @@
 mod finalize_weight_table;
+mod initialize_ncn_config;
 mod initialize_weight_table;
+mod set_config_fees;
+mod set_new_admin;
 mod update_weight_table;
 
 use borsh::BorshDeserialize;
 use const_str_to_pubkey::str_to_pubkey;
 use jito_tip_router_core::instruction::WeightTableInstruction;
+use set_new_admin::process_set_new_admin;
 use solana_program::{
     account_info::AccountInfo, declare_id, entrypoint::ProgramResult, msg,
     program_error::ProgramError, pubkey::Pubkey,
@@ -14,8 +18,9 @@ use solana_security_txt::security_txt;
 
 use crate::{
     finalize_weight_table::process_finalize_weight_table,
+    initialize_ncn_config::process_initialize_ncn_config,
     initialize_weight_table::process_initialize_weight_table,
-    update_weight_table::process_update_weight_table,
+    set_config_fees::process_set_config_fees, update_weight_table::process_update_weight_table,
 };
 
 declare_id!(str_to_pubkey(env!("TIP_ROUTER_PROGRAM_ID")));
@@ -50,6 +55,20 @@ pub fn process_instruction(
         // ------------------------------------------
         // Initialization
         // ------------------------------------------
+        WeightTableInstruction::InitializeConfig {
+            dao_fee_bps,
+            ncn_fee_bps,
+            block_engine_fee_bps,
+        } => {
+            msg!("Instruction: InitializeConfig");
+            process_initialize_ncn_config(
+                program_id,
+                accounts,
+                dao_fee_bps,
+                ncn_fee_bps,
+                block_engine_fee_bps,
+            )
+        }
         WeightTableInstruction::InitializeWeightTable {
             first_slot_of_ncn_epoch,
         } => {
@@ -79,6 +98,26 @@ pub fn process_instruction(
         WeightTableInstruction::FinalizeWeightTable { ncn_epoch } => {
             msg!("Instruction: FinalizeWeightTable");
             process_finalize_weight_table(program_id, accounts, ncn_epoch)
+        }
+        WeightTableInstruction::SetConfigFees {
+            new_dao_fee_bps,
+            new_ncn_fee_bps,
+            new_block_engine_fee_bps,
+            new_fee_wallet,
+        } => {
+            msg!("Instruction: SetConfigFees");
+            process_set_config_fees(
+                program_id,
+                accounts,
+                new_dao_fee_bps,
+                new_ncn_fee_bps,
+                new_block_engine_fee_bps,
+                new_fee_wallet,
+            )
+        }
+        WeightTableInstruction::SetNewAdmin { role } => {
+            msg!("Instruction: SetNewAdmin");
+            process_set_new_admin(program_id, accounts, role)
         }
     }
 }
