@@ -39,9 +39,9 @@ export type InitializeConfigInstruction<
   TProgram extends string = typeof JITO_TIP_ROUTER_PROGRAM_ADDRESS,
   TAccountConfig extends string | IAccountMeta<string> = string,
   TAccountNcn extends string | IAccountMeta<string> = string,
+  TAccountNcnAdmin extends string | IAccountMeta<string> = string,
   TAccountFeeWallet extends string | IAccountMeta<string> = string,
   TAccountTieBreakerAdmin extends string | IAccountMeta<string> = string,
-  TAccountPayer extends string | IAccountMeta<string> = string,
   TAccountRestakingProgramId extends string | IAccountMeta<string> = string,
   TAccountSystemProgram extends
     | string
@@ -55,15 +55,15 @@ export type InitializeConfigInstruction<
         ? WritableAccount<TAccountConfig>
         : TAccountConfig,
       TAccountNcn extends string ? ReadonlyAccount<TAccountNcn> : TAccountNcn,
+      TAccountNcnAdmin extends string
+        ? WritableAccount<TAccountNcnAdmin>
+        : TAccountNcnAdmin,
       TAccountFeeWallet extends string
         ? ReadonlyAccount<TAccountFeeWallet>
         : TAccountFeeWallet,
       TAccountTieBreakerAdmin extends string
         ? ReadonlyAccount<TAccountTieBreakerAdmin>
         : TAccountTieBreakerAdmin,
-      TAccountPayer extends string
-        ? WritableAccount<TAccountPayer>
-        : TAccountPayer,
       TAccountRestakingProgramId extends string
         ? ReadonlyAccount<TAccountRestakingProgramId>
         : TAccountRestakingProgramId,
@@ -121,17 +121,17 @@ export function getInitializeConfigInstructionDataCodec(): Codec<
 export type InitializeConfigInput<
   TAccountConfig extends string = string,
   TAccountNcn extends string = string,
+  TAccountNcnAdmin extends string = string,
   TAccountFeeWallet extends string = string,
   TAccountTieBreakerAdmin extends string = string,
-  TAccountPayer extends string = string,
   TAccountRestakingProgramId extends string = string,
   TAccountSystemProgram extends string = string,
 > = {
   config: Address<TAccountConfig>;
   ncn: Address<TAccountNcn>;
+  ncnAdmin: Address<TAccountNcnAdmin>;
   feeWallet: Address<TAccountFeeWallet>;
   tieBreakerAdmin: Address<TAccountTieBreakerAdmin>;
-  payer: Address<TAccountPayer>;
   restakingProgramId: Address<TAccountRestakingProgramId>;
   systemProgram?: Address<TAccountSystemProgram>;
   daoFeeBps: InitializeConfigInstructionDataArgs['daoFeeBps'];
@@ -142,9 +142,9 @@ export type InitializeConfigInput<
 export function getInitializeConfigInstruction<
   TAccountConfig extends string,
   TAccountNcn extends string,
+  TAccountNcnAdmin extends string,
   TAccountFeeWallet extends string,
   TAccountTieBreakerAdmin extends string,
-  TAccountPayer extends string,
   TAccountRestakingProgramId extends string,
   TAccountSystemProgram extends string,
   TProgramAddress extends Address = typeof JITO_TIP_ROUTER_PROGRAM_ADDRESS,
@@ -152,9 +152,9 @@ export function getInitializeConfigInstruction<
   input: InitializeConfigInput<
     TAccountConfig,
     TAccountNcn,
+    TAccountNcnAdmin,
     TAccountFeeWallet,
     TAccountTieBreakerAdmin,
-    TAccountPayer,
     TAccountRestakingProgramId,
     TAccountSystemProgram
   >,
@@ -163,9 +163,9 @@ export function getInitializeConfigInstruction<
   TProgramAddress,
   TAccountConfig,
   TAccountNcn,
+  TAccountNcnAdmin,
   TAccountFeeWallet,
   TAccountTieBreakerAdmin,
-  TAccountPayer,
   TAccountRestakingProgramId,
   TAccountSystemProgram
 > {
@@ -177,12 +177,12 @@ export function getInitializeConfigInstruction<
   const originalAccounts = {
     config: { value: input.config ?? null, isWritable: true },
     ncn: { value: input.ncn ?? null, isWritable: false },
+    ncnAdmin: { value: input.ncnAdmin ?? null, isWritable: true },
     feeWallet: { value: input.feeWallet ?? null, isWritable: false },
     tieBreakerAdmin: {
       value: input.tieBreakerAdmin ?? null,
       isWritable: false,
     },
-    payer: { value: input.payer ?? null, isWritable: true },
     restakingProgramId: {
       value: input.restakingProgramId ?? null,
       isWritable: false,
@@ -208,9 +208,9 @@ export function getInitializeConfigInstruction<
     accounts: [
       getAccountMeta(accounts.config),
       getAccountMeta(accounts.ncn),
+      getAccountMeta(accounts.ncnAdmin),
       getAccountMeta(accounts.feeWallet),
       getAccountMeta(accounts.tieBreakerAdmin),
-      getAccountMeta(accounts.payer),
       getAccountMeta(accounts.restakingProgramId),
       getAccountMeta(accounts.systemProgram),
     ],
@@ -222,9 +222,9 @@ export function getInitializeConfigInstruction<
     TProgramAddress,
     TAccountConfig,
     TAccountNcn,
+    TAccountNcnAdmin,
     TAccountFeeWallet,
     TAccountTieBreakerAdmin,
-    TAccountPayer,
     TAccountRestakingProgramId,
     TAccountSystemProgram
   >;
@@ -240,9 +240,9 @@ export type ParsedInitializeConfigInstruction<
   accounts: {
     config: TAccountMetas[0];
     ncn: TAccountMetas[1];
-    feeWallet: TAccountMetas[2];
-    tieBreakerAdmin: TAccountMetas[3];
-    payer: TAccountMetas[4];
+    ncnAdmin: TAccountMetas[2];
+    feeWallet: TAccountMetas[3];
+    tieBreakerAdmin: TAccountMetas[4];
     restakingProgramId: TAccountMetas[5];
     systemProgram: TAccountMetas[6];
   };
@@ -272,9 +272,9 @@ export function parseInitializeConfigInstruction<
     accounts: {
       config: getNextAccount(),
       ncn: getNextAccount(),
+      ncnAdmin: getNextAccount(),
       feeWallet: getNextAccount(),
       tieBreakerAdmin: getNextAccount(),
-      payer: getNextAccount(),
       restakingProgramId: getNextAccount(),
       systemProgram: getNextAccount(),
     },

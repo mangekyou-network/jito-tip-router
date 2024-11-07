@@ -4,7 +4,7 @@ use jito_jsm_core::{
     loader::{load_signer, load_system_account, load_system_program},
 };
 use jito_restaking_core::ncn::Ncn;
-use jito_tip_router_core::{error::TipRouterError, ncn_config::NcnConfig};
+use jito_tip_router_core::{error::TipRouterError, fees::Fees, ncn_config::NcnConfig, MAX_FEE_BPS};
 use solana_program::{
     account_info::AccountInfo, clock::Clock, entrypoint::ProgramResult,
     program_error::ProgramError, pubkey::Pubkey, rent::Rent, sysvar::Sysvar,
@@ -17,37 +17,44 @@ pub fn process_initialize_ncn_config(
     ncn_fee_bps: u64,
     block_engine_fee_bps: u64,
 ) -> ProgramResult {
-    let [config, ncn_account, fee_wallet, tie_breaker_admin, payer, restaking_program_id, system_program] =
+    let [config, ncn_account, fee_wallet, ncn_admin, tie_breaker_admin, restaking_program_id, system_program] =
         accounts
     else {
         return Err(ProgramError::NotEnoughAccountKeys);
     };
 
     load_system_account(config, true)?;
-    load_signer(payer, false)?;
     load_system_program(system_program)?;
+    load_signer(ncn_admin, false)?;
 
     Ncn::load(restaking_program_id.key, ncn_account, false)?;
 
-    let (config_pda, config_bump, mut config_seeds) = NcnConfig::find_program_address(program_id);
+    let ncn_data = ncn_account.data.borrow();
+    let ncn = Ncn::try_from_slice_unchecked(&ncn_data)?;
+    if ncn.admin != *ncn_admin.key {
+        return Err(TipRouterError::IncorrectNcnAdmin.into());
+    }
+
+    let (config_pda, config_bump, mut config_seeds) =
+        NcnConfig::find_program_address(program_id, ncn_account.key);
     config_seeds.push(vec![config_bump]);
 
     if config_pda != *config.key {
         return Err(ProgramError::InvalidSeeds);
     }
 
-    if dao_fee_bps > 10_000 {
+    if dao_fee_bps > MAX_FEE_BPS {
         return Err(TipRouterError::FeeCapExceeded.into());
     }
-    if ncn_fee_bps > 10_000 {
+    if ncn_fee_bps > MAX_FEE_BPS {
         return Err(TipRouterError::FeeCapExceeded.into());
     }
-    if block_engine_fee_bps > 10_000 {
+    if block_engine_fee_bps > MAX_FEE_BPS {
         return Err(TipRouterError::FeeCapExceeded.into());
     }
 
     create_account(
-        payer,
+        ncn_admin,
         config,
         system_program,
         program_id,
@@ -58,7 +65,7 @@ pub fn process_initialize_ncn_config(
         &config_seeds,
     )?;
 
-    let epoch = Clock::get()?.epoch as u64;
+    let epoch = Clock::get()?.epoch;
 
     let mut config_data = config.try_borrow_mut_data()?;
     config_data[0] = NcnConfig::DISCRIMINATOR;
@@ -66,11 +73,14 @@ pub fn process_initialize_ncn_config(
     *config = NcnConfig::new(
         *ncn_account.key,
         *tie_breaker_admin.key,
-        *fee_wallet.key,
-        dao_fee_bps,
-        ncn_fee_bps,
-        block_engine_fee_bps,
-        epoch,
+        *ncn_admin.key,
+        Fees::new(
+            *fee_wallet.key,
+            dao_fee_bps,
+            ncn_fee_bps,
+            block_engine_fee_bps,
+            epoch,
+        ),
     );
     config.bump = config_bump;
 

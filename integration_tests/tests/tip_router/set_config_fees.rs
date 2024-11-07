@@ -16,9 +16,9 @@ mod tests {
         let mut tip_router_client = fixture.tip_router_client();
         let ncn_root = fixture.setup_ncn().await?;
 
-        // Initialize config first
+        // Initialize config first - note that ncn_admin is now required as signer
         tip_router_client
-            .do_initialize_config(ncn_root.ncn_pubkey, ncn_root.ncn_admin.pubkey())
+            .do_initialize_config(ncn_root.ncn_pubkey, &ncn_root.ncn_admin)
             .await?;
 
         // Change fees and fee wallet
@@ -44,7 +44,7 @@ mod tests {
 
         // Initialize config first
         tip_router_client
-            .do_initialize_config(ncn_root.ncn_pubkey, ncn_root.ncn_admin.pubkey())
+            .do_initialize_config(ncn_root.ncn_pubkey, &ncn_root.ncn_admin)
             .await?;
 
         // Try to set fees above max
@@ -63,7 +63,7 @@ mod tests {
         let mut ncn_root = fixture.setup_ncn().await?;
 
         tip_router_client
-            .do_initialize_config(ncn_root.ncn_pubkey, ncn_root.ncn_admin.pubkey())
+            .do_initialize_config(ncn_root.ncn_pubkey, &ncn_root.ncn_admin)
             .await?;
 
         let wrong_admin = Keypair::new();
@@ -72,7 +72,7 @@ mod tests {
             .do_set_config_fees(100, 200, 300, ncn_root.ncn_admin.pubkey(), &ncn_root)
             .await;
 
-        assert_tip_router_error(transaction_error, TipRouterError::IncorrectNcnAdmin);
+        assert_tip_router_error(transaction_error, TipRouterError::IncorrectFeeAdmin);
         Ok(())
     }
 
@@ -84,7 +84,7 @@ mod tests {
 
         // Initialize config first
         tip_router_client
-            .do_initialize_config(ncn_root.ncn_pubkey, ncn_root.ncn_admin.pubkey())
+            .do_initialize_config(ncn_root.ncn_pubkey, &ncn_root.ncn_admin)
             .await?;
 
         // Set new fees
@@ -98,7 +98,7 @@ mod tests {
             .warp_slot_incremental(2 * DEFAULT_SLOTS_PER_EPOCH)
             .await?;
 
-        let config = tip_router_client.get_config().await?;
+        let config = tip_router_client.get_config(ncn_root.ncn_pubkey).await?;
         let clock = fixture.clock().await;
         assert_eq!(config.fees.dao_fee(clock.epoch as u64).unwrap(), 100);
         assert_eq!(config.fees.ncn_fee(clock.epoch as u64).unwrap(), 200);

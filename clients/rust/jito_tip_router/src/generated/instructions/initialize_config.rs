@@ -12,11 +12,11 @@ pub struct InitializeConfig {
 
     pub ncn: solana_program::pubkey::Pubkey,
 
+    pub ncn_admin: solana_program::pubkey::Pubkey,
+
     pub fee_wallet: solana_program::pubkey::Pubkey,
 
     pub tie_breaker_admin: solana_program::pubkey::Pubkey,
-
-    pub payer: solana_program::pubkey::Pubkey,
 
     pub restaking_program_id: solana_program::pubkey::Pubkey,
 
@@ -44,6 +44,10 @@ impl InitializeConfig {
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.ncn, false,
         ));
+        accounts.push(solana_program::instruction::AccountMeta::new(
+            self.ncn_admin,
+            false,
+        ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.fee_wallet,
             false,
@@ -51,9 +55,6 @@ impl InitializeConfig {
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.tie_breaker_admin,
             false,
-        ));
-        accounts.push(solana_program::instruction::AccountMeta::new(
-            self.payer, false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.restaking_program_id,
@@ -107,18 +108,18 @@ pub struct InitializeConfigInstructionArgs {
 ///
 ///   0. `[writable]` config
 ///   1. `[]` ncn
-///   2. `[]` fee_wallet
-///   3. `[]` tie_breaker_admin
-///   4. `[writable]` payer
+///   2. `[writable]` ncn_admin
+///   3. `[]` fee_wallet
+///   4. `[]` tie_breaker_admin
 ///   5. `[]` restaking_program_id
 ///   6. `[optional]` system_program (default to `11111111111111111111111111111111`)
 #[derive(Clone, Debug, Default)]
 pub struct InitializeConfigBuilder {
     config: Option<solana_program::pubkey::Pubkey>,
     ncn: Option<solana_program::pubkey::Pubkey>,
+    ncn_admin: Option<solana_program::pubkey::Pubkey>,
     fee_wallet: Option<solana_program::pubkey::Pubkey>,
     tie_breaker_admin: Option<solana_program::pubkey::Pubkey>,
-    payer: Option<solana_program::pubkey::Pubkey>,
     restaking_program_id: Option<solana_program::pubkey::Pubkey>,
     system_program: Option<solana_program::pubkey::Pubkey>,
     dao_fee_bps: Option<u64>,
@@ -142,6 +143,11 @@ impl InitializeConfigBuilder {
         self
     }
     #[inline(always)]
+    pub fn ncn_admin(&mut self, ncn_admin: solana_program::pubkey::Pubkey) -> &mut Self {
+        self.ncn_admin = Some(ncn_admin);
+        self
+    }
+    #[inline(always)]
     pub fn fee_wallet(&mut self, fee_wallet: solana_program::pubkey::Pubkey) -> &mut Self {
         self.fee_wallet = Some(fee_wallet);
         self
@@ -152,11 +158,6 @@ impl InitializeConfigBuilder {
         tie_breaker_admin: solana_program::pubkey::Pubkey,
     ) -> &mut Self {
         self.tie_breaker_admin = Some(tie_breaker_admin);
-        self
-    }
-    #[inline(always)]
-    pub fn payer(&mut self, payer: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.payer = Some(payer);
         self
     }
     #[inline(always)]
@@ -211,11 +212,11 @@ impl InitializeConfigBuilder {
         let accounts = InitializeConfig {
             config: self.config.expect("config is not set"),
             ncn: self.ncn.expect("ncn is not set"),
+            ncn_admin: self.ncn_admin.expect("ncn_admin is not set"),
             fee_wallet: self.fee_wallet.expect("fee_wallet is not set"),
             tie_breaker_admin: self
                 .tie_breaker_admin
                 .expect("tie_breaker_admin is not set"),
-            payer: self.payer.expect("payer is not set"),
             restaking_program_id: self
                 .restaking_program_id
                 .expect("restaking_program_id is not set"),
@@ -242,11 +243,11 @@ pub struct InitializeConfigCpiAccounts<'a, 'b> {
 
     pub ncn: &'b solana_program::account_info::AccountInfo<'a>,
 
+    pub ncn_admin: &'b solana_program::account_info::AccountInfo<'a>,
+
     pub fee_wallet: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub tie_breaker_admin: &'b solana_program::account_info::AccountInfo<'a>,
-
-    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub restaking_program_id: &'b solana_program::account_info::AccountInfo<'a>,
 
@@ -262,11 +263,11 @@ pub struct InitializeConfigCpi<'a, 'b> {
 
     pub ncn: &'b solana_program::account_info::AccountInfo<'a>,
 
+    pub ncn_admin: &'b solana_program::account_info::AccountInfo<'a>,
+
     pub fee_wallet: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub tie_breaker_admin: &'b solana_program::account_info::AccountInfo<'a>,
-
-    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub restaking_program_id: &'b solana_program::account_info::AccountInfo<'a>,
 
@@ -285,9 +286,9 @@ impl<'a, 'b> InitializeConfigCpi<'a, 'b> {
             __program: program,
             config: accounts.config,
             ncn: accounts.ncn,
+            ncn_admin: accounts.ncn_admin,
             fee_wallet: accounts.fee_wallet,
             tie_breaker_admin: accounts.tie_breaker_admin,
-            payer: accounts.payer,
             restaking_program_id: accounts.restaking_program_id,
             system_program: accounts.system_program,
             __args: args,
@@ -335,16 +336,16 @@ impl<'a, 'b> InitializeConfigCpi<'a, 'b> {
             *self.ncn.key,
             false,
         ));
+        accounts.push(solana_program::instruction::AccountMeta::new(
+            *self.ncn_admin.key,
+            false,
+        ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.fee_wallet.key,
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.tie_breaker_admin.key,
-            false,
-        ));
-        accounts.push(solana_program::instruction::AccountMeta::new(
-            *self.payer.key,
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
@@ -375,9 +376,9 @@ impl<'a, 'b> InitializeConfigCpi<'a, 'b> {
         account_infos.push(self.__program.clone());
         account_infos.push(self.config.clone());
         account_infos.push(self.ncn.clone());
+        account_infos.push(self.ncn_admin.clone());
         account_infos.push(self.fee_wallet.clone());
         account_infos.push(self.tie_breaker_admin.clone());
-        account_infos.push(self.payer.clone());
         account_infos.push(self.restaking_program_id.clone());
         account_infos.push(self.system_program.clone());
         remaining_accounts
@@ -398,9 +399,9 @@ impl<'a, 'b> InitializeConfigCpi<'a, 'b> {
 ///
 ///   0. `[writable]` config
 ///   1. `[]` ncn
-///   2. `[]` fee_wallet
-///   3. `[]` tie_breaker_admin
-///   4. `[writable]` payer
+///   2. `[writable]` ncn_admin
+///   3. `[]` fee_wallet
+///   4. `[]` tie_breaker_admin
 ///   5. `[]` restaking_program_id
 ///   6. `[]` system_program
 #[derive(Clone, Debug)]
@@ -414,9 +415,9 @@ impl<'a, 'b> InitializeConfigCpiBuilder<'a, 'b> {
             __program: program,
             config: None,
             ncn: None,
+            ncn_admin: None,
             fee_wallet: None,
             tie_breaker_admin: None,
-            payer: None,
             restaking_program_id: None,
             system_program: None,
             dao_fee_bps: None,
@@ -440,6 +441,14 @@ impl<'a, 'b> InitializeConfigCpiBuilder<'a, 'b> {
         self
     }
     #[inline(always)]
+    pub fn ncn_admin(
+        &mut self,
+        ncn_admin: &'b solana_program::account_info::AccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.ncn_admin = Some(ncn_admin);
+        self
+    }
+    #[inline(always)]
     pub fn fee_wallet(
         &mut self,
         fee_wallet: &'b solana_program::account_info::AccountInfo<'a>,
@@ -453,11 +462,6 @@ impl<'a, 'b> InitializeConfigCpiBuilder<'a, 'b> {
         tie_breaker_admin: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.tie_breaker_admin = Some(tie_breaker_admin);
-        self
-    }
-    #[inline(always)]
-    pub fn payer(&mut self, payer: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
-        self.instruction.payer = Some(payer);
         self
     }
     #[inline(always)]
@@ -556,14 +560,14 @@ impl<'a, 'b> InitializeConfigCpiBuilder<'a, 'b> {
 
             ncn: self.instruction.ncn.expect("ncn is not set"),
 
+            ncn_admin: self.instruction.ncn_admin.expect("ncn_admin is not set"),
+
             fee_wallet: self.instruction.fee_wallet.expect("fee_wallet is not set"),
 
             tie_breaker_admin: self
                 .instruction
                 .tie_breaker_admin
                 .expect("tie_breaker_admin is not set"),
-
-            payer: self.instruction.payer.expect("payer is not set"),
 
             restaking_program_id: self
                 .instruction
@@ -588,9 +592,9 @@ struct InitializeConfigCpiBuilderInstruction<'a, 'b> {
     __program: &'b solana_program::account_info::AccountInfo<'a>,
     config: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ncn: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    ncn_admin: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     fee_wallet: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     tie_breaker_admin: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    payer: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     restaking_program_id: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     system_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     dao_fee_bps: Option<u64>,

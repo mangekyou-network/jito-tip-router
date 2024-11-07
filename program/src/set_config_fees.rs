@@ -15,13 +15,13 @@ pub fn process_set_config_fees(
     new_block_engine_fee_bps: Option<u64>,
     new_fee_wallet: Option<Pubkey>,
 ) -> ProgramResult {
-    let [config, ncn_account, ncn_admin, restaking_program_id] = accounts else {
+    let [config, ncn_account, fee_admin, restaking_program_id] = accounts else {
         return Err(ProgramError::NotEnoughAccountKeys);
     };
 
-    load_signer(ncn_admin, true)?;
+    load_signer(fee_admin, true)?;
 
-    NcnConfig::load(program_id, config, true)?;
+    NcnConfig::load(program_id, ncn_account.key, config, true)?;
     Ncn::load(restaking_program_id.key, ncn_account, false)?;
 
     let mut config_data = config.try_borrow_mut_data()?;
@@ -35,10 +35,8 @@ pub fn process_set_config_fees(
         return Err(TipRouterError::IncorrectNcn.into());
     }
 
-    let ncn_data = ncn_account.data.borrow();
-    let ncn = Ncn::try_from_slice_unchecked(&ncn_data)?;
-    if ncn.admin != *ncn_admin.key {
-        return Err(TipRouterError::IncorrectNcnAdmin.into());
+    if config.fee_admin != *fee_admin.key {
+        return Err(TipRouterError::IncorrectFeeAdmin.into());
     }
 
     let epoch = Clock::get()?.epoch;

@@ -45,6 +45,7 @@ export type NcnConfig = {
   discriminator: bigint;
   ncn: Address;
   tieBreakerAdmin: Address;
+  feeAdmin: Address;
   fees: Fees;
   bump: number;
   reserved: Array<number>;
@@ -54,6 +55,7 @@ export type NcnConfigArgs = {
   discriminator: number | bigint;
   ncn: Address;
   tieBreakerAdmin: Address;
+  feeAdmin: Address;
   fees: FeesArgs;
   bump: number;
   reserved: Array<number>;
@@ -64,6 +66,7 @@ export function getNcnConfigEncoder(): Encoder<NcnConfigArgs> {
     ['discriminator', getU64Encoder()],
     ['ncn', getAddressEncoder()],
     ['tieBreakerAdmin', getAddressEncoder()],
+    ['feeAdmin', getAddressEncoder()],
     ['fees', getFeesEncoder()],
     ['bump', getU8Encoder()],
     ['reserved', getArrayEncoder(getU8Encoder(), { size: 127 })],
@@ -75,6 +78,7 @@ export function getNcnConfigDecoder(): Decoder<NcnConfig> {
     ['discriminator', getU64Decoder()],
     ['ncn', getAddressDecoder()],
     ['tieBreakerAdmin', getAddressDecoder()],
+    ['feeAdmin', getAddressDecoder()],
     ['fees', getFeesDecoder()],
     ['bump', getU8Decoder()],
     ['reserved', getArrayDecoder(getU8Decoder(), { size: 127 })],
@@ -139,5 +143,5 @@ export async function fetchAllMaybeNcnConfig(
 }
 
 export function getNcnConfigSize(): number {
-  return 320;
+  return 352;
 }

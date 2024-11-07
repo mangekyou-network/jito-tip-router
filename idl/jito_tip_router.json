@@ -16,6 +16,11 @@
           "isSigner": false
         },
         {
+          "name": "ncnAdmin",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "feeWallet",
           "isMut": false,
           "isSigner": false
@@ -23,11 +28,6 @@
         {
           "name": "tieBreakerAdmin",
           "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "payer",
-          "isMut": true,
           "isSigner": false
         },
         {
@@ -256,6 +256,10 @@
             "type": "publicKey"
           },
           {
+            "name": "feeAdmin",
+            "type": "publicKey"
+          },
+          {
             "name": "fees",
             "type": {
               "defined": "Fees"
@@ -445,6 +449,11 @@
       "code": 9217,
       "name": "IncorrectNcn",
       "msg": "Incorrect NCN"
+    },
+    {
+      "code": 9218,
+      "name": "IncorrectFeeAdmin",
+      "msg": "Incorrect fee admin"
     }
   ],
   "metadata": {

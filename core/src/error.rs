@@ -22,6 +22,8 @@ pub enum TipRouterError {
     IncorrectNcnAdmin = 0x2400,
     #[error("Incorrect NCN")]
     IncorrectNcn = 0x2401,
+    #[error("Incorrect fee admin")]
+    IncorrectFeeAdmin = 0x2402,
 }
 
 impl<T> DecodeError<T> for TipRouterError {

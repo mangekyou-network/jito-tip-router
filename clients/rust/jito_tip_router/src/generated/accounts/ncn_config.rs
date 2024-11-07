@@ -23,6 +23,11 @@ pub struct NcnConfig {
         serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
     )]
     pub tie_breaker_admin: Pubkey,
+    #[cfg_attr(
+        feature = "serde",
+        serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
+    )]
+    pub fee_admin: Pubkey,
     pub fees: Fees,
     pub bump: u8,
     #[cfg_attr(feature = "serde", serde(with = "serde_with::As::<serde_with::Bytes>"))]
@@ -30,7 +35,7 @@ pub struct NcnConfig {
 }
 
 impl NcnConfig {
-    pub const LEN: usize = 320;
+    pub const LEN: usize = 352;
 
     #[inline(always)]
     pub fn from_bytes(data: &[u8]) -> Result<Self, std::io::Error> {

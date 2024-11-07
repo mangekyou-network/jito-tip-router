@@ -36,6 +36,9 @@ pub enum JitoTipRouterError {
     /// 9217 - Incorrect NCN
     #[error("Incorrect NCN")]
     IncorrectNcn = 0x2401,
+    /// 9218 - Incorrect fee admin
+    #[error("Incorrect fee admin")]
+    IncorrectFeeAdmin = 0x2402,
 }
 
 impl solana_program::program_error::PrintProgramError for JitoTipRouterError {

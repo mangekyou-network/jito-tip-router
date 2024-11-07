@@ -2,6 +2,7 @@ pub mod discriminators;
 pub mod error;
 pub mod instruction;
 // pub mod depreciated_weight;
+pub mod fees;
 pub mod ncn_config;
 pub mod weight_table;
 
