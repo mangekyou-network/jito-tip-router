@@ -2,6 +2,12 @@ use borsh::{BorshDeserialize, BorshSerialize};
 use shank::ShankInstruction;
 use solana_program::pubkey::Pubkey;
 
+#[derive(Debug, BorshSerialize, BorshDeserialize)]
+pub enum ConfigAdminRole {
+    FeeAdmin,
+    TieBreakerAdmin,
+}
+
 #[rustfmt::skip]
 #[derive(Debug, BorshSerialize, BorshDeserialize, ShankInstruction)]
 pub enum WeightTableInstruction {
@@ -63,4 +69,13 @@ pub enum WeightTableInstruction {
         new_fee_wallet: Option<Pubkey>,
     },
 
+    /// Sets a new secondary admin for the NCN
+    #[account(0, writable, name = "config")]
+    #[account(1, name = "ncn")]
+    #[account(2, signer, name = "ncn_admin")]
+    #[account(3, name = "new_admin")]
+    #[account(4, name = "restaking_program_id")]
+    SetNewAdmin {
+        role: ConfigAdminRole,
+    },
 }

@@ -2,11 +2,13 @@ mod finalize_weight_table;
 mod initialize_ncn_config;
 mod initialize_weight_table;
 mod set_config_fees;
+mod set_new_admin;
 mod update_weight_table;
 
 use borsh::BorshDeserialize;
 use const_str_to_pubkey::str_to_pubkey;
 use jito_tip_router_core::instruction::WeightTableInstruction;
+use set_new_admin::process_set_new_admin;
 use solana_program::{
     account_info::AccountInfo, declare_id, entrypoint::ProgramResult, msg,
     program_error::ProgramError, pubkey::Pubkey,
@@ -112,6 +114,10 @@ pub fn process_instruction(
                 new_block_engine_fee_bps,
                 new_fee_wallet,
             )
+        }
+        WeightTableInstruction::SetNewAdmin { role } => {
+            msg!("Instruction: SetNewAdmin");
+            process_set_new_admin(program_id, accounts, role)
         }
     }
 }

@@ -1,5 +1,8 @@
 use jito_bytemuck::AccountDeserialize;
-use jito_tip_router_client::instructions::{InitializeConfigBuilder, SetConfigFeesBuilder};
+use jito_tip_router_client::{
+    instructions::{InitializeConfigBuilder, SetConfigFeesBuilder, SetNewAdminBuilder},
+    types::ConfigAdminRole,
+};
 use jito_tip_router_core::{error::TipRouterError, ncn_config::NcnConfig};
 use solana_program::{
     instruction::InstructionError, native_token::sol_to_lamports, pubkey::Pubkey,
@@ -147,6 +150,45 @@ impl TipRouterClient {
             .new_ncn_fee_bps(ncn_fee_bps)
             .new_block_engine_fee_bps(block_engine_fee_bps)
             .new_fee_wallet(fee_wallet)
+            .instruction();
+
+        let blockhash = self.banks_client.get_latest_blockhash().await?;
+        self.process_transaction(&Transaction::new_signed_with_payer(
+            &[ix],
+            Some(&ncn_root.ncn_admin.pubkey()),
+            &[&ncn_root.ncn_admin],
+            blockhash,
+        ))
+        .await
+    }
+
+    pub async fn do_set_new_admin(
+        &mut self,
+        role: ConfigAdminRole,
+        new_admin: Pubkey,
+        ncn_root: &NcnRoot,
+    ) -> TestResult<()> {
+        let config_pda =
+            NcnConfig::find_program_address(&jito_tip_router_program::id(), &ncn_root.ncn_pubkey).0;
+        self.airdrop(&ncn_root.ncn_admin.pubkey(), 1.0).await?;
+        self.set_new_admin(config_pda, role, new_admin, ncn_root)
+            .await
+    }
+
+    pub async fn set_new_admin(
+        &mut self,
+        config_pda: Pubkey,
+        role: ConfigAdminRole,
+        new_admin: Pubkey,
+        ncn_root: &NcnRoot,
+    ) -> TestResult<()> {
+        let ix = SetNewAdminBuilder::new()
+            .config(config_pda)
+            .ncn(ncn_root.ncn_pubkey)
+            .ncn_admin(ncn_root.ncn_admin.pubkey())
+            .new_admin(new_admin)
+            .restaking_program_id(jito_restaking_program::id())
+            .role(role)
             .instruction();
 
         let blockhash = self.banks_client.get_latest_blockhash().await?;

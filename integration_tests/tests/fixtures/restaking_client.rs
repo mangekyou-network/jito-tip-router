@@ -57,7 +57,7 @@ impl RestakingProgramClient {
         let restaking_config_pubkey = Config::find_program_address(&jito_restaking_program::id()).0;
         let restaking_config_admin = Keypair::new();
 
-        self.airdrop(&restaking_config_admin.pubkey(), 1.0).await?;
+        self.airdrop(&restaking_config_admin.pubkey(), 10.0).await?;
         self.initialize_config(&restaking_config_pubkey, &restaking_config_admin)
             .await?;
 

@@ -17,6 +17,7 @@ import {
   type ParsedInitializeConfigInstruction,
   type ParsedInitializeWeightTableInstruction,
   type ParsedSetConfigFeesInstruction,
+  type ParsedSetNewAdminInstruction,
   type ParsedUpdateWeightTableInstruction,
 } from '../instructions';
 
@@ -34,6 +35,7 @@ export enum JitoTipRouterInstruction {
   UpdateWeightTable,
   FinalizeWeightTable,
   SetConfigFees,
+  SetNewAdmin,
 }
 
 export function identifyJitoTipRouterInstruction(
@@ -54,6 +56,9 @@ export function identifyJitoTipRouterInstruction(
   }
   if (containsBytes(data, getU8Encoder().encode(4), 0)) {
     return JitoTipRouterInstruction.SetConfigFees;
+  }
+  if (containsBytes(data, getU8Encoder().encode(5), 0)) {
+    return JitoTipRouterInstruction.SetNewAdmin;
   }
   throw new Error(
     'The provided instruction could not be identified as a jitoTipRouter instruction.'
@@ -77,4 +82,7 @@ export type ParsedJitoTipRouterInstruction<
     } & ParsedFinalizeWeightTableInstruction<TProgram>)
   | ({
       instructionType: JitoTipRouterInstruction.SetConfigFees;
-    } & ParsedSetConfigFeesInstruction<TProgram>);
+    } & ParsedSetConfigFeesInstruction<TProgram>)
+  | ({
+      instructionType: JitoTipRouterInstruction.SetNewAdmin;
+    } & ParsedSetNewAdminInstruction<TProgram>);

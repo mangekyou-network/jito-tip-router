@@ -4,8 +4,9 @@
 //!
 //! <https://github.com/kinobi-so/kinobi>
 
+pub(crate) mod r#config_admin_role;
 pub(crate) mod r#fee;
 pub(crate) mod r#fees;
 pub(crate) mod r#weight_entry;
 
-pub use self::{r#fee::*, r#fees::*, r#weight_entry::*};
+pub use self::{r#config_admin_role::*, r#fee::*, r#fees::*, r#weight_entry::*};
