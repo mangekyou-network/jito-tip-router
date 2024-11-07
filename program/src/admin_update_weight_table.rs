@@ -1,16 +1,14 @@
 use jito_bytemuck::AccountDeserialize;
 use jito_jsm_core::loader::{load_signer, load_token_mint};
 use jito_restaking_core::ncn::Ncn;
-use jito_tip_router_core::{
-    error::TipRouterError, precise_numbers::PreciseWeight, weight_table::WeightTable,
-};
+use jito_tip_router_core::{error::TipRouterError, weight_table::WeightTable};
 use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, msg, program_error::ProgramError,
-    pubkey::Pubkey,
+    account_info::AccountInfo, clock::Clock, entrypoint::ProgramResult, msg,
+    program_error::ProgramError, pubkey::Pubkey, sysvar::Sysvar,
 };
 
-/// Initializes a Weight Table
-pub fn process_update_weight_table(
+/// Updates weight table
+pub fn process_admin_update_weight_table(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
     ncn_epoch: u64,
@@ -45,7 +43,9 @@ pub fn process_update_weight_table(
     let mut weight_table_data = weight_table.try_borrow_mut_data()?;
     let weight_table_account = WeightTable::try_from_slice_unchecked_mut(&mut weight_table_data)?;
 
-    weight_table_account.set_weight(mint.key, PreciseWeight::from_weight(weight))?;
+    weight_table_account.check_initialized()?;
+
+    weight_table_account.set_weight(mint.key, weight, Clock::get()?.slot)?;
 
     Ok(())
 }

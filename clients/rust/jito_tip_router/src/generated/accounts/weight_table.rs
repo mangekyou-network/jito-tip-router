@@ -20,7 +20,6 @@ pub struct WeightTable {
     pub ncn: Pubkey,
     pub ncn_epoch: u64,
     pub slot_created: u64,
-    pub slot_finalized: u64,
     pub bump: u8,
     #[cfg_attr(feature = "serde", serde(with = "serde_with::As::<serde_with::Bytes>"))]
     pub reserved: [u8; 128],

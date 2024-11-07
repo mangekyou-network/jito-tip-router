@@ -9,9 +9,6 @@ use thiserror::Error;
 
 #[derive(Clone, Debug, Eq, Error, FromPrimitive, PartialEq)]
 pub enum JitoTipRouterError {
-    /// 8192 - No more table slots available
-    #[error("No more table slots available")]
-    NoMoreTableSlots = 0x2000,
     /// 8448 - Zero in the denominator
     #[error("Zero in the denominator")]
     DenominatorIsZero = 0x2100,
@@ -30,15 +27,30 @@ pub enum JitoTipRouterError {
     /// 8704 - Incorrect weight table admin
     #[error("Incorrect weight table admin")]
     IncorrectWeightTableAdmin = 0x2200,
-    /// 8705 - Cannnot create future weight tables
+    /// 8705 - Duplicate mints in table
+    #[error("Duplicate mints in table")]
+    DuplicateMintsInTable = 0x2201,
+    /// 8706 - There are no mints in the table
+    #[error("There are no mints in the table")]
+    NoMintsInTable = 0x2202,
+    /// 8707 - Too many mints for table
+    #[error("Too many mints for table")]
+    TooManyMintsForTable = 0x2203,
+    /// 8708 - Weight table already initialized
+    #[error("Weight table already initialized")]
+    WeightTableAlreadyInitialized = 0x2204,
+    /// 8709 - Cannnot create future weight tables
     #[error("Cannnot create future weight tables")]
-    CannotCreateFutureWeightTables = 0x2201,
-    /// 8706 - Weight mints do not match - length
+    CannotCreateFutureWeightTables = 0x2205,
+    /// 8710 - Weight mints do not match - length
     #[error("Weight mints do not match - length")]
-    WeightMintsDoNotMatchLength = 0x2202,
-    /// 8707 - Weight mints do not match - mint hash
+    WeightMintsDoNotMatchLength = 0x2206,
+    /// 8711 - Weight mints do not match - mint hash
     #[error("Weight mints do not match - mint hash")]
-    WeightMintsDoNotMatchMintHash = 0x2203,
+    WeightMintsDoNotMatchMintHash = 0x2207,
+    /// 8712 - Invalid mint for weight table
+    #[error("Invalid mint for weight table")]
+    InvalidMintForWeightTable = 0x2208,
 }
 
 impl solana_program::program_error::PrintProgramError for JitoTipRouterError {

@@ -13,9 +13,8 @@ import {
   type ReadonlyUint8Array,
 } from '@solana/web3.js';
 import {
-  type ParsedFinalizeWeightTableInstruction,
+  type ParsedAdminUpdateWeightTableInstruction,
   type ParsedInitializeWeightTableInstruction,
-  type ParsedUpdateWeightTableInstruction,
 } from '../instructions';
 
 export const JITO_TIP_ROUTER_PROGRAM_ADDRESS =
@@ -27,8 +26,7 @@ export enum JitoTipRouterAccount {
 
 export enum JitoTipRouterInstruction {
   InitializeWeightTable,
-  UpdateWeightTable,
-  FinalizeWeightTable,
+  AdminUpdateWeightTable,
 }
 
 export function identifyJitoTipRouterInstruction(
@@ -39,10 +37,7 @@ export function identifyJitoTipRouterInstruction(
     return JitoTipRouterInstruction.InitializeWeightTable;
   }
   if (containsBytes(data, getU8Encoder().encode(1), 0)) {
-    return JitoTipRouterInstruction.UpdateWeightTable;
-  }
-  if (containsBytes(data, getU8Encoder().encode(2), 0)) {
-    return JitoTipRouterInstruction.FinalizeWeightTable;
+    return JitoTipRouterInstruction.AdminUpdateWeightTable;
   }
   throw new Error(
     'The provided instruction could not be identified as a jitoTipRouter instruction.'
@@ -56,8 +51,5 @@ export type ParsedJitoTipRouterInstruction<
       instructionType: JitoTipRouterInstruction.InitializeWeightTable;
     } & ParsedInitializeWeightTableInstruction<TProgram>)
   | ({
-      instructionType: JitoTipRouterInstruction.UpdateWeightTable;
-    } & ParsedUpdateWeightTableInstruction<TProgram>)
-  | ({
-      instructionType: JitoTipRouterInstruction.FinalizeWeightTable;
-    } & ParsedFinalizeWeightTableInstruction<TProgram>);
+      instructionType: JitoTipRouterInstruction.AdminUpdateWeightTable;
+    } & ParsedAdminUpdateWeightTableInstruction<TProgram>);

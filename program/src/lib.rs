@@ -1,6 +1,5 @@
-mod finalize_weight_table;
+mod admin_update_weight_table;
 mod initialize_weight_table;
-mod update_weight_table;
 
 use borsh::BorshDeserialize;
 use const_str_to_pubkey::str_to_pubkey;
@@ -13,9 +12,8 @@ use solana_program::{
 use solana_security_txt::security_txt;
 
 use crate::{
-    finalize_weight_table::process_finalize_weight_table,
+    admin_update_weight_table::process_admin_update_weight_table,
     initialize_weight_table::process_initialize_weight_table,
-    update_weight_table::process_update_weight_table,
 };
 
 declare_id!(str_to_pubkey(env!("TIP_ROUTER_PROGRAM_ID")));
@@ -59,20 +57,9 @@ pub fn process_instruction(
         // ------------------------------------------
         // Update
         // ------------------------------------------
-        WeightTableInstruction::UpdateWeightTable { ncn_epoch, weight } => {
+        WeightTableInstruction::AdminUpdateWeightTable { ncn_epoch, weight } => {
             msg!("Instruction: UpdateWeightTable");
-            process_update_weight_table(program_id, accounts, ncn_epoch, weight)
-        }
-        // ------------------------------------------
-        // Finalization
-        // ------------------------------------------
-        WeightTableInstruction::FinalizeWeightTable {
-            ncn_epoch,
-            mint_hash,
-            mint_count,
-        } => {
-            msg!("Instruction: FinalizeWeightTable");
-            process_finalize_weight_table(program_id, accounts, ncn_epoch, mint_hash, mint_count)
+            process_admin_update_weight_table(program_id, accounts, ncn_epoch, weight)
         }
     }
 }

@@ -6,6 +6,5 @@
  * @see https://github.com/kinobi-so/kinobi
  */
 
-export * from './finalizeWeightTable';
+export * from './adminUpdateWeightTable';
 export * from './initializeWeightTable';
-export * from './updateWeightTable';

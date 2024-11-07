@@ -5,7 +5,7 @@ use jito_jsm_core::{
     create_account,
     loader::{load_signer, load_system_account, load_system_program},
 };
-use jito_restaking_core::{config::Config, ncn::Ncn};
+use jito_restaking_core::config::Config;
 use jito_tip_router_core::{error::TipRouterError, weight_table::WeightTable};
 use solana_program::{
     account_info::AccountInfo, clock::Clock, entrypoint::ProgramResult, msg,
@@ -19,11 +19,12 @@ pub fn process_initialize_weight_table(
     accounts: &[AccountInfo],
     first_slot_of_ncn_epoch: Option<u64>,
 ) -> ProgramResult {
-    let [restaking_config, ncn, weight_table, weight_table_admin, restaking_program_id, system_program] =
+    let [restaking_config, ncn, weight_table, payer, restaking_program_id, system_program] =
         accounts
     else {
         return Err(ProgramError::NotEnoughAccountKeys);
     };
+
     Config::load(restaking_program_id.key, restaking_config, false)?;
     let ncn_epoch_length = {
         let config_data = restaking_config.data.borrow();
@@ -31,26 +32,15 @@ pub fn process_initialize_weight_table(
         config.epoch_length()
     };
 
-    Ncn::load(restaking_program_id.key, ncn, false)?;
-    let ncn_weight_table_admin = {
-        //TODO switch to weight table admin when that is merged
-        let ncn_data = ncn.data.borrow();
-        let ncn = Ncn::try_from_slice_unchecked(&ncn_data)?;
-        ncn.admin
-    };
+    //TODO load config and grab st mint list
 
     load_system_account(weight_table, true)?;
-    load_signer(weight_table_admin, true)?;
     load_system_program(system_program)?;
+    load_signer(payer, true)?;
 
     if restaking_program_id.key.ne(&jito_restaking_program::id()) {
         msg!("Incorrect restaking program ID");
         return Err(ProgramError::InvalidAccountData);
-    }
-
-    if ncn_weight_table_admin.ne(weight_table_admin.key) {
-        msg!("Vault update delegations ticket is not at the correct PDA");
-        return Err(TipRouterError::IncorrectWeightTableAdmin.into());
     }
 
     let current_slot = Clock::get()?.slot;
@@ -84,7 +74,7 @@ pub fn process_initialize_weight_table(
         ncn_epoch
     );
     create_account(
-        weight_table_admin,
+        payer,
         weight_table,
         system_program,
         program_id,
@@ -98,6 +88,9 @@ pub fn process_initialize_weight_table(
     let weight_table_account = WeightTable::try_from_slice_unchecked_mut(&mut weight_table_data)?;
 
     *weight_table_account = WeightTable::new(*ncn.key, ncn_epoch, current_slot, weight_table_bump);
+
+    //TODO pass in st_mint list from config
+    weight_table_account.initalize_weight_table(&[])?;
 
     Ok(())
 }

@@ -4,10 +4,7 @@
 //!
 //! <https://github.com/kinobi-so/kinobi>
 
-pub(crate) mod r#finalize_weight_table;
+pub(crate) mod r#admin_update_weight_table;
 pub(crate) mod r#initialize_weight_table;
-pub(crate) mod r#update_weight_table;
 
-pub use self::{
-    r#finalize_weight_table::*, r#initialize_weight_table::*, r#update_weight_table::*,
-};
+pub use self::{r#admin_update_weight_table::*, r#initialize_weight_table::*};

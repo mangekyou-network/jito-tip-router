@@ -18,6 +18,22 @@ const weightTableRootNode = anchorIdl.rootNodeFromAnchor(require(path.join(idlDi
 const weightTableKinobi = kinobi.createFromRoot(weightTableRootNode);
 weightTableKinobi.update(kinobi.bottomUpTransformerVisitor([
     {
+        // PodU128 -> u128
+        select: (node) => {
+            return (
+                kinobi.isNode(node, "structFieldTypeNode") &&
+                node.type.name === "podU128"
+            );
+        },
+        transform: (node) => {
+            kinobi.assertIsNode(node, "structFieldTypeNode");
+            return {
+                ...node,
+                type: kinobi.numberTypeNode("u128"),
+            };
+        },
+    },
+    {
         // PodU64 -> u64
         select: (node) => {
             return (

@@ -9,7 +9,7 @@ pub enum WeightTableInstruction {
     #[account(0, name = "restaking_config")]
     #[account(1, name = "ncn")]
     #[account(2, writable, signer, name = "weight_table")]
-    #[account(3, writable, signer, name = "weight_table_admin")]
+    #[account(3, writable, signer, name = "payer")]
     #[account(4, name = "restaking_program_id")]
     #[account(5, name = "system_program")]
     InitializeWeightTable{
@@ -21,19 +21,8 @@ pub enum WeightTableInstruction {
     #[account(1, writable, name = "weight_table")]
     #[account(2, signer, name = "weight_table_admin")]
     #[account(3, name = "restaking_program_id")]
-    UpdateWeightTable{
+    AdminUpdateWeightTable{
         ncn_epoch: u64,
         weight: u128,
     },
-
-    #[account(0, name = "ncn")]
-    #[account(1, writable, name = "weight_table")]
-    #[account(2, signer, name = "weight_table_admin")]
-    #[account(3, name = "restaking_program_id")]
-    FinalizeWeightTable{
-        ncn_epoch: u64,
-        mint_hash: u64,
-        mint_count: u8,
-    },
-
 }

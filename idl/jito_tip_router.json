@@ -21,7 +21,7 @@
           "isSigner": true
         },
         {
-          "name": "weightTableAdmin",
+          "name": "payer",
           "isMut": true,
           "isSigner": true
         },
@@ -50,7 +50,7 @@
       }
     },
     {
-      "name": "UpdateWeightTable",
+      "name": "AdminUpdateWeightTable",
       "accounts": [
         {
           "name": "ncn",
@@ -87,49 +87,6 @@
         "type": "u8",
         "value": 1
       }
-    },
-    {
-      "name": "FinalizeWeightTable",
-      "accounts": [
-        {
-          "name": "ncn",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "weightTable",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "weightTableAdmin",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "restakingProgramId",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "ncnEpoch",
-          "type": "u64"
-        },
-        {
-          "name": "mintHash",
-          "type": "u64"
-        },
-        {
-          "name": "mintCount",
-          "type": "u8"
-        }
-      ],
-      "discriminant": {
-        "type": "u8",
-        "value": 2
-      }
     }
   ],
   "accounts": [
@@ -150,12 +107,6 @@
           },
           {
             "name": "slotCreated",
-            "type": {
-              "defined": "PodU64"
-            }
-          },
-          {
-            "name": "slotFinalized",
             "type": {
               "defined": "PodU64"
             }
@@ -190,51 +141,6 @@
   ],
   "types": [
     {
-      "name": "PreciseNumberWrapper",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "value",
-            "type": {
-              "array": [
-                "u8",
-                16
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "PreciseWeight",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "number",
-            "type": {
-              "defined": "PreciseNumberWrapper"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "PreciseTokenSupply",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "number",
-            "type": {
-              "defined": "PreciseNumberWrapper"
-            }
-          }
-        ]
-      }
-    },
-    {
       "name": "WeightEntry",
       "type": {
         "kind": "struct",
@@ -246,7 +152,28 @@
           {
             "name": "weight",
             "type": {
-              "defined": "PreciseWeight"
+              "defined": "PodU128"
+            }
+          },
+          {
+            "name": "slotSet",
+            "type": {
+              "defined": "PodU64"
+            }
+          },
+          {
+            "name": "slotUpdated",
+            "type": {
+              "defined": "PodU64"
+            }
+          },
+          {
+            "name": "reserved",
+            "type": {
+              "array": [
+                "u8",
+                128
+              ]
             }
           }
         ]
@@ -254,11 +181,6 @@
     }
   ],
   "errors": [
-    {
-      "code": 8192,
-      "name": "NoMoreTableSlots",
-      "msg": "No more table slots available"
-    },
     {
       "code": 8448,
       "name": "DenominatorIsZero",
@@ -291,18 +213,43 @@
     },
     {
       "code": 8705,
+      "name": "DuplicateMintsInTable",
+      "msg": "Duplicate mints in table"
+    },
+    {
+      "code": 8706,
+      "name": "NoMintsInTable",
+      "msg": "There are no mints in the table"
+    },
+    {
+      "code": 8707,
+      "name": "TooManyMintsForTable",
+      "msg": "Too many mints for table"
+    },
+    {
+      "code": 8708,
+      "name": "WeightTableAlreadyInitialized",
+      "msg": "Weight table already initialized"
+    },
+    {
+      "code": 8709,
       "name": "CannotCreateFutureWeightTables",
       "msg": "Cannnot create future weight tables"
     },
     {
-      "code": 8706,
+      "code": 8710,
       "name": "WeightMintsDoNotMatchLength",
       "msg": "Weight mints do not match - length"
     },
     {
-      "code": 8707,
+      "code": 8711,
       "name": "WeightMintsDoNotMatchMintHash",
       "msg": "Weight mints do not match - mint hash"
+    },
+    {
+      "code": 8712,
+      "name": "InvalidMintForWeightTable",
+      "msg": "Invalid mint for weight table"
     }
   ],
   "metadata": {
