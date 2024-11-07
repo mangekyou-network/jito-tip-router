@@ -38,7 +38,7 @@ impl TipRouterClient {
         Ok(())
     }
 
-    pub async fn _airdrop(&mut self, to: &Pubkey, sol: f64) -> TestResult<()> {
+    pub async fn airdrop(&mut self, to: &Pubkey, sol: f64) -> TestResult<()> {
         let blockhash = self.banks_client.get_latest_blockhash().await?;
         self.banks_client
             .process_transaction_with_preflight_and_commitment(
@@ -66,7 +66,7 @@ impl TipRouterClient {
         ncn: Pubkey,
         ncn_admin: &Keypair,
     ) -> TestResult<()> {
-        self._airdrop(&self.payer.pubkey(), 1.0).await?;
+        self.airdrop(&self.payer.pubkey(), 1.0).await?;
 
         let ncn_admin_pubkey = ncn_admin.pubkey();
         self.initialize_config(ncn, ncn_admin, ncn_admin_pubkey, ncn_admin_pubkey, 0, 0, 0)
@@ -117,7 +117,7 @@ impl TipRouterClient {
     ) -> TestResult<()> {
         let config_pda =
             NcnConfig::find_program_address(&jito_tip_router_program::id(), &ncn_root.ncn_pubkey).0;
-        self._airdrop(&ncn_root.ncn_admin.pubkey(), 1.0).await?;
+        self.airdrop(&ncn_root.ncn_admin.pubkey(), 1.0).await?;
         self.set_config_fees(
             config_pda,
             dao_fee_bps,

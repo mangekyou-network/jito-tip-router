@@ -37,7 +37,7 @@ impl RestakingProgramClient {
         Ok(())
     }
 
-    pub async fn _airdrop(&mut self, to: &Pubkey, sol: f64) -> TestResult<()> {
+    pub async fn airdrop(&mut self, to: &Pubkey, sol: f64) -> TestResult<()> {
         let blockhash = self.banks_client.get_latest_blockhash().await?;
         self.banks_client
             .process_transaction_with_preflight_and_commitment(
@@ -57,7 +57,7 @@ impl RestakingProgramClient {
         let restaking_config_pubkey = Config::find_program_address(&jito_restaking_program::id()).0;
         let restaking_config_admin = Keypair::new();
 
-        self._airdrop(&restaking_config_admin.pubkey(), 1.0).await?;
+        self.airdrop(&restaking_config_admin.pubkey(), 1.0).await?;
         self.initialize_config(&restaking_config_pubkey, &restaking_config_admin)
             .await?;
 
@@ -88,7 +88,7 @@ impl RestakingProgramClient {
         let ncn_admin = Keypair::new();
         let ncn_base = Keypair::new();
 
-        self._airdrop(&ncn_admin.pubkey(), 1.0).await?;
+        self.airdrop(&ncn_admin.pubkey(), 1.0).await?;
 
         let ncn_pubkey =
             Ncn::find_program_address(&jito_restaking_program::id(), &ncn_base.pubkey()).0;

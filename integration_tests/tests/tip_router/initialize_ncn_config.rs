@@ -47,7 +47,7 @@ mod tests {
             ncn_admin: fake_admin,
         };
         tip_router_client
-            ._airdrop(&fake_ncn_root.ncn_admin.pubkey(), 1.0)
+            .airdrop(&fake_ncn_root.ncn_admin.pubkey(), 1.0)
             .await?;
         let transaction_error = tip_router_client
             .do_initialize_config(fake_ncn_root.ncn_pubkey, &fake_ncn_root.ncn_admin)
