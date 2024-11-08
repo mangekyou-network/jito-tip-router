@@ -7,4 +7,7 @@
  */
 
 export * from './adminUpdateWeightTable';
+export * from './initializeNCNConfig';
 export * from './initializeWeightTable';
+export * from './setConfigFees';
+export * from './setNewAdmin';

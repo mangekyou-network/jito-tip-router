@@ -4,6 +4,7 @@
 //!
 //! <https://github.com/kinobi-so/kinobi>
 
+pub(crate) mod r#ncn_config;
 pub(crate) mod r#weight_table;
 
-pub use self::r#weight_table::*;
+pub use self::{r#ncn_config::*, r#weight_table::*};

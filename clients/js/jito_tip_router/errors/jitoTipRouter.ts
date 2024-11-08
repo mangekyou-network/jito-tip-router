@@ -42,6 +42,14 @@ export const JITO_TIP_ROUTER_ERROR__WEIGHT_MINTS_DO_NOT_MATCH_LENGTH = 0x2206; /
 export const JITO_TIP_ROUTER_ERROR__WEIGHT_MINTS_DO_NOT_MATCH_MINT_HASH = 0x2207; // 8711
 /** InvalidMintForWeightTable: Invalid mint for weight table */
 export const JITO_TIP_ROUTER_ERROR__INVALID_MINT_FOR_WEIGHT_TABLE = 0x2208; // 8712
+/** FeeCapExceeded: Fee cap exceeded */
+export const JITO_TIP_ROUTER_ERROR__FEE_CAP_EXCEEDED = 0x2300; // 8960
+/** IncorrectNcnAdmin: Incorrect NCN Admin */
+export const JITO_TIP_ROUTER_ERROR__INCORRECT_NCN_ADMIN = 0x2400; // 9216
+/** IncorrectNcn: Incorrect NCN */
+export const JITO_TIP_ROUTER_ERROR__INCORRECT_NCN = 0x2401; // 9217
+/** IncorrectFeeAdmin: Incorrect fee admin */
+export const JITO_TIP_ROUTER_ERROR__INCORRECT_FEE_ADMIN = 0x2402; // 9218
 
 export type JitoTipRouterError =
   | typeof JITO_TIP_ROUTER_ERROR__ARITHMETIC_OVERFLOW
@@ -49,6 +57,10 @@ export type JitoTipRouterError =
   | typeof JITO_TIP_ROUTER_ERROR__CAST_TO_IMPRECISE_NUMBER_ERROR
   | typeof JITO_TIP_ROUTER_ERROR__DENOMINATOR_IS_ZERO
   | typeof JITO_TIP_ROUTER_ERROR__DUPLICATE_MINTS_IN_TABLE
+  | typeof JITO_TIP_ROUTER_ERROR__FEE_CAP_EXCEEDED
+  | typeof JITO_TIP_ROUTER_ERROR__INCORRECT_FEE_ADMIN
+  | typeof JITO_TIP_ROUTER_ERROR__INCORRECT_NCN
+  | typeof JITO_TIP_ROUTER_ERROR__INCORRECT_NCN_ADMIN
   | typeof JITO_TIP_ROUTER_ERROR__INCORRECT_WEIGHT_TABLE_ADMIN
   | typeof JITO_TIP_ROUTER_ERROR__INVALID_MINT_FOR_WEIGHT_TABLE
   | typeof JITO_TIP_ROUTER_ERROR__MODULO_OVERFLOW
@@ -67,6 +79,10 @@ if (process.env.NODE_ENV !== 'production') {
     [JITO_TIP_ROUTER_ERROR__CAST_TO_IMPRECISE_NUMBER_ERROR]: `Cast to imprecise number error`,
     [JITO_TIP_ROUTER_ERROR__DENOMINATOR_IS_ZERO]: `Zero in the denominator`,
     [JITO_TIP_ROUTER_ERROR__DUPLICATE_MINTS_IN_TABLE]: `Duplicate mints in table`,
+    [JITO_TIP_ROUTER_ERROR__FEE_CAP_EXCEEDED]: `Fee cap exceeded`,
+    [JITO_TIP_ROUTER_ERROR__INCORRECT_FEE_ADMIN]: `Incorrect fee admin`,
+    [JITO_TIP_ROUTER_ERROR__INCORRECT_NCN]: `Incorrect NCN`,
+    [JITO_TIP_ROUTER_ERROR__INCORRECT_NCN_ADMIN]: `Incorrect NCN Admin`,
     [JITO_TIP_ROUTER_ERROR__INCORRECT_WEIGHT_TABLE_ADMIN]: `Incorrect weight table admin`,
     [JITO_TIP_ROUTER_ERROR__INVALID_MINT_FOR_WEIGHT_TABLE]: `Invalid mint for weight table`,
     [JITO_TIP_ROUTER_ERROR__MODULO_OVERFLOW]: `Modulo Overflow`,

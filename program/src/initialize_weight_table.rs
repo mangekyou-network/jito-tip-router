@@ -6,7 +6,9 @@ use jito_jsm_core::{
     loader::{load_signer, load_system_account, load_system_program},
 };
 use jito_restaking_core::config::Config;
-use jito_tip_router_core::{error::TipRouterError, weight_table::WeightTable};
+use jito_tip_router_core::{
+    error::TipRouterError, ncn_config::NcnConfig, weight_table::WeightTable,
+};
 use solana_program::{
     account_info::AccountInfo, clock::Clock, entrypoint::ProgramResult, msg,
     program_error::ProgramError, pubkey::Pubkey, rent::Rent, sysvar::Sysvar,
@@ -19,20 +21,26 @@ pub fn process_initialize_weight_table(
     accounts: &[AccountInfo],
     first_slot_of_ncn_epoch: Option<u64>,
 ) -> ProgramResult {
-    let [restaking_config, ncn, weight_table, payer, restaking_program_id, system_program] =
+    let [restaking_config, ncn_config, ncn, weight_table, payer, restaking_program_id, system_program] =
         accounts
     else {
         return Err(ProgramError::NotEnoughAccountKeys);
     };
 
+    NcnConfig::load(restaking_program_id.key, ncn.key, ncn_config, false)?;
     Config::load(restaking_program_id.key, restaking_config, false)?;
+
     let ncn_epoch_length = {
         let config_data = restaking_config.data.borrow();
         let config = Config::try_from_slice_unchecked(&config_data)?;
         config.epoch_length()
     };
 
-    //TODO load config and grab st mint list
+    let _todo_pubkeys = {
+        let ncn_config_data = ncn_config.data.borrow();
+        let ncn_config = NcnConfig::try_from_slice_unchecked(&ncn_config_data)?;
+        ncn_config.bump
+    };
 
     load_system_account(weight_table, true)?;
     load_system_program(system_program)?;

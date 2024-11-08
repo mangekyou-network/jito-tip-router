@@ -10,10 +10,6 @@ import {
   combineCodec,
   getStructDecoder,
   getStructEncoder,
-  getU128Decoder,
-  getU128Encoder,
-  getU64Decoder,
-  getU64Encoder,
   getU8Decoder,
   getU8Encoder,
   transformEncoder,
@@ -33,32 +29,42 @@ import {
 } from '@solana/web3.js';
 import { JITO_TIP_ROUTER_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
+import {
+  getConfigAdminRoleDecoder,
+  getConfigAdminRoleEncoder,
+  type ConfigAdminRole,
+  type ConfigAdminRoleArgs,
+} from '../types';
 
-export const ADMIN_UPDATE_WEIGHT_TABLE_DISCRIMINATOR = 4;
+export const SET_NEW_ADMIN_DISCRIMINATOR = 2;
 
-export function getAdminUpdateWeightTableDiscriminatorBytes() {
-  return getU8Encoder().encode(ADMIN_UPDATE_WEIGHT_TABLE_DISCRIMINATOR);
+export function getSetNewAdminDiscriminatorBytes() {
+  return getU8Encoder().encode(SET_NEW_ADMIN_DISCRIMINATOR);
 }
 
-export type AdminUpdateWeightTableInstruction<
+export type SetNewAdminInstruction<
   TProgram extends string = typeof JITO_TIP_ROUTER_PROGRAM_ADDRESS,
+  TAccountConfig extends string | IAccountMeta<string> = string,
   TAccountNcn extends string | IAccountMeta<string> = string,
-  TAccountWeightTable extends string | IAccountMeta<string> = string,
-  TAccountWeightTableAdmin extends string | IAccountMeta<string> = string,
+  TAccountNcnAdmin extends string | IAccountMeta<string> = string,
+  TAccountNewAdmin extends string | IAccountMeta<string> = string,
   TAccountRestakingProgramId extends string | IAccountMeta<string> = string,
   TRemainingAccounts extends readonly IAccountMeta<string>[] = [],
 > = IInstruction<TProgram> &
   IInstructionWithData<Uint8Array> &
   IInstructionWithAccounts<
     [
+      TAccountConfig extends string
+        ? WritableAccount<TAccountConfig>
+        : TAccountConfig,
       TAccountNcn extends string ? ReadonlyAccount<TAccountNcn> : TAccountNcn,
-      TAccountWeightTable extends string
-        ? WritableAccount<TAccountWeightTable>
-        : TAccountWeightTable,
-      TAccountWeightTableAdmin extends string
-        ? ReadonlySignerAccount<TAccountWeightTableAdmin> &
-            IAccountSignerMeta<TAccountWeightTableAdmin>
-        : TAccountWeightTableAdmin,
+      TAccountNcnAdmin extends string
+        ? ReadonlySignerAccount<TAccountNcnAdmin> &
+            IAccountSignerMeta<TAccountNcnAdmin>
+        : TAccountNcnAdmin,
+      TAccountNewAdmin extends string
+        ? ReadonlyAccount<TAccountNewAdmin>
+        : TAccountNewAdmin,
       TAccountRestakingProgramId extends string
         ? ReadonlyAccount<TAccountRestakingProgramId>
         : TAccountRestakingProgramId,
@@ -66,82 +72,77 @@ export type AdminUpdateWeightTableInstruction<
     ]
   >;
 
-export type AdminUpdateWeightTableInstructionData = {
+export type SetNewAdminInstructionData = {
   discriminator: number;
-  ncnEpoch: bigint;
-  weight: bigint;
+  role: ConfigAdminRole;
 };
 
-export type AdminUpdateWeightTableInstructionDataArgs = {
-  ncnEpoch: number | bigint;
-  weight: number | bigint;
-};
+export type SetNewAdminInstructionDataArgs = { role: ConfigAdminRoleArgs };
 
-export function getAdminUpdateWeightTableInstructionDataEncoder(): Encoder<AdminUpdateWeightTableInstructionDataArgs> {
+export function getSetNewAdminInstructionDataEncoder(): Encoder<SetNewAdminInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
       ['discriminator', getU8Encoder()],
-      ['ncnEpoch', getU64Encoder()],
-      ['weight', getU128Encoder()],
+      ['role', getConfigAdminRoleEncoder()],
     ]),
-    (value) => ({
-      ...value,
-      discriminator: ADMIN_UPDATE_WEIGHT_TABLE_DISCRIMINATOR,
-    })
+    (value) => ({ ...value, discriminator: SET_NEW_ADMIN_DISCRIMINATOR })
   );
 }
 
-export function getAdminUpdateWeightTableInstructionDataDecoder(): Decoder<AdminUpdateWeightTableInstructionData> {
+export function getSetNewAdminInstructionDataDecoder(): Decoder<SetNewAdminInstructionData> {
   return getStructDecoder([
     ['discriminator', getU8Decoder()],
-    ['ncnEpoch', getU64Decoder()],
-    ['weight', getU128Decoder()],
+    ['role', getConfigAdminRoleDecoder()],
   ]);
 }
 
-export function getAdminUpdateWeightTableInstructionDataCodec(): Codec<
-  AdminUpdateWeightTableInstructionDataArgs,
-  AdminUpdateWeightTableInstructionData
+export function getSetNewAdminInstructionDataCodec(): Codec<
+  SetNewAdminInstructionDataArgs,
+  SetNewAdminInstructionData
 > {
   return combineCodec(
-    getAdminUpdateWeightTableInstructionDataEncoder(),
-    getAdminUpdateWeightTableInstructionDataDecoder()
+    getSetNewAdminInstructionDataEncoder(),
+    getSetNewAdminInstructionDataDecoder()
   );
 }
 
-export type AdminUpdateWeightTableInput<
+export type SetNewAdminInput<
+  TAccountConfig extends string = string,
   TAccountNcn extends string = string,
-  TAccountWeightTable extends string = string,
-  TAccountWeightTableAdmin extends string = string,
+  TAccountNcnAdmin extends string = string,
+  TAccountNewAdmin extends string = string,
   TAccountRestakingProgramId extends string = string,
 > = {
+  config: Address<TAccountConfig>;
   ncn: Address<TAccountNcn>;
-  weightTable: Address<TAccountWeightTable>;
-  weightTableAdmin: TransactionSigner<TAccountWeightTableAdmin>;
+  ncnAdmin: TransactionSigner<TAccountNcnAdmin>;
+  newAdmin: Address<TAccountNewAdmin>;
   restakingProgramId: Address<TAccountRestakingProgramId>;
-  ncnEpoch: AdminUpdateWeightTableInstructionDataArgs['ncnEpoch'];
-  weight: AdminUpdateWeightTableInstructionDataArgs['weight'];
+  role: SetNewAdminInstructionDataArgs['role'];
 };
 
-export function getAdminUpdateWeightTableInstruction<
+export function getSetNewAdminInstruction<
+  TAccountConfig extends string,
   TAccountNcn extends string,
-  TAccountWeightTable extends string,
-  TAccountWeightTableAdmin extends string,
+  TAccountNcnAdmin extends string,
+  TAccountNewAdmin extends string,
   TAccountRestakingProgramId extends string,
   TProgramAddress extends Address = typeof JITO_TIP_ROUTER_PROGRAM_ADDRESS,
 >(
-  input: AdminUpdateWeightTableInput<
+  input: SetNewAdminInput<
+    TAccountConfig,
     TAccountNcn,
-    TAccountWeightTable,
-    TAccountWeightTableAdmin,
+    TAccountNcnAdmin,
+    TAccountNewAdmin,
     TAccountRestakingProgramId
   >,
   config?: { programAddress?: TProgramAddress }
-): AdminUpdateWeightTableInstruction<
+): SetNewAdminInstruction<
   TProgramAddress,
+  TAccountConfig,
   TAccountNcn,
-  TAccountWeightTable,
-  TAccountWeightTableAdmin,
+  TAccountNcnAdmin,
+  TAccountNewAdmin,
   TAccountRestakingProgramId
 > {
   // Program address.
@@ -150,12 +151,10 @@ export function getAdminUpdateWeightTableInstruction<
 
   // Original accounts.
   const originalAccounts = {
+    config: { value: input.config ?? null, isWritable: true },
     ncn: { value: input.ncn ?? null, isWritable: false },
-    weightTable: { value: input.weightTable ?? null, isWritable: true },
-    weightTableAdmin: {
-      value: input.weightTableAdmin ?? null,
-      isWritable: false,
-    },
+    ncnAdmin: { value: input.ncnAdmin ?? null, isWritable: false },
+    newAdmin: { value: input.newAdmin ?? null, isWritable: false },
     restakingProgramId: {
       value: input.restakingProgramId ?? null,
       isWritable: false,
@@ -172,49 +171,52 @@ export function getAdminUpdateWeightTableInstruction<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   const instruction = {
     accounts: [
+      getAccountMeta(accounts.config),
       getAccountMeta(accounts.ncn),
-      getAccountMeta(accounts.weightTable),
-      getAccountMeta(accounts.weightTableAdmin),
+      getAccountMeta(accounts.ncnAdmin),
+      getAccountMeta(accounts.newAdmin),
       getAccountMeta(accounts.restakingProgramId),
     ],
     programAddress,
-    data: getAdminUpdateWeightTableInstructionDataEncoder().encode(
-      args as AdminUpdateWeightTableInstructionDataArgs
+    data: getSetNewAdminInstructionDataEncoder().encode(
+      args as SetNewAdminInstructionDataArgs
     ),
-  } as AdminUpdateWeightTableInstruction<
+  } as SetNewAdminInstruction<
     TProgramAddress,
+    TAccountConfig,
     TAccountNcn,
-    TAccountWeightTable,
-    TAccountWeightTableAdmin,
+    TAccountNcnAdmin,
+    TAccountNewAdmin,
     TAccountRestakingProgramId
   >;
 
   return instruction;
 }
 
-export type ParsedAdminUpdateWeightTableInstruction<
+export type ParsedSetNewAdminInstruction<
   TProgram extends string = typeof JITO_TIP_ROUTER_PROGRAM_ADDRESS,
   TAccountMetas extends readonly IAccountMeta[] = readonly IAccountMeta[],
 > = {
   programAddress: Address<TProgram>;
   accounts: {
-    ncn: TAccountMetas[0];
-    weightTable: TAccountMetas[1];
-    weightTableAdmin: TAccountMetas[2];
-    restakingProgramId: TAccountMetas[3];
+    config: TAccountMetas[0];
+    ncn: TAccountMetas[1];
+    ncnAdmin: TAccountMetas[2];
+    newAdmin: TAccountMetas[3];
+    restakingProgramId: TAccountMetas[4];
   };
-  data: AdminUpdateWeightTableInstructionData;
+  data: SetNewAdminInstructionData;
 };
 
-export function parseAdminUpdateWeightTableInstruction<
+export function parseSetNewAdminInstruction<
   TProgram extends string,
   TAccountMetas extends readonly IAccountMeta[],
 >(
   instruction: IInstruction<TProgram> &
     IInstructionWithAccounts<TAccountMetas> &
     IInstructionWithData<Uint8Array>
-): ParsedAdminUpdateWeightTableInstruction<TProgram, TAccountMetas> {
-  if (instruction.accounts.length < 4) {
+): ParsedSetNewAdminInstruction<TProgram, TAccountMetas> {
+  if (instruction.accounts.length < 5) {
     // TODO: Coded error.
     throw new Error('Not enough accounts');
   }
@@ -227,13 +229,12 @@ export function parseAdminUpdateWeightTableInstruction<
   return {
     programAddress: instruction.programAddress,
     accounts: {
+      config: getNextAccount(),
       ncn: getNextAccount(),
-      weightTable: getNextAccount(),
-      weightTableAdmin: getNextAccount(),
+      ncnAdmin: getNextAccount(),
+      newAdmin: getNextAccount(),
       restakingProgramId: getNextAccount(),
     },
-    data: getAdminUpdateWeightTableInstructionDataDecoder().decode(
-      instruction.data
-    ),
+    data: getSetNewAdminInstructionDataDecoder().decode(instruction.data),
   };
 }

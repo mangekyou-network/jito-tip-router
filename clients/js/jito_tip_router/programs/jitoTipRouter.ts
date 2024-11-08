@@ -14,17 +14,24 @@ import {
 } from '@solana/web3.js';
 import {
   type ParsedAdminUpdateWeightTableInstruction,
+  type ParsedInitializeNCNConfigInstruction,
   type ParsedInitializeWeightTableInstruction,
+  type ParsedSetConfigFeesInstruction,
+  type ParsedSetNewAdminInstruction,
 } from '../instructions';
 
 export const JITO_TIP_ROUTER_PROGRAM_ADDRESS =
   'Fv9aHCgvPQSr4jg9W8eTS6Ys1SNmh2qjyATrbsjEMaSH' as Address<'Fv9aHCgvPQSr4jg9W8eTS6Ys1SNmh2qjyATrbsjEMaSH'>;
 
 export enum JitoTipRouterAccount {
+  NcnConfig,
   WeightTable,
 }
 
 export enum JitoTipRouterInstruction {
+  InitializeNCNConfig,
+  SetConfigFees,
+  SetNewAdmin,
   InitializeWeightTable,
   AdminUpdateWeightTable,
 }
@@ -34,9 +41,18 @@ export function identifyJitoTipRouterInstruction(
 ): JitoTipRouterInstruction {
   const data = 'data' in instruction ? instruction.data : instruction;
   if (containsBytes(data, getU8Encoder().encode(0), 0)) {
-    return JitoTipRouterInstruction.InitializeWeightTable;
+    return JitoTipRouterInstruction.InitializeNCNConfig;
   }
   if (containsBytes(data, getU8Encoder().encode(1), 0)) {
+    return JitoTipRouterInstruction.SetConfigFees;
+  }
+  if (containsBytes(data, getU8Encoder().encode(2), 0)) {
+    return JitoTipRouterInstruction.SetNewAdmin;
+  }
+  if (containsBytes(data, getU8Encoder().encode(3), 0)) {
+    return JitoTipRouterInstruction.InitializeWeightTable;
+  }
+  if (containsBytes(data, getU8Encoder().encode(4), 0)) {
     return JitoTipRouterInstruction.AdminUpdateWeightTable;
   }
   throw new Error(
@@ -47,6 +63,15 @@ export function identifyJitoTipRouterInstruction(
 export type ParsedJitoTipRouterInstruction<
   TProgram extends string = 'Fv9aHCgvPQSr4jg9W8eTS6Ys1SNmh2qjyATrbsjEMaSH',
 > =
+  | ({
+      instructionType: JitoTipRouterInstruction.InitializeNCNConfig;
+    } & ParsedInitializeNCNConfigInstruction<TProgram>)
+  | ({
+      instructionType: JitoTipRouterInstruction.SetConfigFees;
+    } & ParsedSetConfigFeesInstruction<TProgram>)
+  | ({
+      instructionType: JitoTipRouterInstruction.SetNewAdmin;
+    } & ParsedSetNewAdminInstruction<TProgram>)
   | ({
       instructionType: JitoTipRouterInstruction.InitializeWeightTable;
     } & ParsedInitializeWeightTableInstruction<TProgram>)

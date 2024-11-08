@@ -3,10 +3,180 @@
   "name": "jito_tip_router",
   "instructions": [
     {
+      "name": "InitializeNCNConfig",
+      "accounts": [
+        {
+          "name": "restakingConfig",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "ncn",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "ncnAdmin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "feeWallet",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tieBreakerAdmin",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "restakingProgramId",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "daoFeeBps",
+          "type": "u64"
+        },
+        {
+          "name": "ncnFeeBps",
+          "type": "u64"
+        },
+        {
+          "name": "blockEngineFeeBps",
+          "type": "u64"
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 0
+      }
+    },
+    {
+      "name": "SetConfigFees",
+      "accounts": [
+        {
+          "name": "restakingConfig",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "ncn",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "ncnAdmin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "restakingProgramId",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "newDaoFeeBps",
+          "type": {
+            "option": "u64"
+          }
+        },
+        {
+          "name": "newNcnFeeBps",
+          "type": {
+            "option": "u64"
+          }
+        },
+        {
+          "name": "newBlockEngineFeeBps",
+          "type": {
+            "option": "u64"
+          }
+        },
+        {
+          "name": "newFeeWallet",
+          "type": {
+            "option": "publicKey"
+          }
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 1
+      }
+    },
+    {
+      "name": "SetNewAdmin",
+      "accounts": [
+        {
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "ncn",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "ncnAdmin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "newAdmin",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "restakingProgramId",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "role",
+          "type": {
+            "defined": "ConfigAdminRole"
+          }
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 2
+      }
+    },
+    {
       "name": "InitializeWeightTable",
       "accounts": [
         {
           "name": "restakingConfig",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "ncnConfig",
           "isMut": false,
           "isSigner": false
         },
@@ -46,7 +216,7 @@
       ],
       "discriminant": {
         "type": "u8",
-        "value": 0
+        "value": 3
       }
     },
     {
@@ -85,11 +255,50 @@
       ],
       "discriminant": {
         "type": "u8",
-        "value": 1
+        "value": 4
       }
     }
   ],
   "accounts": [
+    {
+      "name": "NcnConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "ncn",
+            "type": "publicKey"
+          },
+          {
+            "name": "tieBreakerAdmin",
+            "type": "publicKey"
+          },
+          {
+            "name": "feeAdmin",
+            "type": "publicKey"
+          },
+          {
+            "name": "fees",
+            "type": {
+              "defined": "Fees"
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "reserved",
+            "type": {
+              "array": [
+                "u8",
+                127
+              ]
+            }
+          }
+        ]
+      }
+    },
     {
       "name": "WeightTable",
       "type": {
@@ -141,6 +350,54 @@
   ],
   "types": [
     {
+      "name": "Fees",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "fee1",
+            "type": {
+              "defined": "Fee"
+            }
+          },
+          {
+            "name": "fee2",
+            "type": {
+              "defined": "Fee"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Fee",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "publicKey"
+          },
+          {
+            "name": "daoShareBps",
+            "type": "u64"
+          },
+          {
+            "name": "ncnShareBps",
+            "type": "u64"
+          },
+          {
+            "name": "blockEngineFeeBps",
+            "type": "u64"
+          },
+          {
+            "name": "activationEpoch",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
       "name": "WeightEntry",
       "type": {
         "kind": "struct",
@@ -175,6 +432,20 @@
                 128
               ]
             }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ConfigAdminRole",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "FeeAdmin"
+          },
+          {
+            "name": "TieBreakerAdmin"
           }
         ]
       }
@@ -250,6 +521,26 @@
       "code": 8712,
       "name": "InvalidMintForWeightTable",
       "msg": "Invalid mint for weight table"
+    },
+    {
+      "code": 8960,
+      "name": "FeeCapExceeded",
+      "msg": "Fee cap exceeded"
+    },
+    {
+      "code": 9216,
+      "name": "IncorrectNcnAdmin",
+      "msg": "Incorrect NCN Admin"
+    },
+    {
+      "code": 9217,
+      "name": "IncorrectNcn",
+      "msg": "Incorrect NCN"
+    },
+    {
+      "code": 9218,
+      "name": "IncorrectFeeAdmin",
+      "msg": "Incorrect fee admin"
     }
   ],
   "metadata": {
