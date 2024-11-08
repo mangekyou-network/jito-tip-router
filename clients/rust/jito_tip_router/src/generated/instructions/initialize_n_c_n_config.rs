@@ -10,7 +10,7 @@ use borsh::{BorshDeserialize, BorshSerialize};
 pub struct InitializeNCNConfig {
     pub restaking_config: solana_program::pubkey::Pubkey,
 
-    pub config: solana_program::pubkey::Pubkey,
+    pub ncn_config: solana_program::pubkey::Pubkey,
 
     pub ncn: solana_program::pubkey::Pubkey,
 
@@ -44,7 +44,7 @@ impl InitializeNCNConfig {
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new(
-            self.config,
+            self.ncn_config,
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
@@ -115,7 +115,7 @@ pub struct InitializeNCNConfigInstructionArgs {
 /// ### Accounts:
 ///
 ///   0. `[]` restaking_config
-///   1. `[writable]` config
+///   1. `[writable]` ncn_config
 ///   2. `[]` ncn
 ///   3. `[signer]` ncn_admin
 ///   4. `[]` fee_wallet
@@ -125,7 +125,7 @@ pub struct InitializeNCNConfigInstructionArgs {
 #[derive(Clone, Debug, Default)]
 pub struct InitializeNCNConfigBuilder {
     restaking_config: Option<solana_program::pubkey::Pubkey>,
-    config: Option<solana_program::pubkey::Pubkey>,
+    ncn_config: Option<solana_program::pubkey::Pubkey>,
     ncn: Option<solana_program::pubkey::Pubkey>,
     ncn_admin: Option<solana_program::pubkey::Pubkey>,
     fee_wallet: Option<solana_program::pubkey::Pubkey>,
@@ -151,8 +151,8 @@ impl InitializeNCNConfigBuilder {
         self
     }
     #[inline(always)]
-    pub fn config(&mut self, config: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.config = Some(config);
+    pub fn ncn_config(&mut self, ncn_config: solana_program::pubkey::Pubkey) -> &mut Self {
+        self.ncn_config = Some(ncn_config);
         self
     }
     #[inline(always)]
@@ -229,7 +229,7 @@ impl InitializeNCNConfigBuilder {
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
         let accounts = InitializeNCNConfig {
             restaking_config: self.restaking_config.expect("restaking_config is not set"),
-            config: self.config.expect("config is not set"),
+            ncn_config: self.ncn_config.expect("ncn_config is not set"),
             ncn: self.ncn.expect("ncn is not set"),
             ncn_admin: self.ncn_admin.expect("ncn_admin is not set"),
             fee_wallet: self.fee_wallet.expect("fee_wallet is not set"),
@@ -260,7 +260,7 @@ impl InitializeNCNConfigBuilder {
 pub struct InitializeNCNConfigCpiAccounts<'a, 'b> {
     pub restaking_config: &'b solana_program::account_info::AccountInfo<'a>,
 
-    pub config: &'b solana_program::account_info::AccountInfo<'a>,
+    pub ncn_config: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub ncn: &'b solana_program::account_info::AccountInfo<'a>,
 
@@ -282,7 +282,7 @@ pub struct InitializeNCNConfigCpi<'a, 'b> {
 
     pub restaking_config: &'b solana_program::account_info::AccountInfo<'a>,
 
-    pub config: &'b solana_program::account_info::AccountInfo<'a>,
+    pub ncn_config: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub ncn: &'b solana_program::account_info::AccountInfo<'a>,
 
@@ -308,7 +308,7 @@ impl<'a, 'b> InitializeNCNConfigCpi<'a, 'b> {
         Self {
             __program: program,
             restaking_config: accounts.restaking_config,
-            config: accounts.config,
+            ncn_config: accounts.ncn_config,
             ncn: accounts.ncn,
             ncn_admin: accounts.ncn_admin,
             fee_wallet: accounts.fee_wallet,
@@ -357,7 +357,7 @@ impl<'a, 'b> InitializeNCNConfigCpi<'a, 'b> {
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new(
-            *self.config.key,
+            *self.ncn_config.key,
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
@@ -405,7 +405,7 @@ impl<'a, 'b> InitializeNCNConfigCpi<'a, 'b> {
         let mut account_infos = Vec::with_capacity(8 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
         account_infos.push(self.restaking_config.clone());
-        account_infos.push(self.config.clone());
+        account_infos.push(self.ncn_config.clone());
         account_infos.push(self.ncn.clone());
         account_infos.push(self.ncn_admin.clone());
         account_infos.push(self.fee_wallet.clone());
@@ -429,7 +429,7 @@ impl<'a, 'b> InitializeNCNConfigCpi<'a, 'b> {
 /// ### Accounts:
 ///
 ///   0. `[]` restaking_config
-///   1. `[writable]` config
+///   1. `[writable]` ncn_config
 ///   2. `[]` ncn
 ///   3. `[signer]` ncn_admin
 ///   4. `[]` fee_wallet
@@ -446,7 +446,7 @@ impl<'a, 'b> InitializeNCNConfigCpiBuilder<'a, 'b> {
         let instruction = Box::new(InitializeNCNConfigCpiBuilderInstruction {
             __program: program,
             restaking_config: None,
-            config: None,
+            ncn_config: None,
             ncn: None,
             ncn_admin: None,
             fee_wallet: None,
@@ -469,11 +469,11 @@ impl<'a, 'b> InitializeNCNConfigCpiBuilder<'a, 'b> {
         self
     }
     #[inline(always)]
-    pub fn config(
+    pub fn ncn_config(
         &mut self,
-        config: &'b solana_program::account_info::AccountInfo<'a>,
+        ncn_config: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
-        self.instruction.config = Some(config);
+        self.instruction.ncn_config = Some(ncn_config);
         self
     }
     #[inline(always)]
@@ -602,7 +602,7 @@ impl<'a, 'b> InitializeNCNConfigCpiBuilder<'a, 'b> {
                 .restaking_config
                 .expect("restaking_config is not set"),
 
-            config: self.instruction.config.expect("config is not set"),
+            ncn_config: self.instruction.ncn_config.expect("ncn_config is not set"),
 
             ncn: self.instruction.ncn.expect("ncn is not set"),
 
@@ -637,7 +637,7 @@ impl<'a, 'b> InitializeNCNConfigCpiBuilder<'a, 'b> {
 struct InitializeNCNConfigCpiBuilderInstruction<'a, 'b> {
     __program: &'b solana_program::account_info::AccountInfo<'a>,
     restaking_config: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    config: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    ncn_config: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ncn: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ncn_admin: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     fee_wallet: Option<&'b solana_program::account_info::AccountInfo<'a>>,

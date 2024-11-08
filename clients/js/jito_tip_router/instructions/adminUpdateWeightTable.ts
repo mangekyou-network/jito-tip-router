@@ -45,6 +45,7 @@ export type AdminUpdateWeightTableInstruction<
   TAccountNcn extends string | IAccountMeta<string> = string,
   TAccountWeightTable extends string | IAccountMeta<string> = string,
   TAccountWeightTableAdmin extends string | IAccountMeta<string> = string,
+  TAccountMint extends string | IAccountMeta<string> = string,
   TAccountRestakingProgramId extends string | IAccountMeta<string> = string,
   TRemainingAccounts extends readonly IAccountMeta<string>[] = [],
 > = IInstruction<TProgram> &
@@ -59,6 +60,9 @@ export type AdminUpdateWeightTableInstruction<
         ? ReadonlySignerAccount<TAccountWeightTableAdmin> &
             IAccountSignerMeta<TAccountWeightTableAdmin>
         : TAccountWeightTableAdmin,
+      TAccountMint extends string
+        ? ReadonlyAccount<TAccountMint>
+        : TAccountMint,
       TAccountRestakingProgramId extends string
         ? ReadonlyAccount<TAccountRestakingProgramId>
         : TAccountRestakingProgramId,
@@ -113,11 +117,13 @@ export type AdminUpdateWeightTableInput<
   TAccountNcn extends string = string,
   TAccountWeightTable extends string = string,
   TAccountWeightTableAdmin extends string = string,
+  TAccountMint extends string = string,
   TAccountRestakingProgramId extends string = string,
 > = {
   ncn: Address<TAccountNcn>;
   weightTable: Address<TAccountWeightTable>;
   weightTableAdmin: TransactionSigner<TAccountWeightTableAdmin>;
+  mint: Address<TAccountMint>;
   restakingProgramId: Address<TAccountRestakingProgramId>;
   ncnEpoch: AdminUpdateWeightTableInstructionDataArgs['ncnEpoch'];
   weight: AdminUpdateWeightTableInstructionDataArgs['weight'];
@@ -127,6 +133,7 @@ export function getAdminUpdateWeightTableInstruction<
   TAccountNcn extends string,
   TAccountWeightTable extends string,
   TAccountWeightTableAdmin extends string,
+  TAccountMint extends string,
   TAccountRestakingProgramId extends string,
   TProgramAddress extends Address = typeof JITO_TIP_ROUTER_PROGRAM_ADDRESS,
 >(
@@ -134,6 +141,7 @@ export function getAdminUpdateWeightTableInstruction<
     TAccountNcn,
     TAccountWeightTable,
     TAccountWeightTableAdmin,
+    TAccountMint,
     TAccountRestakingProgramId
   >,
   config?: { programAddress?: TProgramAddress }
@@ -142,6 +150,7 @@ export function getAdminUpdateWeightTableInstruction<
   TAccountNcn,
   TAccountWeightTable,
   TAccountWeightTableAdmin,
+  TAccountMint,
   TAccountRestakingProgramId
 > {
   // Program address.
@@ -156,6 +165,7 @@ export function getAdminUpdateWeightTableInstruction<
       value: input.weightTableAdmin ?? null,
       isWritable: false,
     },
+    mint: { value: input.mint ?? null, isWritable: false },
     restakingProgramId: {
       value: input.restakingProgramId ?? null,
       isWritable: false,
@@ -175,6 +185,7 @@ export function getAdminUpdateWeightTableInstruction<
       getAccountMeta(accounts.ncn),
       getAccountMeta(accounts.weightTable),
       getAccountMeta(accounts.weightTableAdmin),
+      getAccountMeta(accounts.mint),
       getAccountMeta(accounts.restakingProgramId),
     ],
     programAddress,
@@ -186,6 +197,7 @@ export function getAdminUpdateWeightTableInstruction<
     TAccountNcn,
     TAccountWeightTable,
     TAccountWeightTableAdmin,
+    TAccountMint,
     TAccountRestakingProgramId
   >;
 
@@ -201,7 +213,8 @@ export type ParsedAdminUpdateWeightTableInstruction<
     ncn: TAccountMetas[0];
     weightTable: TAccountMetas[1];
     weightTableAdmin: TAccountMetas[2];
-    restakingProgramId: TAccountMetas[3];
+    mint: TAccountMetas[3];
+    restakingProgramId: TAccountMetas[4];
   };
   data: AdminUpdateWeightTableInstructionData;
 };
@@ -214,7 +227,7 @@ export function parseAdminUpdateWeightTableInstruction<
     IInstructionWithAccounts<TAccountMetas> &
     IInstructionWithData<Uint8Array>
 ): ParsedAdminUpdateWeightTableInstruction<TProgram, TAccountMetas> {
-  if (instruction.accounts.length < 4) {
+  if (instruction.accounts.length < 5) {
     // TODO: Coded error.
     throw new Error('Not enough accounts');
   }
@@ -230,6 +243,7 @@ export function parseAdminUpdateWeightTableInstruction<
       ncn: getNextAccount(),
       weightTable: getNextAccount(),
       weightTableAdmin: getNextAccount(),
+      mint: getNextAccount(),
       restakingProgramId: getNextAccount(),
     },
     data: getAdminUpdateWeightTableInstructionDataDecoder().decode(

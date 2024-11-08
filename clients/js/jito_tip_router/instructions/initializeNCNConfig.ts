@@ -41,7 +41,7 @@ export function getInitializeNCNConfigDiscriminatorBytes() {
 export type InitializeNCNConfigInstruction<
   TProgram extends string = typeof JITO_TIP_ROUTER_PROGRAM_ADDRESS,
   TAccountRestakingConfig extends string | IAccountMeta<string> = string,
-  TAccountConfig extends string | IAccountMeta<string> = string,
+  TAccountNcnConfig extends string | IAccountMeta<string> = string,
   TAccountNcn extends string | IAccountMeta<string> = string,
   TAccountNcnAdmin extends string | IAccountMeta<string> = string,
   TAccountFeeWallet extends string | IAccountMeta<string> = string,
@@ -58,9 +58,9 @@ export type InitializeNCNConfigInstruction<
       TAccountRestakingConfig extends string
         ? ReadonlyAccount<TAccountRestakingConfig>
         : TAccountRestakingConfig,
-      TAccountConfig extends string
-        ? WritableAccount<TAccountConfig>
-        : TAccountConfig,
+      TAccountNcnConfig extends string
+        ? WritableAccount<TAccountNcnConfig>
+        : TAccountNcnConfig,
       TAccountNcn extends string ? ReadonlyAccount<TAccountNcn> : TAccountNcn,
       TAccountNcnAdmin extends string
         ? ReadonlySignerAccount<TAccountNcnAdmin> &
@@ -131,7 +131,7 @@ export function getInitializeNCNConfigInstructionDataCodec(): Codec<
 
 export type InitializeNCNConfigInput<
   TAccountRestakingConfig extends string = string,
-  TAccountConfig extends string = string,
+  TAccountNcnConfig extends string = string,
   TAccountNcn extends string = string,
   TAccountNcnAdmin extends string = string,
   TAccountFeeWallet extends string = string,
@@ -140,7 +140,7 @@ export type InitializeNCNConfigInput<
   TAccountSystemProgram extends string = string,
 > = {
   restakingConfig: Address<TAccountRestakingConfig>;
-  config: Address<TAccountConfig>;
+  ncnConfig: Address<TAccountNcnConfig>;
   ncn: Address<TAccountNcn>;
   ncnAdmin: TransactionSigner<TAccountNcnAdmin>;
   feeWallet: Address<TAccountFeeWallet>;
@@ -154,7 +154,7 @@ export type InitializeNCNConfigInput<
 
 export function getInitializeNCNConfigInstruction<
   TAccountRestakingConfig extends string,
-  TAccountConfig extends string,
+  TAccountNcnConfig extends string,
   TAccountNcn extends string,
   TAccountNcnAdmin extends string,
   TAccountFeeWallet extends string,
@@ -165,7 +165,7 @@ export function getInitializeNCNConfigInstruction<
 >(
   input: InitializeNCNConfigInput<
     TAccountRestakingConfig,
-    TAccountConfig,
+    TAccountNcnConfig,
     TAccountNcn,
     TAccountNcnAdmin,
     TAccountFeeWallet,
@@ -177,7 +177,7 @@ export function getInitializeNCNConfigInstruction<
 ): InitializeNCNConfigInstruction<
   TProgramAddress,
   TAccountRestakingConfig,
-  TAccountConfig,
+  TAccountNcnConfig,
   TAccountNcn,
   TAccountNcnAdmin,
   TAccountFeeWallet,
@@ -195,7 +195,7 @@ export function getInitializeNCNConfigInstruction<
       value: input.restakingConfig ?? null,
       isWritable: false,
     },
-    config: { value: input.config ?? null, isWritable: true },
+    ncnConfig: { value: input.ncnConfig ?? null, isWritable: true },
     ncn: { value: input.ncn ?? null, isWritable: false },
     ncnAdmin: { value: input.ncnAdmin ?? null, isWritable: false },
     feeWallet: { value: input.feeWallet ?? null, isWritable: false },
@@ -227,7 +227,7 @@ export function getInitializeNCNConfigInstruction<
   const instruction = {
     accounts: [
       getAccountMeta(accounts.restakingConfig),
-      getAccountMeta(accounts.config),
+      getAccountMeta(accounts.ncnConfig),
       getAccountMeta(accounts.ncn),
       getAccountMeta(accounts.ncnAdmin),
       getAccountMeta(accounts.feeWallet),
@@ -242,7 +242,7 @@ export function getInitializeNCNConfigInstruction<
   } as InitializeNCNConfigInstruction<
     TProgramAddress,
     TAccountRestakingConfig,
-    TAccountConfig,
+    TAccountNcnConfig,
     TAccountNcn,
     TAccountNcnAdmin,
     TAccountFeeWallet,
@@ -261,7 +261,7 @@ export type ParsedInitializeNCNConfigInstruction<
   programAddress: Address<TProgram>;
   accounts: {
     restakingConfig: TAccountMetas[0];
-    config: TAccountMetas[1];
+    ncnConfig: TAccountMetas[1];
     ncn: TAccountMetas[2];
     ncnAdmin: TAccountMetas[3];
     feeWallet: TAccountMetas[4];
@@ -294,7 +294,7 @@ export function parseInitializeNCNConfigInstruction<
     programAddress: instruction.programAddress,
     accounts: {
       restakingConfig: getNextAccount(),
-      config: getNextAccount(),
+      ncnConfig: getNextAccount(),
       ncn: getNextAccount(),
       ncnAdmin: getNextAccount(),
       feeWallet: getNextAccount(),

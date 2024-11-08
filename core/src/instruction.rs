@@ -15,7 +15,7 @@ pub enum WeightTableInstruction {
 
     /// Initialize the global configuration for this NCN
     #[account(0, name = "restaking_config")]
-    #[account(1, writable, name = "config")]
+    #[account(1, writable, name = "ncn_config")]
     #[account(2, name = "ncn")]
     #[account(3, signer, name = "ncn_admin")]
     #[account(4, name = "fee_wallet")]
@@ -55,7 +55,7 @@ pub enum WeightTableInstruction {
     #[account(0, name = "restaking_config")]
     #[account(1, name = "ncn_config")]
     #[account(2, name = "ncn")]
-    #[account(3, writable, signer, name = "weight_table")]
+    #[account(3, writable, name = "weight_table")]
     #[account(4, writable, signer, name = "payer")]
     #[account(5, name = "restaking_program_id")]
     #[account(6, name = "system_program")]
@@ -67,7 +67,8 @@ pub enum WeightTableInstruction {
     #[account(0, name = "ncn")]
     #[account(1, writable, name = "weight_table")]
     #[account(2, signer, name = "weight_table_admin")]
-    #[account(3, name = "restaking_program_id")]
+    #[account(3, name = "mint")]
+    #[account(4, name = "restaking_program_id")]
     AdminUpdateWeightTable{
         ncn_epoch: u64,
         weight: u128,

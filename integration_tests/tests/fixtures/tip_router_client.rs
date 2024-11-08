@@ -2,8 +2,8 @@ use jito_bytemuck::AccountDeserialize;
 use jito_restaking_core::config::Config;
 use jito_tip_router_client::{
     instructions::{
-        InitializeNCNConfigBuilder, InitializeWeightTableBuilder, SetConfigFeesBuilder,
-        SetNewAdminBuilder,
+        AdminUpdateWeightTableBuilder, InitializeNCNConfigBuilder, InitializeWeightTableBuilder,
+        SetConfigFeesBuilder, SetNewAdminBuilder,
     },
     types::ConfigAdminRole,
 };
@@ -104,11 +104,11 @@ impl TipRouterClient {
         block_engine_fee_bps: u64,
     ) -> TestResult<()> {
         let restaking_config = Config::find_program_address(&jito_restaking_program::id()).0;
-        let config_pda = NcnConfig::find_program_address(&jito_tip_router_program::id(), &ncn).0;
+        let ncn_config = NcnConfig::find_program_address(&jito_tip_router_program::id(), &ncn).0;
 
         let ix = InitializeNCNConfigBuilder::new()
             .restaking_config(restaking_config)
-            .config(config_pda)
+            .ncn_config(ncn_config)
             .ncn(ncn)
             .ncn_admin(ncn_admin.pubkey())
             .fee_wallet(fee_wallet)
@@ -253,6 +253,49 @@ impl TipRouterClient {
             .payer(self.payer.pubkey())
             .restaking_program_id(jito_restaking_program::id())
             .system_program(system_program::id())
+            .instruction();
+
+        let blockhash = self.banks_client.get_latest_blockhash().await?;
+        self.process_transaction(&Transaction::new_signed_with_payer(
+            &[ix],
+            Some(&self.payer.pubkey()),
+            &[&self.payer],
+            blockhash,
+        ))
+        .await
+    }
+
+    pub async fn do_admin_update_weight_table(
+        &mut self,
+        ncn: Pubkey,
+        current_slot: u64,
+        mint: Pubkey,
+        weight: u128,
+    ) -> TestResult<()> {
+        self.admin_update_weight_table(ncn, current_slot, mint, weight)
+            .await
+    }
+
+    pub async fn admin_update_weight_table(
+        &mut self,
+        ncn: Pubkey,
+        current_slot: u64,
+        mint: Pubkey,
+        weight: u128,
+    ) -> TestResult<()> {
+        let restaking_config_account = self.get_restaking_config().await?;
+        let ncn_epoch = current_slot / restaking_config_account.epoch_length();
+
+        let weight_table =
+            WeightTable::find_program_address(&jito_tip_router_program::id(), &ncn, ncn_epoch).0;
+
+        let ix = AdminUpdateWeightTableBuilder::new()
+            .ncn(ncn)
+            .weight_table(weight_table)
+            .weight_table_admin(self.payer.pubkey())
+            .mint(mint)
+            .restaking_program_id(jito_restaking_program::id())
+            .weight(weight)
             .instruction();
 
         let blockhash = self.banks_client.get_latest_blockhash().await?;

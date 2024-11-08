@@ -20,7 +20,6 @@ pub fn process_admin_update_weight_table(
 
     Ncn::load(restaking_program_id.key, ncn, false)?;
     let ncn_weight_table_admin = {
-        //TODO switch to weight table admin when that is merged
         let ncn_data = ncn.data.borrow();
         let ncn = Ncn::try_from_slice_unchecked(&ncn_data)?;
         ncn.admin

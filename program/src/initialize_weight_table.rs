@@ -27,7 +27,7 @@ pub fn process_initialize_weight_table(
         return Err(ProgramError::NotEnoughAccountKeys);
     };
 
-    NcnConfig::load(restaking_program_id.key, ncn.key, ncn_config, false)?;
+    NcnConfig::load(program_id, ncn.key, ncn_config, false)?;
     Config::load(restaking_program_id.key, restaking_config, false)?;
 
     let ncn_epoch_length = {

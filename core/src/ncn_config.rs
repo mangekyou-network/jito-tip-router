@@ -86,26 +86,26 @@ impl NcnConfig {
         expect_writable: bool,
     ) -> Result<(), ProgramError> {
         if ncn_config_account.owner.ne(program_id) {
-            msg!("Config account has an invalid owner");
+            msg!("NCN Config account has an invalid owner");
             return Err(ProgramError::InvalidAccountOwner);
         }
         if ncn_config_account.data_is_empty() {
-            msg!("Config account data is empty");
+            msg!("NCN Config account data is empty");
             return Err(ProgramError::InvalidAccountData);
         }
         if expect_writable && !ncn_config_account.is_writable {
-            msg!("Config account is not writable");
+            msg!("NCN Config account is not writable");
             return Err(ProgramError::InvalidAccountData);
         }
         if ncn_config_account.data.borrow()[0].ne(&Self::DISCRIMINATOR) {
-            msg!("Config account discriminator is invalid");
+            msg!("NCN Config account discriminator is invalid");
             return Err(ProgramError::InvalidAccountData);
         }
         if ncn_config_account
             .key
             .ne(&Self::find_program_address(program_id, ncn).0)
         {
-            msg!("Config account is not at the correct PDA");
+            msg!("NCN Config account is not at the correct PDA");
             return Err(ProgramError::InvalidAccountData);
         }
         Ok(())
