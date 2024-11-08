@@ -1,6 +1,7 @@
 use bytemuck::{Pod, Zeroable};
 use shank::ShankType;
-use solana_program::pubkey::Pubkey;
+use solana_program::{msg, pubkey::Pubkey};
+use spl_math::precise_number::PreciseNumber;
 
 use crate::{error::TipRouterError, MAX_FEE_BPS};
 
@@ -51,8 +52,26 @@ impl Fees {
         }
     }
 
+    pub fn check_fees_okay(&self, current_epoch: u64) -> Result<(), TipRouterError> {
+        let _ = self.precise_block_engine_fee(current_epoch)?;
+        let _ = self.precise_dao_fee(current_epoch)?;
+        let _ = self.precise_ncn_fee(current_epoch)?;
+
+        Ok(())
+    }
+
     pub const fn block_engine_fee(&self, current_epoch: u64) -> u64 {
         self.current_fee(current_epoch).block_engine_fee_bps
+    }
+
+    pub fn precise_block_engine_fee(
+        &self,
+        current_epoch: u64,
+    ) -> Result<PreciseNumber, TipRouterError> {
+        let fee = self.current_fee(current_epoch);
+
+        PreciseNumber::new(fee.block_engine_fee_bps as u128)
+            .ok_or(TipRouterError::NewPreciseNumberError)
     }
 
     /// Calculate fee as a portion of remaining BPS after block engine fee
@@ -63,10 +82,33 @@ impl Fees {
         let remaining_bps = MAX_FEE_BPS
             .checked_sub(fee.block_engine_fee_bps)
             .ok_or(TipRouterError::ArithmeticOverflow)?;
-        fee.dao_share_bps
+        fee.ncn_share_bps
             .checked_mul(MAX_FEE_BPS)
             .and_then(|x| x.checked_div(remaining_bps))
-            .ok_or(TipRouterError::ArithmeticOverflow)
+            .ok_or(TipRouterError::DenominatorIsZero)
+    }
+
+    pub fn precise_dao_fee(&self, current_epoch: u64) -> Result<PreciseNumber, TipRouterError> {
+        let fee = self.current_fee(current_epoch);
+
+        let remaining_bps = MAX_FEE_BPS
+            .checked_sub(fee.block_engine_fee_bps)
+            .ok_or(TipRouterError::ArithmeticOverflow)?;
+
+        let precise_remaining_bps = PreciseNumber::new(remaining_bps as u128)
+            .ok_or(TipRouterError::NewPreciseNumberError)?;
+
+        let dao_fee = fee
+            .ncn_share_bps
+            .checked_mul(MAX_FEE_BPS)
+            .ok_or(TipRouterError::ArithmeticOverflow)?;
+
+        let precise_dao_fee =
+            PreciseNumber::new(dao_fee as u128).ok_or(TipRouterError::NewPreciseNumberError)?;
+
+        precise_dao_fee
+            .checked_div(&precise_remaining_bps)
+            .ok_or(TipRouterError::DenominatorIsZero)
     }
 
     /// Calculate fee as a portion of remaining BPS after block engine fee
@@ -74,13 +116,37 @@ impl Fees {
     /// = ncn_fee_bps * 10000 / (10000 - block_engine_fee_bps)
     pub fn ncn_fee(&self, current_epoch: u64) -> Result<u64, TipRouterError> {
         let fee = self.current_fee(current_epoch);
+
         let remaining_bps = MAX_FEE_BPS
             .checked_sub(fee.block_engine_fee_bps)
             .ok_or(TipRouterError::ArithmeticOverflow)?;
         fee.ncn_share_bps
             .checked_mul(MAX_FEE_BPS)
             .and_then(|x| x.checked_div(remaining_bps))
-            .ok_or(TipRouterError::ArithmeticOverflow)
+            .ok_or(TipRouterError::DenominatorIsZero)
+    }
+
+    pub fn precise_ncn_fee(&self, current_epoch: u64) -> Result<PreciseNumber, TipRouterError> {
+        let fee = self.current_fee(current_epoch);
+
+        let remaining_bps = MAX_FEE_BPS
+            .checked_sub(fee.block_engine_fee_bps)
+            .ok_or(TipRouterError::ArithmeticOverflow)?;
+
+        let precise_remaining_bps = PreciseNumber::new(remaining_bps as u128)
+            .ok_or(TipRouterError::NewPreciseNumberError)?;
+
+        let ncn_fee = fee
+            .ncn_share_bps
+            .checked_mul(MAX_FEE_BPS)
+            .ok_or(TipRouterError::ArithmeticOverflow)?;
+
+        let precise_ncn_fee =
+            PreciseNumber::new(ncn_fee as u128).ok_or(TipRouterError::NewPreciseNumberError)?;
+
+        precise_ncn_fee
+            .checked_div(&precise_remaining_bps)
+            .ok_or(TipRouterError::DenominatorIsZero)
     }
 
     pub const fn fee_wallet(&self, current_epoch: u64) -> Pubkey {
@@ -120,7 +186,7 @@ impl Fees {
             if new_dao_fee_bps > MAX_FEE_BPS {
                 return Err(TipRouterError::FeeCapExceeded);
             }
-            new_fees.dao_share_bps = new_dao_fee_bps;
+            new_fees.ncn_share_bps = new_dao_fee_bps;
         }
         if let Some(new_ncn_fee_bps) = new_ncn_fee_bps {
             if new_ncn_fee_bps > MAX_FEE_BPS {
@@ -129,7 +195,11 @@ impl Fees {
             new_fees.ncn_share_bps = new_ncn_fee_bps;
         }
         if let Some(new_block_engine_fee_bps) = new_block_engine_fee_bps {
-            if new_block_engine_fee_bps > MAX_FEE_BPS {
+            // Block engine fee must be less than MAX_FEE_BPS,
+            // otherwise we'll divide by zero when calculating
+            // the other fees
+            if new_block_engine_fee_bps >= MAX_FEE_BPS {
+                msg!("Block engine fee cannot equal or exceed MAX_FEE_BPS");
                 return Err(TipRouterError::FeeCapExceeded);
             }
             new_fees.block_engine_fee_bps = new_block_engine_fee_bps;
@@ -137,9 +207,15 @@ impl Fees {
         if let Some(new_wallet) = new_wallet {
             new_fees.wallet = new_wallet;
         }
-        new_fees.activation_epoch = current_epoch
+
+        let next_epoch = current_epoch
             .checked_add(1)
             .ok_or(TipRouterError::ArithmeticOverflow)?;
+
+        new_fees.activation_epoch = next_epoch;
+
+        self.check_fees_okay(next_epoch)?;
+
         Ok(())
     }
 }
@@ -164,8 +240,8 @@ impl Fee {
     ) -> Self {
         Self {
             wallet,
-            dao_share_bps,
             ncn_share_bps,
+            dao_share_bps,
             block_engine_fee_bps,
             activation_epoch: epoch,
         }
@@ -185,7 +261,7 @@ mod tests {
 
         fees.set_new_fees(Some(400), None, None, Some(new_wallet), 10)
             .unwrap();
-        assert_eq!(fees.fee_1.dao_share_bps, 400);
+        assert_eq!(fees.fee_1.ncn_share_bps, 400);
         assert_eq!(fees.fee_1.wallet, new_wallet);
         assert_eq!(fees.fee_1.activation_epoch, 11);
     }
@@ -197,7 +273,7 @@ mod tests {
         fees.fee_1 = original.clone();
 
         fees.set_new_fees(None, None, None, None, 10).unwrap();
-        assert_eq!(fees.fee_1.dao_share_bps, original.dao_share_bps);
+        assert_eq!(fees.fee_1.ncn_share_bps, original.ncn_share_bps);
         assert_eq!(fees.fee_1.ncn_share_bps, original.ncn_share_bps);
         assert_eq!(
             fees.fee_1.block_engine_fee_bps,
@@ -211,17 +287,38 @@ mod tests {
     fn test_update_fees_errors() {
         let mut fees = Fees::new(Pubkey::new_unique(), 100, 200, 300, 5);
 
-        assert!(matches!(
+        assert_eq!(
             fees.set_new_fees(Some(10001), None, None, None, 10),
             Err(TipRouterError::FeeCapExceeded)
-        ));
+        );
 
         let mut fees = Fees::new(Pubkey::new_unique(), 100, 200, 300, 5);
 
-        assert!(matches!(
+        assert_eq!(
             fees.set_new_fees(None, None, None, None, u64::MAX),
             Err(TipRouterError::ArithmeticOverflow)
-        ));
+        );
+
+        let mut fees = Fees::new(Pubkey::new_unique(), 100, 200, 300, 5);
+
+        assert_eq!(
+            fees.set_new_fees(None, None, Some(MAX_FEE_BPS), None, 10),
+            Err(TipRouterError::FeeCapExceeded)
+        );
+    }
+
+    #[test]
+    fn test_check_fees_okay() {
+        let fees = Fees::new(Pubkey::new_unique(), 0, 0, 0, 5);
+
+        fees.check_fees_okay(5).unwrap();
+
+        let fees = Fees::new(Pubkey::new_unique(), 0, 0, MAX_FEE_BPS, 5);
+
+        assert_eq!(
+            fees.check_fees_okay(5),
+            Err(TipRouterError::DenominatorIsZero)
+        );
     }
 
     #[test]
@@ -246,19 +343,19 @@ mod tests {
         let mut fees = Fees::new(Pubkey::new_unique(), 100, 200, 300, 5);
 
         let fee = fees.get_updatable_fee_mut(10);
-        fee.dao_share_bps = 400;
+        fee.ncn_share_bps = 400;
         fee.activation_epoch = 11;
 
-        assert_eq!(fees.fee_1.dao_share_bps, 400);
+        assert_eq!(fees.fee_1.ncn_share_bps, 400);
         assert_eq!(fees.fee_1.activation_epoch, 11);
 
         fees.fee_2.activation_epoch = 13;
 
         let fee = fees.get_updatable_fee_mut(12);
-        fee.dao_share_bps = 500;
+        fee.ncn_share_bps = 500;
         fee.activation_epoch = 13;
 
-        assert_eq!(fees.fee_2.dao_share_bps, 500);
+        assert_eq!(fees.fee_2.ncn_share_bps, 500);
         assert_eq!(fees.fee_2.activation_epoch, 13);
 
         assert_eq!(fees.get_updatable_fee_mut(u64::MAX).activation_epoch, 11);
