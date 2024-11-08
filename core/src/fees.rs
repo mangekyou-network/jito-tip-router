@@ -71,7 +71,7 @@ impl Fees {
     ) -> Result<PreciseNumber, TipRouterError> {
         let fee = self.current_fee(current_epoch);
 
-        PreciseNumber::new(fee.block_engine_fee_bps as u128)
+        PreciseNumber::new(fee.block_engine_fee_bps() as u128)
             .ok_or(TipRouterError::NewPreciseNumberError)
     }
 
@@ -93,14 +93,14 @@ impl Fees {
         let fee = self.current_fee(current_epoch);
 
         let remaining_bps = MAX_FEE_BPS
-            .checked_sub(fee.block_engine_fee_bps)
+            .checked_sub(fee.block_engine_fee_bps())
             .ok_or(TipRouterError::ArithmeticOverflow)?;
 
         let precise_remaining_bps = PreciseNumber::new(remaining_bps as u128)
             .ok_or(TipRouterError::NewPreciseNumberError)?;
 
         let dao_fee = fee
-            .ncn_share_bps
+            .ncn_share_bps()
             .checked_mul(MAX_FEE_BPS)
             .ok_or(TipRouterError::ArithmeticOverflow)?;
 
@@ -131,14 +131,14 @@ impl Fees {
         let fee = self.current_fee(current_epoch);
 
         let remaining_bps = MAX_FEE_BPS
-            .checked_sub(fee.block_engine_fee_bps)
+            .checked_sub(fee.block_engine_fee_bps())
             .ok_or(TipRouterError::ArithmeticOverflow)?;
 
         let precise_remaining_bps = PreciseNumber::new(remaining_bps as u128)
             .ok_or(TipRouterError::NewPreciseNumberError)?;
 
         let ncn_fee = fee
-            .ncn_share_bps
+            .ncn_share_bps()
             .checked_mul(MAX_FEE_BPS)
             .ok_or(TipRouterError::ArithmeticOverflow)?;
 
@@ -296,6 +296,18 @@ mod tests {
             .unwrap();
         assert_eq!(fees.fee_1.dao_share_bps(), 400);
         assert_eq!(fees.fee_1.wallet, new_wallet);
+        assert_eq!(fees.fee_1.activation_epoch(), 11);
+    }
+
+    #[test]
+    fn test_update_all_fees() {
+        let mut fees = Fees::new(Pubkey::new_unique(), 0, 0, 0, 5);
+
+        fees.set_new_fees(Some(100), Some(200), Some(300), None, 10)
+            .unwrap();
+        assert_eq!(fees.fee_1.dao_share_bps(), 100);
+        assert_eq!(fees.fee_1.ncn_share_bps(), 200);
+        assert_eq!(fees.fee_1.block_engine_fee_bps(), 300);
         assert_eq!(fees.fee_1.activation_epoch(), 11);
     }
 
