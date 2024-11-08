@@ -385,19 +385,27 @@
           },
           {
             "name": "daoShareBps",
-            "type": "u64"
+            "type": {
+              "defined": "PodU64"
+            }
           },
           {
             "name": "ncnShareBps",
-            "type": "u64"
+            "type": {
+              "defined": "PodU64"
+            }
           },
           {
             "name": "blockEngineFeeBps",
-            "type": "u64"
+            "type": {
+              "defined": "PodU64"
+            }
           },
           {
             "name": "activationEpoch",
-            "type": "u64"
+            "type": {
+              "defined": "PodU64"
+            }
           }
         ]
       }
