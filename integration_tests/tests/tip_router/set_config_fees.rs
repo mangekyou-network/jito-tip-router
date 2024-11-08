@@ -98,7 +98,9 @@ mod tests {
             .warp_slot_incremental(2 * DEFAULT_SLOTS_PER_EPOCH)
             .await?;
 
-        let config = tip_router_client.get_config(ncn_root.ncn_pubkey).await?;
+        let config = tip_router_client
+            .get_ncn_config(ncn_root.ncn_pubkey)
+            .await?;
         let clock = fixture.clock().await;
         assert_eq!(config.fees.dao_fee(clock.epoch as u64).unwrap(), 100);
         assert_eq!(config.fees.ncn_fee(clock.epoch as u64).unwrap(), 200);

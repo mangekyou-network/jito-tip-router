@@ -3,19 +3,35 @@ use thiserror::Error;
 
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum TipRouterError {
-    #[error("No more table slots available")]
-    NoMoreTableSlots = 0x2000,
     #[error("Zero in the denominator")]
     DenominatorIsZero = 0x2100,
     #[error("Overflow")]
-    ArithmeticOverflow = 0x2101,
+    ArithmeticOverflow,
     #[error("Modulo Overflow")]
-    ModuloOverflow = 0x2102,
+    ModuloOverflow,
+    #[error("New precise number error")]
+    NewPreciseNumberError,
+    #[error("Cast to imprecise number error")]
+    CastToImpreciseNumberError,
 
     #[error("Incorrect weight table admin")]
     IncorrectWeightTableAdmin = 0x2200,
+    #[error("Duplicate mints in table")]
+    DuplicateMintsInTable,
+    #[error("There are no mints in the table")]
+    NoMintsInTable,
+    #[error("Too many mints for table")]
+    TooManyMintsForTable,
+    #[error("Weight table already initialized")]
+    WeightTableAlreadyInitialized,
     #[error("Cannnot create future weight tables")]
-    CannotCreateFutureWeightTables = 0x2201,
+    CannotCreateFutureWeightTables,
+    #[error("Weight mints do not match - length")]
+    WeightMintsDoNotMatchLength,
+    #[error("Weight mints do not match - mint hash")]
+    WeightMintsDoNotMatchMintHash,
+    #[error("Invalid mint for weight table")]
+    InvalidMintForWeightTable,
     #[error("Fee cap exceeded")]
     FeeCapExceeded = 0x2300,
     #[error("Incorrect NCN Admin")]

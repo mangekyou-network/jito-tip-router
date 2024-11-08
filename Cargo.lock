@@ -250,7 +250,7 @@ dependencies = [
  "borsh 0.10.4",
  "bytemuck",
  "getrandom 0.2.15",
- "solana-program",
+ "solana-program 1.18.26",
  "thiserror",
 ]
 
@@ -1208,7 +1208,7 @@ version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "279a4314e755fb311d9e2dd6503fdc023f9c833ddceb158565b95b9323f5fd10"
 dependencies = [
- "solana-program",
+ "solana-program 1.18.26",
 ]
 
 [[package]]
@@ -2342,7 +2342,7 @@ checksum = "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
 [[package]]
 name = "jito-account-traits-derive"
 version = "0.0.3"
-source = "git+https://github.com/jito-foundation/restaking.git#6dab154dbf8a60176a0b510aa74f17140288496e"
+source = "git+https://github.com/jito-foundation/restaking.git?rev=eaf88e7e5ca2845fe3108c4fc4a06a25f9a8514d#eaf88e7e5ca2845fe3108c4fc4a06a25f9a8514d"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2352,24 +2352,24 @@ dependencies = [
 [[package]]
 name = "jito-bytemuck"
 version = "0.0.3"
-source = "git+https://github.com/jito-foundation/restaking.git#6dab154dbf8a60176a0b510aa74f17140288496e"
+source = "git+https://github.com/jito-foundation/restaking.git?rev=eaf88e7e5ca2845fe3108c4fc4a06a25f9a8514d#eaf88e7e5ca2845fe3108c4fc4a06a25f9a8514d"
 dependencies = [
  "borsh 0.10.4",
  "bytemuck",
  "jito-account-traits-derive",
- "solana-program",
+ "solana-program 1.18.26",
 ]
 
 [[package]]
 name = "jito-jsm-core"
 version = "0.0.3"
-source = "git+https://github.com/jito-foundation/restaking.git#6dab154dbf8a60176a0b510aa74f17140288496e"
+source = "git+https://github.com/jito-foundation/restaking.git?rev=eaf88e7e5ca2845fe3108c4fc4a06a25f9a8514d#eaf88e7e5ca2845fe3108c4fc4a06a25f9a8514d"
 dependencies = [
  "borsh 0.10.4",
  "bytemuck",
  "jito-bytemuck",
  "shank",
- "solana-program",
+ "solana-program 1.18.26",
  "spl-associated-token-account",
  "spl-token",
  "spl-token-2022 3.0.4",
@@ -2379,7 +2379,7 @@ dependencies = [
 [[package]]
 name = "jito-restaking-client"
 version = "0.0.3"
-source = "git+https://github.com/jito-foundation/restaking.git#6dab154dbf8a60176a0b510aa74f17140288496e"
+source = "git+https://github.com/jito-foundation/restaking.git?rev=eaf88e7e5ca2845fe3108c4fc4a06a25f9a8514d#eaf88e7e5ca2845fe3108c4fc4a06a25f9a8514d"
 dependencies = [
  "anchor-lang",
  "borsh 0.10.4",
@@ -2388,7 +2388,7 @@ dependencies = [
  "num-traits",
  "serde",
  "serde_with 3.11.0",
- "solana-program",
+ "solana-program 1.18.26",
  "solana-sdk",
  "thiserror",
 ]
@@ -2396,7 +2396,7 @@ dependencies = [
 [[package]]
 name = "jito-restaking-core"
 version = "0.0.3"
-source = "git+https://github.com/jito-foundation/restaking.git#6dab154dbf8a60176a0b510aa74f17140288496e"
+source = "git+https://github.com/jito-foundation/restaking.git?rev=eaf88e7e5ca2845fe3108c4fc4a06a25f9a8514d#eaf88e7e5ca2845fe3108c4fc4a06a25f9a8514d"
 dependencies = [
  "borsh 0.10.4",
  "bytemuck",
@@ -2404,7 +2404,7 @@ dependencies = [
  "jito-jsm-core",
  "jito-restaking-sdk",
  "shank",
- "solana-program",
+ "solana-program 1.18.26",
  "spl-associated-token-account",
  "spl-token",
  "thiserror",
@@ -2413,7 +2413,7 @@ dependencies = [
 [[package]]
 name = "jito-restaking-program"
 version = "0.0.3"
-source = "git+https://github.com/jito-foundation/restaking.git#6dab154dbf8a60176a0b510aa74f17140288496e"
+source = "git+https://github.com/jito-foundation/restaking.git?rev=eaf88e7e5ca2845fe3108c4fc4a06a25f9a8514d#eaf88e7e5ca2845fe3108c4fc4a06a25f9a8514d"
 dependencies = [
  "borsh 0.10.4",
  "cfg-if",
@@ -2424,7 +2424,7 @@ dependencies = [
  "jito-restaking-sdk",
  "jito-vault-core",
  "shank",
- "solana-program",
+ "solana-program 1.18.26",
  "solana-security-txt",
  "spl-associated-token-account",
  "spl-token",
@@ -2435,11 +2435,11 @@ dependencies = [
 [[package]]
 name = "jito-restaking-sdk"
 version = "0.0.3"
-source = "git+https://github.com/jito-foundation/restaking.git#6dab154dbf8a60176a0b510aa74f17140288496e"
+source = "git+https://github.com/jito-foundation/restaking.git?rev=eaf88e7e5ca2845fe3108c4fc4a06a25f9a8514d#eaf88e7e5ca2845fe3108c4fc4a06a25f9a8514d"
 dependencies = [
  "borsh 0.10.4",
  "shank",
- "solana-program",
+ "solana-program 1.18.26",
  "thiserror",
 ]
 
@@ -2462,7 +2462,7 @@ dependencies = [
  "log",
  "solana-account-decoder",
  "solana-cli-config",
- "solana-program",
+ "solana-program 1.18.26",
  "solana-rpc-client",
  "solana-rpc-client-api",
  "solana-sdk",
@@ -2483,7 +2483,7 @@ dependencies = [
  "num-traits",
  "serde",
  "serde_with 3.11.0",
- "solana-program",
+ "solana-program 1.18.26",
  "solana-sdk",
  "thiserror",
 ]
@@ -2502,8 +2502,9 @@ dependencies = [
  "jito-vault-core",
  "jito-vault-sdk",
  "shank",
- "solana-program",
+ "solana-program 1.18.26",
  "spl-associated-token-account",
+ "spl-math",
  "spl-token",
  "thiserror",
 ]
@@ -2526,7 +2527,7 @@ dependencies = [
  "jito-vault-sdk",
  "log",
  "shank",
- "solana-program",
+ "solana-program 1.18.26",
  "solana-program-test",
  "solana-sdk",
  "solana-security-txt",
@@ -2554,7 +2555,7 @@ dependencies = [
  "jito-vault-core",
  "jito-vault-sdk",
  "shank",
- "solana-program",
+ "solana-program 1.18.26",
  "solana-security-txt",
  "spl-associated-token-account",
  "spl-token",
@@ -2577,7 +2578,7 @@ dependencies = [
 [[package]]
 name = "jito-vault-client"
 version = "0.0.3"
-source = "git+https://github.com/jito-foundation/restaking.git#6dab154dbf8a60176a0b510aa74f17140288496e"
+source = "git+https://github.com/jito-foundation/restaking.git?rev=eaf88e7e5ca2845fe3108c4fc4a06a25f9a8514d#eaf88e7e5ca2845fe3108c4fc4a06a25f9a8514d"
 dependencies = [
  "anchor-lang",
  "borsh 0.10.4",
@@ -2586,7 +2587,7 @@ dependencies = [
  "num-traits",
  "serde",
  "serde_with 3.11.0",
- "solana-program",
+ "solana-program 1.18.26",
  "solana-sdk",
  "thiserror",
 ]
@@ -2594,7 +2595,7 @@ dependencies = [
 [[package]]
 name = "jito-vault-core"
 version = "0.0.3"
-source = "git+https://github.com/jito-foundation/restaking.git#6dab154dbf8a60176a0b510aa74f17140288496e"
+source = "git+https://github.com/jito-foundation/restaking.git?rev=eaf88e7e5ca2845fe3108c4fc4a06a25f9a8514d#eaf88e7e5ca2845fe3108c4fc4a06a25f9a8514d"
 dependencies = [
  "borsh 0.10.4",
  "bytemuck",
@@ -2602,7 +2603,7 @@ dependencies = [
  "jito-jsm-core",
  "jito-vault-sdk",
  "shank",
- "solana-program",
+ "solana-program 1.18.26",
  "spl-associated-token-account",
  "spl-token",
  "spl-token-2022 3.0.4",
@@ -2612,7 +2613,7 @@ dependencies = [
 [[package]]
 name = "jito-vault-program"
 version = "0.0.3"
-source = "git+https://github.com/jito-foundation/restaking.git#6dab154dbf8a60176a0b510aa74f17140288496e"
+source = "git+https://github.com/jito-foundation/restaking.git?rev=eaf88e7e5ca2845fe3108c4fc4a06a25f9a8514d#eaf88e7e5ca2845fe3108c4fc4a06a25f9a8514d"
 dependencies = [
  "borsh 0.10.4",
  "cfg-if",
@@ -2623,7 +2624,7 @@ dependencies = [
  "jito-vault-core",
  "jito-vault-sdk",
  "shank",
- "solana-program",
+ "solana-program 1.18.26",
  "solana-security-txt",
  "spl-associated-token-account",
  "spl-token",
@@ -2634,11 +2635,11 @@ dependencies = [
 [[package]]
 name = "jito-vault-sdk"
 version = "0.0.3"
-source = "git+https://github.com/jito-foundation/restaking.git#6dab154dbf8a60176a0b510aa74f17140288496e"
+source = "git+https://github.com/jito-foundation/restaking.git?rev=eaf88e7e5ca2845fe3108c4fc4a06a25f9a8514d#eaf88e7e5ca2845fe3108c4fc4a06a25f9a8514d"
 dependencies = [
  "borsh 0.10.4",
  "shank",
- "solana-program",
+ "solana-program 1.18.26",
  "spl-token",
  "thiserror",
 ]
@@ -4442,7 +4443,7 @@ dependencies = [
  "serde",
  "solana-frozen-abi",
  "solana-frozen-abi-macro",
- "solana-program",
+ "solana-program 1.18.26",
  "solana-program-runtime",
  "solana-sdk",
  "thiserror",
@@ -4457,7 +4458,7 @@ dependencies = [
  "borsh 1.5.1",
  "futures",
  "solana-banks-interface",
- "solana-program",
+ "solana-program 1.18.26",
  "solana-sdk",
  "tarpc",
  "thiserror",
@@ -4860,11 +4861,57 @@ dependencies = [
  "sha3 0.10.8",
  "solana-frozen-abi",
  "solana-frozen-abi-macro",
- "solana-sdk-macro",
+ "solana-sdk-macro 1.18.26",
  "thiserror",
  "tiny-bip39",
  "wasm-bindgen",
  "zeroize",
+]
+
+[[package]]
+name = "solana-program"
+version = "2.0.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2625a23c3813b620141ee447819b08d1b9a5f1c69a309754834e3f35798a21fb"
+dependencies = [
+ "ark-bn254",
+ "ark-ec",
+ "ark-ff",
+ "ark-serialize",
+ "base64 0.22.1",
+ "bincode",
+ "bitflags 2.6.0",
+ "blake3",
+ "borsh 0.10.4",
+ "borsh 1.5.1",
+ "bs58 0.5.1",
+ "bv",
+ "bytemuck",
+ "bytemuck_derive",
+ "console_error_panic_hook",
+ "console_log",
+ "curve25519-dalek",
+ "getrandom 0.2.15",
+ "js-sys",
+ "lazy_static",
+ "libsecp256k1",
+ "log",
+ "memoffset 0.9.1",
+ "num-bigint 0.4.6",
+ "num-derive 0.4.2",
+ "num-traits",
+ "parking_lot",
+ "rand 0.8.5",
+ "rustc_version",
+ "rustversion",
+ "serde",
+ "serde_bytes",
+ "serde_derive",
+ "sha2 0.10.8",
+ "sha3 0.10.8",
+ "solana-sdk-macro 2.0.14",
+ "thiserror",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -5192,8 +5239,8 @@ dependencies = [
  "solana-frozen-abi",
  "solana-frozen-abi-macro",
  "solana-logger",
- "solana-program",
- "solana-sdk-macro",
+ "solana-program 1.18.26",
+ "solana-sdk-macro 1.18.26",
  "thiserror",
  "uriparse",
  "wasm-bindgen",
@@ -5206,6 +5253,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1b75d0f193a27719257af19144fdaebec0415d1c9e9226ae4bd29b791be5e9bd"
 dependencies = [
  "bs58 0.4.0",
+ "proc-macro2",
+ "quote",
+ "rustversion",
+ "syn 2.0.85",
+]
+
+[[package]]
+name = "solana-sdk-macro"
+version = "2.0.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "93a5a1eabc890415d326707afe62cd7a2009236e8d899c1519566fc8f7e3977b"
+dependencies = [
+ "bs58 0.5.1",
  "proc-macro2",
  "quote",
  "rustversion",
@@ -5426,7 +5486,7 @@ dependencies = [
  "solana-frozen-abi",
  "solana-frozen-abi-macro",
  "solana-metrics",
- "solana-program",
+ "solana-program 1.18.26",
  "solana-program-runtime",
  "solana-sdk",
  "thiserror",
@@ -5468,7 +5528,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha3 0.9.1",
- "solana-program",
+ "solana-program 1.18.26",
  "solana-sdk",
  "subtle",
  "thiserror",
@@ -5526,7 +5586,7 @@ dependencies = [
  "borsh 0.10.4",
  "num-derive 0.4.2",
  "num-traits",
- "solana-program",
+ "solana-program 1.18.26",
  "spl-token",
  "spl-token-2022 1.0.0",
  "thiserror",
@@ -5539,7 +5599,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cce5d563b58ef1bb2cdbbfe0dfb9ffdc24903b10ae6a4df2d8f425ece375033f"
 dependencies = [
  "bytemuck",
- "solana-program",
+ "solana-program 1.18.26",
  "spl-discriminator-derive 0.1.2",
 ]
 
@@ -5550,7 +5610,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "210101376962bb22bb13be6daea34656ea1cbc248fce2164b146e39203b55e03"
 dependencies = [
  "bytemuck",
- "solana-program",
+ "solana-program 1.18.26",
  "spl-discriminator-derive 0.2.0",
 ]
 
@@ -5603,12 +5663,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "spl-math"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5cc5a6cc7a4f0cf7813ce44153bba73280909f697d7f6baf7b9f223a255e7887"
+dependencies = [
+ "borsh 1.5.1",
+ "num-derive 0.4.2",
+ "num-traits",
+ "solana-program 2.0.14",
+ "thiserror",
+ "uint",
+]
+
+[[package]]
 name = "spl-memo"
 version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f0f180b03318c3dbab3ef4e1e4d46d5211ae3c780940dd0a28695aba4b59a75a"
 dependencies = [
- "solana-program",
+ "solana-program 1.18.26",
 ]
 
 [[package]]
@@ -5619,7 +5693,7 @@ checksum = "2881dddfca792737c0706fa0175345ab282b1b0879c7d877bad129645737c079"
 dependencies = [
  "borsh 0.10.4",
  "bytemuck",
- "solana-program",
+ "solana-program 1.18.26",
  "solana-zk-token-sdk",
  "spl-program-error 0.3.0",
 ]
@@ -5632,7 +5706,7 @@ checksum = "c52d84c55efeef8edcc226743dc089d7e3888b8e3474569aa3eff152b37b9996"
 dependencies = [
  "borsh 1.5.1",
  "bytemuck",
- "solana-program",
+ "solana-program 1.18.26",
  "solana-zk-token-sdk",
  "spl-program-error 0.4.4",
 ]
@@ -5645,7 +5719,7 @@ checksum = "249e0318493b6bcf27ae9902600566c689b7dfba9f1bdff5893e92253374e78c"
 dependencies = [
  "num-derive 0.4.2",
  "num-traits",
- "solana-program",
+ "solana-program 1.18.26",
  "spl-program-error-derive 0.3.2",
  "thiserror",
 ]
@@ -5658,7 +5732,7 @@ checksum = "e45a49acb925db68aa501b926096b2164adbdcade7a0c24152af9f0742d0a602"
 dependencies = [
  "num-derive 0.4.2",
  "num-traits",
- "solana-program",
+ "solana-program 1.18.26",
  "spl-program-error-derive 0.4.1",
  "thiserror",
 ]
@@ -5694,7 +5768,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "615d381f48ddd2bb3c57c7f7fb207591a2a05054639b18a62e785117dd7a8683"
 dependencies = [
  "bytemuck",
- "solana-program",
+ "solana-program 1.18.26",
  "spl-discriminator 0.1.0",
  "spl-pod 0.1.0",
  "spl-program-error 0.3.0",
@@ -5708,7 +5782,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fab8edfd37be5fa17c9e42c1bff86abbbaf0494b031b37957f2728ad2ff842ba"
 dependencies = [
  "bytemuck",
- "solana-program",
+ "solana-program 1.18.26",
  "spl-discriminator 0.2.5",
  "spl-pod 0.2.5",
  "spl-program-error 0.4.4",
@@ -5726,7 +5800,7 @@ dependencies = [
  "num-derive 0.3.3",
  "num-traits",
  "num_enum 0.6.1",
- "solana-program",
+ "solana-program 1.18.26",
  "thiserror",
 ]
 
@@ -5741,7 +5815,7 @@ dependencies = [
  "num-derive 0.4.2",
  "num-traits",
  "num_enum 0.7.3",
- "solana-program",
+ "solana-program 1.18.26",
  "solana-security-txt",
  "solana-zk-token-sdk",
  "spl-memo",
@@ -5765,7 +5839,7 @@ dependencies = [
  "num-derive 0.4.2",
  "num-traits",
  "num_enum 0.7.3",
- "solana-program",
+ "solana-program 1.18.26",
  "solana-security-txt",
  "solana-zk-token-sdk",
  "spl-memo",
@@ -5785,7 +5859,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b889509d49fa74a4a033ca5dae6c2307e9e918122d97e58562f5c4ffa795c75d"
 dependencies = [
  "bytemuck",
- "solana-program",
+ "solana-program 1.18.26",
  "spl-discriminator 0.1.0",
  "spl-pod 0.1.0",
  "spl-program-error 0.3.0",
@@ -5798,7 +5872,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "014817d6324b1e20c4bbc883e8ee30a5faa13e59d91d1b2b95df98b920150c17"
 dependencies = [
  "bytemuck",
- "solana-program",
+ "solana-program 1.18.26",
  "spl-discriminator 0.2.5",
  "spl-pod 0.2.5",
  "spl-program-error 0.4.4",
@@ -5811,7 +5885,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4c16ce3ba6979645fb7627aa1e435576172dd63088dc7848cb09aa331fa1fe4f"
 dependencies = [
  "borsh 0.10.4",
- "solana-program",
+ "solana-program 1.18.26",
  "spl-discriminator 0.1.0",
  "spl-pod 0.1.0",
  "spl-program-error 0.3.0",
@@ -5825,7 +5899,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f3da00495b602ebcf5d8ba8b3ecff1ee454ce4c125c9077747be49c2d62335ba"
 dependencies = [
  "borsh 1.5.1",
- "solana-program",
+ "solana-program 1.18.26",
  "spl-discriminator 0.2.5",
  "spl-pod 0.2.5",
  "spl-program-error 0.4.4",
@@ -5840,7 +5914,7 @@ checksum = "7aabdb7c471566f6ddcee724beb8618449ea24b399e58d464d6b5bc7db550259"
 dependencies = [
  "arrayref",
  "bytemuck",
- "solana-program",
+ "solana-program 1.18.26",
  "spl-discriminator 0.1.0",
  "spl-pod 0.1.0",
  "spl-program-error 0.3.0",
@@ -5856,7 +5930,7 @@ checksum = "a9b5c08a89838e5a2931f79b17f611857f281a14a2100968a3ccef352cb7414b"
 dependencies = [
  "arrayref",
  "bytemuck",
- "solana-program",
+ "solana-program 1.18.26",
  "spl-discriminator 0.2.5",
  "spl-pod 0.2.5",
  "spl-program-error 0.4.4",
@@ -5871,7 +5945,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a468e6f6371f9c69aae760186ea9f1a01c2908351b06a5e0026d21cfc4d7ecac"
 dependencies = [
  "bytemuck",
- "solana-program",
+ "solana-program 1.18.26",
  "spl-discriminator 0.1.0",
  "spl-pod 0.1.0",
  "spl-program-error 0.3.0",
@@ -5884,7 +5958,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c872f93d0600e743116501eba2d53460e73a12c9a496875a42a7d70e034fe06d"
 dependencies = [
  "bytemuck",
- "solana-program",
+ "solana-program 1.18.26",
  "spl-discriminator 0.2.5",
  "spl-pod 0.2.5",
  "spl-program-error 0.4.4",
@@ -6496,6 +6570,18 @@ name = "typenum"
 version = "1.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42ff0bf0c66b8238c6f3b578df37d0b7848e55df8577b3f74f92a69acceeb825"
+
+[[package]]
+name = "uint"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "909988d098b2f738727b161a106cfc7cab00c539c2687a8836f8e565976fb53e"
+dependencies = [
+ "byteorder",
+ "crunchy",
+ "hex",
+ "static_assertions",
+]
 
 [[package]]
 name = "unicode-bidi"

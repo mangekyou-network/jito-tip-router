@@ -1,9 +1,15 @@
 use jito_bytemuck::AccountDeserialize;
+use jito_restaking_core::config::Config;
 use jito_tip_router_client::{
-    instructions::{InitializeConfigBuilder, SetConfigFeesBuilder, SetNewAdminBuilder},
+    instructions::{
+        AdminUpdateWeightTableBuilder, InitializeNCNConfigBuilder, InitializeWeightTableBuilder,
+        SetConfigFeesBuilder, SetNewAdminBuilder,
+    },
     types::ConfigAdminRole,
 };
-use jito_tip_router_core::{error::TipRouterError, ncn_config::NcnConfig};
+use jito_tip_router_core::{
+    error::TipRouterError, ncn_config::NcnConfig, weight_table::WeightTable,
+};
 use solana_program::{
     instruction::InstructionError, native_token::sol_to_lamports, pubkey::Pubkey,
     system_instruction::transfer,
@@ -12,6 +18,7 @@ use solana_program_test::BanksClient;
 use solana_sdk::{
     commitment_config::CommitmentLevel,
     signature::{Keypair, Signer},
+    system_program,
     transaction::{Transaction, TransactionError},
 };
 
@@ -57,7 +64,17 @@ impl TipRouterClient {
         Ok(())
     }
 
-    pub async fn get_config(&mut self, ncn_pubkey: Pubkey) -> TestResult<NcnConfig> {
+    pub async fn get_restaking_config(&mut self) -> TestResult<Config> {
+        let restaking_config = Config::find_program_address(&jito_restaking_program::id()).0;
+        let restaking_config_data = self
+            .banks_client
+            .get_account(restaking_config)
+            .await?
+            .unwrap();
+        Ok(*Config::try_from_slice_unchecked(restaking_config_data.data.as_slice()).unwrap())
+    }
+
+    pub async fn get_ncn_config(&mut self, ncn_pubkey: Pubkey) -> TestResult<NcnConfig> {
         let config_pda =
             NcnConfig::find_program_address(&jito_tip_router_program::id(), &ncn_pubkey).0;
         let config = self.banks_client.get_account(config_pda).await?.unwrap();
@@ -86,10 +103,12 @@ impl TipRouterClient {
         ncn_fee_bps: u64,
         block_engine_fee_bps: u64,
     ) -> TestResult<()> {
-        let config_pda = NcnConfig::find_program_address(&jito_tip_router_program::id(), &ncn).0;
+        let restaking_config = Config::find_program_address(&jito_restaking_program::id()).0;
+        let ncn_config = NcnConfig::find_program_address(&jito_tip_router_program::id(), &ncn).0;
 
-        let ix = InitializeConfigBuilder::new()
-            .config(config_pda)
+        let ix = InitializeNCNConfigBuilder::new()
+            .restaking_config(restaking_config)
+            .ncn_config(ncn_config)
             .ncn(ncn)
             .ncn_admin(ncn_admin.pubkey())
             .fee_wallet(fee_wallet)
@@ -141,7 +160,10 @@ impl TipRouterClient {
         fee_wallet: Pubkey,
         ncn_root: &NcnRoot,
     ) -> TestResult<()> {
+        let restaking_config = Config::find_program_address(&jito_restaking_program::id()).0;
+
         let ix = SetConfigFeesBuilder::new()
+            .restaking_config(restaking_config)
             .config(config_pda)
             .ncn(ncn_root.ncn_pubkey)
             .ncn_admin(ncn_root.ncn_admin.pubkey())
@@ -196,6 +218,91 @@ impl TipRouterClient {
             &[ix],
             Some(&ncn_root.ncn_admin.pubkey()),
             &[&ncn_root.ncn_admin],
+            blockhash,
+        ))
+        .await
+    }
+
+    pub async fn do_initialize_weight_table(
+        &mut self,
+        ncn: Pubkey,
+        current_slot: u64,
+    ) -> TestResult<()> {
+        self.initialize_weight_table(ncn, current_slot).await
+    }
+
+    pub async fn initialize_weight_table(
+        &mut self,
+        ncn: Pubkey,
+        current_slot: u64,
+    ) -> TestResult<()> {
+        let restaking_config = Config::find_program_address(&jito_restaking_program::id()).0;
+
+        let restaking_config_account = self.get_restaking_config().await?;
+        let ncn_epoch = current_slot / restaking_config_account.epoch_length();
+
+        let config_pda = NcnConfig::find_program_address(&jito_tip_router_program::id(), &ncn).0;
+        let weight_table =
+            WeightTable::find_program_address(&jito_tip_router_program::id(), &ncn, ncn_epoch).0;
+
+        let ix = InitializeWeightTableBuilder::new()
+            .restaking_config(restaking_config)
+            .ncn_config(config_pda)
+            .ncn(ncn)
+            .weight_table(weight_table)
+            .payer(self.payer.pubkey())
+            .restaking_program_id(jito_restaking_program::id())
+            .system_program(system_program::id())
+            .instruction();
+
+        let blockhash = self.banks_client.get_latest_blockhash().await?;
+        self.process_transaction(&Transaction::new_signed_with_payer(
+            &[ix],
+            Some(&self.payer.pubkey()),
+            &[&self.payer],
+            blockhash,
+        ))
+        .await
+    }
+
+    pub async fn do_admin_update_weight_table(
+        &mut self,
+        ncn: Pubkey,
+        current_slot: u64,
+        mint: Pubkey,
+        weight: u128,
+    ) -> TestResult<()> {
+        self.admin_update_weight_table(ncn, current_slot, mint, weight)
+            .await
+    }
+
+    pub async fn admin_update_weight_table(
+        &mut self,
+        ncn: Pubkey,
+        current_slot: u64,
+        mint: Pubkey,
+        weight: u128,
+    ) -> TestResult<()> {
+        let restaking_config_account = self.get_restaking_config().await?;
+        let ncn_epoch = current_slot / restaking_config_account.epoch_length();
+
+        let weight_table =
+            WeightTable::find_program_address(&jito_tip_router_program::id(), &ncn, ncn_epoch).0;
+
+        let ix = AdminUpdateWeightTableBuilder::new()
+            .ncn(ncn)
+            .weight_table(weight_table)
+            .weight_table_admin(self.payer.pubkey())
+            .mint(mint)
+            .restaking_program_id(jito_restaking_program::id())
+            .weight(weight)
+            .instruction();
+
+        let blockhash = self.banks_client.get_latest_blockhash().await?;
+        self.process_transaction(&Transaction::new_signed_with_payer(
+            &[ix],
+            Some(&self.payer.pubkey()),
+            &[&self.payer],
             blockhash,
         ))
         .await

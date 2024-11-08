@@ -13,12 +13,11 @@ import {
   type ReadonlyUint8Array,
 } from '@solana/web3.js';
 import {
-  type ParsedFinalizeWeightTableInstruction,
-  type ParsedInitializeConfigInstruction,
+  type ParsedAdminUpdateWeightTableInstruction,
+  type ParsedInitializeNCNConfigInstruction,
   type ParsedInitializeWeightTableInstruction,
   type ParsedSetConfigFeesInstruction,
   type ParsedSetNewAdminInstruction,
-  type ParsedUpdateWeightTableInstruction,
 } from '../instructions';
 
 export const JITO_TIP_ROUTER_PROGRAM_ADDRESS =
@@ -30,12 +29,11 @@ export enum JitoTipRouterAccount {
 }
 
 export enum JitoTipRouterInstruction {
-  InitializeConfig,
-  InitializeWeightTable,
-  UpdateWeightTable,
-  FinalizeWeightTable,
+  InitializeNCNConfig,
   SetConfigFees,
   SetNewAdmin,
+  InitializeWeightTable,
+  AdminUpdateWeightTable,
 }
 
 export function identifyJitoTipRouterInstruction(
@@ -43,22 +41,19 @@ export function identifyJitoTipRouterInstruction(
 ): JitoTipRouterInstruction {
   const data = 'data' in instruction ? instruction.data : instruction;
   if (containsBytes(data, getU8Encoder().encode(0), 0)) {
-    return JitoTipRouterInstruction.InitializeConfig;
+    return JitoTipRouterInstruction.InitializeNCNConfig;
   }
   if (containsBytes(data, getU8Encoder().encode(1), 0)) {
-    return JitoTipRouterInstruction.InitializeWeightTable;
-  }
-  if (containsBytes(data, getU8Encoder().encode(2), 0)) {
-    return JitoTipRouterInstruction.UpdateWeightTable;
-  }
-  if (containsBytes(data, getU8Encoder().encode(3), 0)) {
-    return JitoTipRouterInstruction.FinalizeWeightTable;
-  }
-  if (containsBytes(data, getU8Encoder().encode(4), 0)) {
     return JitoTipRouterInstruction.SetConfigFees;
   }
-  if (containsBytes(data, getU8Encoder().encode(5), 0)) {
+  if (containsBytes(data, getU8Encoder().encode(2), 0)) {
     return JitoTipRouterInstruction.SetNewAdmin;
+  }
+  if (containsBytes(data, getU8Encoder().encode(3), 0)) {
+    return JitoTipRouterInstruction.InitializeWeightTable;
+  }
+  if (containsBytes(data, getU8Encoder().encode(4), 0)) {
+    return JitoTipRouterInstruction.AdminUpdateWeightTable;
   }
   throw new Error(
     'The provided instruction could not be identified as a jitoTipRouter instruction.'
@@ -69,20 +64,17 @@ export type ParsedJitoTipRouterInstruction<
   TProgram extends string = 'Fv9aHCgvPQSr4jg9W8eTS6Ys1SNmh2qjyATrbsjEMaSH',
 > =
   | ({
-      instructionType: JitoTipRouterInstruction.InitializeConfig;
-    } & ParsedInitializeConfigInstruction<TProgram>)
-  | ({
-      instructionType: JitoTipRouterInstruction.InitializeWeightTable;
-    } & ParsedInitializeWeightTableInstruction<TProgram>)
-  | ({
-      instructionType: JitoTipRouterInstruction.UpdateWeightTable;
-    } & ParsedUpdateWeightTableInstruction<TProgram>)
-  | ({
-      instructionType: JitoTipRouterInstruction.FinalizeWeightTable;
-    } & ParsedFinalizeWeightTableInstruction<TProgram>)
+      instructionType: JitoTipRouterInstruction.InitializeNCNConfig;
+    } & ParsedInitializeNCNConfigInstruction<TProgram>)
   | ({
       instructionType: JitoTipRouterInstruction.SetConfigFees;
     } & ParsedSetConfigFeesInstruction<TProgram>)
   | ({
       instructionType: JitoTipRouterInstruction.SetNewAdmin;
-    } & ParsedSetNewAdminInstruction<TProgram>);
+    } & ParsedSetNewAdminInstruction<TProgram>)
+  | ({
+      instructionType: JitoTipRouterInstruction.InitializeWeightTable;
+    } & ParsedInitializeWeightTableInstruction<TProgram>)
+  | ({
+      instructionType: JitoTipRouterInstruction.AdminUpdateWeightTable;
+    } & ParsedAdminUpdateWeightTableInstruction<TProgram>);

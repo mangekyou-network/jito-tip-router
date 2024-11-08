@@ -24,7 +24,9 @@ mod tests {
             .do_set_new_admin(ConfigAdminRole::FeeAdmin, new_fee_admin, &ncn_root)
             .await?;
 
-        let config = tip_router_client.get_config(ncn_root.ncn_pubkey).await?;
+        let config = tip_router_client
+            .get_ncn_config(ncn_root.ncn_pubkey)
+            .await?;
         assert_eq!(config.fee_admin, new_fee_admin);
 
         let new_tie_breaker = Pubkey::new_unique();
@@ -32,7 +34,9 @@ mod tests {
             .do_set_new_admin(ConfigAdminRole::TieBreakerAdmin, new_tie_breaker, &ncn_root)
             .await?;
 
-        let config = tip_router_client.get_config(ncn_root.ncn_pubkey).await?;
+        let config = tip_router_client
+            .get_ncn_config(ncn_root.ncn_pubkey)
+            .await?;
         assert_eq!(config.tie_breaker_admin, new_tie_breaker);
         Ok(())
     }

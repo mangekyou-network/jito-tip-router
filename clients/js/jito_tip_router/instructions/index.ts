@@ -6,9 +6,8 @@
  * @see https://github.com/kinobi-so/kinobi
  */
 
-export * from './finalizeWeightTable';
-export * from './initializeConfig';
+export * from './adminUpdateWeightTable';
+export * from './initializeNCNConfig';
 export * from './initializeWeightTable';
 export * from './setConfigFees';
 export * from './setNewAdmin';
-export * from './updateWeightTable';

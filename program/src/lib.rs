@@ -1,9 +1,8 @@
-mod finalize_weight_table;
+mod admin_update_weight_table;
 mod initialize_ncn_config;
 mod initialize_weight_table;
 mod set_config_fees;
 mod set_new_admin;
-mod update_weight_table;
 
 use borsh::BorshDeserialize;
 use const_str_to_pubkey::str_to_pubkey;
@@ -17,10 +16,10 @@ use solana_program::{
 use solana_security_txt::security_txt;
 
 use crate::{
-    finalize_weight_table::process_finalize_weight_table,
+    admin_update_weight_table::process_admin_update_weight_table,
     initialize_ncn_config::process_initialize_ncn_config,
     initialize_weight_table::process_initialize_weight_table,
-    set_config_fees::process_set_config_fees, update_weight_table::process_update_weight_table,
+    set_config_fees::process_set_config_fees,
 };
 
 declare_id!(str_to_pubkey(env!("TIP_ROUTER_PROGRAM_ID")));
@@ -55,7 +54,7 @@ pub fn process_instruction(
         // ------------------------------------------
         // Initialization
         // ------------------------------------------
-        WeightTableInstruction::InitializeConfig {
+        WeightTableInstruction::InitializeNCNConfig {
             dao_fee_bps,
             ncn_fee_bps,
             block_engine_fee_bps,
@@ -78,26 +77,9 @@ pub fn process_instruction(
         // ------------------------------------------
         // Update
         // ------------------------------------------
-        WeightTableInstruction::UpdateWeightTable {
-            ncn_epoch,
-            weight_numerator,
-            weight_denominator,
-        } => {
+        WeightTableInstruction::AdminUpdateWeightTable { ncn_epoch, weight } => {
             msg!("Instruction: UpdateWeightTable");
-            process_update_weight_table(
-                program_id,
-                accounts,
-                ncn_epoch,
-                weight_numerator,
-                weight_denominator,
-            )
-        }
-        // ------------------------------------------
-        // Finalization
-        // ------------------------------------------
-        WeightTableInstruction::FinalizeWeightTable { ncn_epoch } => {
-            msg!("Instruction: FinalizeWeightTable");
-            process_finalize_weight_table(program_id, accounts, ncn_epoch)
+            process_admin_update_weight_table(program_id, accounts, ncn_epoch, weight)
         }
         WeightTableInstruction::SetConfigFees {
             new_dao_fee_bps,

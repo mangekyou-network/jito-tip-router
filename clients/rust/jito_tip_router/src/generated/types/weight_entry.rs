@@ -15,5 +15,9 @@ pub struct WeightEntry {
         serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
     )]
     pub mint: Pubkey,
-    pub weight: u64,
+    pub weight: u128,
+    pub slot_set: u64,
+    pub slot_updated: u64,
+    #[cfg_attr(feature = "serde", serde(with = "serde_with::As::<serde_with::Bytes>"))]
+    pub reserved: [u8; 128],
 }

@@ -82,30 +82,30 @@ impl NcnConfig {
     pub fn load(
         program_id: &Pubkey,
         ncn: &Pubkey,
-        account: &AccountInfo,
+        ncn_config_account: &AccountInfo,
         expect_writable: bool,
     ) -> Result<(), ProgramError> {
-        if account.owner.ne(program_id) {
-            msg!("Config account has an invalid owner");
+        if ncn_config_account.owner.ne(program_id) {
+            msg!("NCN Config account has an invalid owner");
             return Err(ProgramError::InvalidAccountOwner);
         }
-        if account.data_is_empty() {
-            msg!("Config account data is empty");
+        if ncn_config_account.data_is_empty() {
+            msg!("NCN Config account data is empty");
             return Err(ProgramError::InvalidAccountData);
         }
-        if expect_writable && !account.is_writable {
-            msg!("Config account is not writable");
+        if expect_writable && !ncn_config_account.is_writable {
+            msg!("NCN Config account is not writable");
             return Err(ProgramError::InvalidAccountData);
         }
-        if account.data.borrow()[0].ne(&Self::DISCRIMINATOR) {
-            msg!("Config account discriminator is invalid");
+        if ncn_config_account.data.borrow()[0].ne(&Self::DISCRIMINATOR) {
+            msg!("NCN Config account discriminator is invalid");
             return Err(ProgramError::InvalidAccountData);
         }
-        if account
+        if ncn_config_account
             .key
             .ne(&Self::find_program_address(program_id, ncn).0)
         {
-            msg!("Config account is not at the correct PDA");
+            msg!("NCN Config account is not at the correct PDA");
             return Err(ProgramError::InvalidAccountData);
         }
         Ok(())

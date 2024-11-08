@@ -38,7 +38,7 @@ import {
 import { JITO_TIP_ROUTER_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const SET_CONFIG_FEES_DISCRIMINATOR = 4;
+export const SET_CONFIG_FEES_DISCRIMINATOR = 1;
 
 export function getSetConfigFeesDiscriminatorBytes() {
   return getU8Encoder().encode(SET_CONFIG_FEES_DISCRIMINATOR);
@@ -46,6 +46,7 @@ export function getSetConfigFeesDiscriminatorBytes() {
 
 export type SetConfigFeesInstruction<
   TProgram extends string = typeof JITO_TIP_ROUTER_PROGRAM_ADDRESS,
+  TAccountRestakingConfig extends string | IAccountMeta<string> = string,
   TAccountConfig extends string | IAccountMeta<string> = string,
   TAccountNcn extends string | IAccountMeta<string> = string,
   TAccountNcnAdmin extends string | IAccountMeta<string> = string,
@@ -55,6 +56,9 @@ export type SetConfigFeesInstruction<
   IInstructionWithData<Uint8Array> &
   IInstructionWithAccounts<
     [
+      TAccountRestakingConfig extends string
+        ? ReadonlyAccount<TAccountRestakingConfig>
+        : TAccountRestakingConfig,
       TAccountConfig extends string
         ? WritableAccount<TAccountConfig>
         : TAccountConfig,
@@ -119,11 +123,13 @@ export function getSetConfigFeesInstructionDataCodec(): Codec<
 }
 
 export type SetConfigFeesInput<
+  TAccountRestakingConfig extends string = string,
   TAccountConfig extends string = string,
   TAccountNcn extends string = string,
   TAccountNcnAdmin extends string = string,
   TAccountRestakingProgramId extends string = string,
 > = {
+  restakingConfig: Address<TAccountRestakingConfig>;
   config: Address<TAccountConfig>;
   ncn: Address<TAccountNcn>;
   ncnAdmin: TransactionSigner<TAccountNcnAdmin>;
@@ -135,6 +141,7 @@ export type SetConfigFeesInput<
 };
 
 export function getSetConfigFeesInstruction<
+  TAccountRestakingConfig extends string,
   TAccountConfig extends string,
   TAccountNcn extends string,
   TAccountNcnAdmin extends string,
@@ -142,6 +149,7 @@ export function getSetConfigFeesInstruction<
   TProgramAddress extends Address = typeof JITO_TIP_ROUTER_PROGRAM_ADDRESS,
 >(
   input: SetConfigFeesInput<
+    TAccountRestakingConfig,
     TAccountConfig,
     TAccountNcn,
     TAccountNcnAdmin,
@@ -150,6 +158,7 @@ export function getSetConfigFeesInstruction<
   config?: { programAddress?: TProgramAddress }
 ): SetConfigFeesInstruction<
   TProgramAddress,
+  TAccountRestakingConfig,
   TAccountConfig,
   TAccountNcn,
   TAccountNcnAdmin,
@@ -161,6 +170,10 @@ export function getSetConfigFeesInstruction<
 
   // Original accounts.
   const originalAccounts = {
+    restakingConfig: {
+      value: input.restakingConfig ?? null,
+      isWritable: false,
+    },
     config: { value: input.config ?? null, isWritable: true },
     ncn: { value: input.ncn ?? null, isWritable: false },
     ncnAdmin: { value: input.ncnAdmin ?? null, isWritable: false },
@@ -180,6 +193,7 @@ export function getSetConfigFeesInstruction<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   const instruction = {
     accounts: [
+      getAccountMeta(accounts.restakingConfig),
       getAccountMeta(accounts.config),
       getAccountMeta(accounts.ncn),
       getAccountMeta(accounts.ncnAdmin),
@@ -191,6 +205,7 @@ export function getSetConfigFeesInstruction<
     ),
   } as SetConfigFeesInstruction<
     TProgramAddress,
+    TAccountRestakingConfig,
     TAccountConfig,
     TAccountNcn,
     TAccountNcnAdmin,
@@ -206,10 +221,11 @@ export type ParsedSetConfigFeesInstruction<
 > = {
   programAddress: Address<TProgram>;
   accounts: {
-    config: TAccountMetas[0];
-    ncn: TAccountMetas[1];
-    ncnAdmin: TAccountMetas[2];
-    restakingProgramId: TAccountMetas[3];
+    restakingConfig: TAccountMetas[0];
+    config: TAccountMetas[1];
+    ncn: TAccountMetas[2];
+    ncnAdmin: TAccountMetas[3];
+    restakingProgramId: TAccountMetas[4];
   };
   data: SetConfigFeesInstructionData;
 };
@@ -222,7 +238,7 @@ export function parseSetConfigFeesInstruction<
     IInstructionWithAccounts<TAccountMetas> &
     IInstructionWithData<Uint8Array>
 ): ParsedSetConfigFeesInstruction<TProgram, TAccountMetas> {
-  if (instruction.accounts.length < 4) {
+  if (instruction.accounts.length < 5) {
     // TODO: Coded error.
     throw new Error('Not enough accounts');
   }
@@ -235,6 +251,7 @@ export function parseSetConfigFeesInstruction<
   return {
     programAddress: instruction.programAddress,
     accounts: {
+      restakingConfig: getNextAccount(),
       config: getNextAccount(),
       ncn: getNextAccount(),
       ncnAdmin: getNextAccount(),

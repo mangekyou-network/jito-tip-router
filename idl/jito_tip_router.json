@@ -3,10 +3,15 @@
   "name": "jito_tip_router",
   "instructions": [
     {
-      "name": "InitializeConfig",
+      "name": "InitializeNCNConfig",
       "accounts": [
         {
-          "name": "config",
+          "name": "restakingConfig",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "ncnConfig",
           "isMut": true,
           "isSigner": false
         },
@@ -61,133 +66,13 @@
       }
     },
     {
-      "name": "InitializeWeightTable",
+      "name": "SetConfigFees",
       "accounts": [
         {
           "name": "restakingConfig",
           "isMut": false,
           "isSigner": false
         },
-        {
-          "name": "ncn",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "weightTable",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "weightTableAdmin",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "restakingProgramId",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "firstSlotOfNcnEpoch",
-          "type": {
-            "option": "u64"
-          }
-        }
-      ],
-      "discriminant": {
-        "type": "u8",
-        "value": 1
-      }
-    },
-    {
-      "name": "UpdateWeightTable",
-      "accounts": [
-        {
-          "name": "ncn",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "weightTable",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "weightTableAdmin",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "restakingProgramId",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "ncnEpoch",
-          "type": "u64"
-        },
-        {
-          "name": "weightNumerator",
-          "type": "u64"
-        },
-        {
-          "name": "weightDenominator",
-          "type": "u64"
-        }
-      ],
-      "discriminant": {
-        "type": "u8",
-        "value": 2
-      }
-    },
-    {
-      "name": "FinalizeWeightTable",
-      "accounts": [
-        {
-          "name": "ncn",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "weightTable",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "weightTableAdmin",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "restakingProgramId",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "ncnEpoch",
-          "type": "u64"
-        }
-      ],
-      "discriminant": {
-        "type": "u8",
-        "value": 3
-      }
-    },
-    {
-      "name": "SetConfigFees",
-      "accounts": [
         {
           "name": "config",
           "isMut": true,
@@ -237,7 +122,7 @@
       ],
       "discriminant": {
         "type": "u8",
-        "value": 4
+        "value": 1
       }
     },
     {
@@ -279,7 +164,103 @@
       ],
       "discriminant": {
         "type": "u8",
-        "value": 5
+        "value": 2
+      }
+    },
+    {
+      "name": "InitializeWeightTable",
+      "accounts": [
+        {
+          "name": "restakingConfig",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "ncnConfig",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "ncn",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "weightTable",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "restakingProgramId",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "firstSlotOfNcnEpoch",
+          "type": {
+            "option": "u64"
+          }
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 3
+      }
+    },
+    {
+      "name": "AdminUpdateWeightTable",
+      "accounts": [
+        {
+          "name": "ncn",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "weightTable",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "weightTableAdmin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "restakingProgramId",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "ncnEpoch",
+          "type": "u64"
+        },
+        {
+          "name": "weight",
+          "type": "u128"
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 4
       }
     }
   ],
@@ -340,12 +321,6 @@
           },
           {
             "name": "slotCreated",
-            "type": {
-              "defined": "PodU64"
-            }
-          },
-          {
-            "name": "slotFinalized",
             "type": {
               "defined": "PodU64"
             }
@@ -439,7 +414,28 @@
           {
             "name": "weight",
             "type": {
+              "defined": "PodU128"
+            }
+          },
+          {
+            "name": "slotSet",
+            "type": {
               "defined": "PodU64"
+            }
+          },
+          {
+            "name": "slotUpdated",
+            "type": {
+              "defined": "PodU64"
+            }
+          },
+          {
+            "name": "reserved",
+            "type": {
+              "array": [
+                "u8",
+                128
+              ]
             }
           }
         ]
@@ -462,11 +458,6 @@
   ],
   "errors": [
     {
-      "code": 8192,
-      "name": "NoMoreTableSlots",
-      "msg": "No more table slots available"
-    },
-    {
       "code": 8448,
       "name": "DenominatorIsZero",
       "msg": "Zero in the denominator"
@@ -482,14 +473,59 @@
       "msg": "Modulo Overflow"
     },
     {
+      "code": 8451,
+      "name": "NewPreciseNumberError",
+      "msg": "New precise number error"
+    },
+    {
+      "code": 8452,
+      "name": "CastToImpreciseNumberError",
+      "msg": "Cast to imprecise number error"
+    },
+    {
       "code": 8704,
       "name": "IncorrectWeightTableAdmin",
       "msg": "Incorrect weight table admin"
     },
     {
       "code": 8705,
+      "name": "DuplicateMintsInTable",
+      "msg": "Duplicate mints in table"
+    },
+    {
+      "code": 8706,
+      "name": "NoMintsInTable",
+      "msg": "There are no mints in the table"
+    },
+    {
+      "code": 8707,
+      "name": "TooManyMintsForTable",
+      "msg": "Too many mints for table"
+    },
+    {
+      "code": 8708,
+      "name": "WeightTableAlreadyInitialized",
+      "msg": "Weight table already initialized"
+    },
+    {
+      "code": 8709,
       "name": "CannotCreateFutureWeightTables",
       "msg": "Cannnot create future weight tables"
+    },
+    {
+      "code": 8710,
+      "name": "WeightMintsDoNotMatchLength",
+      "msg": "Weight mints do not match - length"
+    },
+    {
+      "code": 8711,
+      "name": "WeightMintsDoNotMatchMintHash",
+      "msg": "Weight mints do not match - mint hash"
+    },
+    {
+      "code": 8712,
+      "name": "InvalidMintForWeightTable",
+      "msg": "Invalid mint for weight table"
     },
     {
       "code": 8960,

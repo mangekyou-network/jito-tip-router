@@ -3,7 +3,7 @@ use jito_jsm_core::{
     create_account,
     loader::{load_signer, load_system_account, load_system_program},
 };
-use jito_restaking_core::ncn::Ncn;
+use jito_restaking_core::{config::Config, ncn::Ncn};
 use jito_tip_router_core::{error::TipRouterError, fees::Fees, ncn_config::NcnConfig, MAX_FEE_BPS};
 use solana_program::{
     account_info::AccountInfo, clock::Clock, entrypoint::ProgramResult,
@@ -17,17 +17,31 @@ pub fn process_initialize_ncn_config(
     ncn_fee_bps: u64,
     block_engine_fee_bps: u64,
 ) -> ProgramResult {
-    let [config, ncn_account, fee_wallet, ncn_admin, tie_breaker_admin, restaking_program_id, system_program] =
+    let [restaking_config, ncn_config, ncn_account, fee_wallet, ncn_admin, tie_breaker_admin, restaking_program_id, system_program] =
         accounts
     else {
         return Err(ProgramError::NotEnoughAccountKeys);
     };
 
-    load_system_account(config, true)?;
+    load_system_account(ncn_config, true)?;
     load_system_program(system_program)?;
     load_signer(ncn_admin, false)?;
 
     Ncn::load(restaking_program_id.key, ncn_account, false)?;
+    Config::load(restaking_program_id.key, restaking_config, false)?;
+
+    let ncn_epoch_length = {
+        let config_data = restaking_config.data.borrow();
+        let config = Config::try_from_slice_unchecked(&config_data)?;
+        config.epoch_length()
+    };
+
+    let epoch = {
+        let current_slot = Clock::get()?.slot;
+        current_slot
+            .checked_div(ncn_epoch_length)
+            .ok_or(TipRouterError::DenominatorIsZero)?
+    };
 
     let ncn_data = ncn_account.data.borrow();
     let ncn = Ncn::try_from_slice_unchecked(&ncn_data)?;
@@ -39,7 +53,7 @@ pub fn process_initialize_ncn_config(
         NcnConfig::find_program_address(program_id, ncn_account.key);
     config_seeds.push(vec![config_bump]);
 
-    if config_pda != *config.key {
+    if config_pda != *ncn_config.key {
         return Err(ProgramError::InvalidSeeds);
     }
 
@@ -55,7 +69,7 @@ pub fn process_initialize_ncn_config(
 
     create_account(
         ncn_admin,
-        config,
+        ncn_config,
         system_program,
         program_id,
         &Rent::get()?,
@@ -65,9 +79,7 @@ pub fn process_initialize_ncn_config(
         &config_seeds,
     )?;
 
-    let epoch = Clock::get()?.epoch;
-
-    let mut config_data = config.try_borrow_mut_data()?;
+    let mut config_data = ncn_config.try_borrow_mut_data()?;
     config_data[0] = NcnConfig::DISCRIMINATOR;
     let config = NcnConfig::try_from_slice_unchecked_mut(&mut config_data)?;
     *config = NcnConfig::new(
