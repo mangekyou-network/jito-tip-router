@@ -93,10 +93,6 @@ impl WeightTable {
         // Check for duplicates using nested iterators
         let unique_mints: HashSet<_> = config_supported_mints.iter().collect();
 
-        println!(
-            "unique_mints: {:?} {:?}",
-            unique_mints, config_supported_mints
-        );
         if unique_mints.len() != config_supported_mints.len() {
             return Err(TipRouterError::DuplicateMintsInTable);
         }
