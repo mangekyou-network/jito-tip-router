@@ -39,7 +39,7 @@ pub struct TrackedMints {
     pub ncn: Pubkey,
     pub bump: u8,
     pub reserved: [u8; 7],
-    pub st_mint_list: [MintEntry; 64],
+    pub st_mint_list: [MintEntry; 2],
 }
 
 impl Discriminator for TrackedMints {
@@ -52,7 +52,7 @@ impl TrackedMints {
             ncn,
             bump,
             reserved: [0; 7],
-            st_mint_list: [MintEntry::default(); 64],
+            st_mint_list: [MintEntry::default(); 2],
         }
     }
 
