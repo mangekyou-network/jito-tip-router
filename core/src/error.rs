@@ -36,6 +36,10 @@ pub enum TipRouterError {
     ConfigMintsNotUpdated,
     #[error("NCN config vaults are at capacity")]
     ConfigMintListFull,
+    #[error("Tracked mints are at capacity")]
+    TrackedMintListFull,
+    #[error("Vault index already in use by a different mint")]
+    VaultIndexAlreadyInUse,
     #[error("Fee cap exceeded")]
     FeeCapExceeded = 0x2300,
     #[error("Incorrect NCN Admin")]

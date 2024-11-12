@@ -10,31 +10,59 @@ import {
   combineCodec,
   getAddressDecoder,
   getAddressEncoder,
+  getArrayDecoder,
+  getArrayEncoder,
   getStructDecoder,
   getStructEncoder,
+  getU128Decoder,
+  getU128Encoder,
   getU64Decoder,
   getU64Encoder,
+  getU8Decoder,
+  getU8Encoder,
   type Address,
   type Codec,
   type Decoder,
   type Encoder,
 } from '@solana/web3.js';
 
-export type MintEntry = { mint: Address; vaultIndex: bigint };
+export type MintEntry = {
+  stMint: Address;
+  vaultIndex: bigint;
+  weight: bigint;
+  slotSet: bigint;
+  slotUpdated: bigint;
+  reserved: Array<number>;
+};
 
-export type MintEntryArgs = { mint: Address; vaultIndex: number | bigint };
+export type MintEntryArgs = {
+  stMint: Address;
+  vaultIndex: number | bigint;
+  weight: number | bigint;
+  slotSet: number | bigint;
+  slotUpdated: number | bigint;
+  reserved: Array<number>;
+};
 
 export function getMintEntryEncoder(): Encoder<MintEntryArgs> {
   return getStructEncoder([
-    ['mint', getAddressEncoder()],
+    ['stMint', getAddressEncoder()],
     ['vaultIndex', getU64Encoder()],
+    ['weight', getU128Encoder()],
+    ['slotSet', getU64Encoder()],
+    ['slotUpdated', getU64Encoder()],
+    ['reserved', getArrayEncoder(getU8Encoder(), { size: 128 })],
   ]);
 }
 
 export function getMintEntryDecoder(): Decoder<MintEntry> {
   return getStructDecoder([
-    ['mint', getAddressDecoder()],
+    ['stMint', getAddressDecoder()],
     ['vaultIndex', getU64Decoder()],
+    ['weight', getU128Decoder()],
+    ['slotSet', getU64Decoder()],
+    ['slotUpdated', getU64Decoder()],
+    ['reserved', getArrayDecoder(getU8Decoder(), { size: 128 })],
   ]);
 }
 

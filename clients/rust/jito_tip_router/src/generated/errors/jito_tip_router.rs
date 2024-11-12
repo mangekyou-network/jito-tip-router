@@ -57,6 +57,12 @@ pub enum JitoTipRouterError {
     /// 8714 - NCN config vaults are at capacity
     #[error("NCN config vaults are at capacity")]
     ConfigMintListFull = 0x220A,
+    /// 8715 - Tracked mints are at capacity
+    #[error("Tracked mints are at capacity")]
+    TrackedMintListFull = 0x220B,
+    /// 8716 - Vault index already in use by a different mint
+    #[error("Vault index already in use by a different mint")]
+    VaultIndexAlreadyInUse = 0x220C,
     /// 8960 - Fee cap exceeded
     #[error("Fee cap exceeded")]
     FeeCapExceeded = 0x2300,

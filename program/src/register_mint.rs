@@ -1,6 +1,6 @@
 use jito_bytemuck::AccountDeserialize;
 use jito_restaking_core::{config::Config, ncn::Ncn, ncn_vault_ticket::NcnVaultTicket};
-use jito_tip_router_core::ncn_config::NcnConfig;
+use jito_tip_router_core::tracked_mints::TrackedMints;
 use jito_vault_core::{vault::Vault, vault_ncn_ticket::VaultNcnTicket};
 use solana_program::{
     account_info::AccountInfo,
@@ -12,13 +12,13 @@ use solana_program::{
 };
 
 pub fn process_register_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
-    let [restaking_config, ncn_config, ncn, vault, vault_ncn_ticket, ncn_vault_ticket, restaking_program_id, vault_program_id] =
+    let [restaking_config, tracked_mints, ncn, vault, vault_ncn_ticket, ncn_vault_ticket, restaking_program_id, vault_program_id] =
         accounts
     else {
         return Err(ProgramError::NotEnoughAccountKeys);
     };
 
-    NcnConfig::load(program_id, ncn.key, ncn_config, true)?;
+    TrackedMints::load(program_id, ncn.key, tracked_mints, true)?;
     Ncn::load(restaking_program_id.key, ncn, false)?;
     Vault::load(vault_program_id.key, vault, false)?;
     VaultNcnTicket::load(vault_program_id.key, vault_ncn_ticket, vault, ncn, false)?;
@@ -61,9 +61,9 @@ pub fn process_register_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
     let vault_data = vault.data.borrow();
     let vault = Vault::try_from_slice_unchecked(&vault_data)?;
 
-    let mut ncn_config_data = ncn_config.try_borrow_mut_data()?;
-    let ncn_config = NcnConfig::try_from_slice_unchecked_mut(&mut ncn_config_data)?;
-    ncn_config.add_mint(vault.supported_mint, vault.vault_index())?;
+    let mut tracked_mints_data = tracked_mints.try_borrow_mut_data()?;
+    let tracked_mints = TrackedMints::try_from_slice_unchecked_mut(&mut tracked_mints_data)?;
+    tracked_mints.add_mint(vault.supported_mint, vault.vault_index())?;
 
     Ok(())
 }

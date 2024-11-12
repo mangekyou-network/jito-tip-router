@@ -7,25 +7,19 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 
 /// Accounts.
-pub struct RegisterMint {
-    pub restaking_config: solana_program::pubkey::Pubkey,
+pub struct InitializeTrackedMints {
+    pub ncn_config: solana_program::pubkey::Pubkey,
 
     pub tracked_mints: solana_program::pubkey::Pubkey,
 
     pub ncn: solana_program::pubkey::Pubkey,
 
-    pub vault: solana_program::pubkey::Pubkey,
+    pub payer: solana_program::pubkey::Pubkey,
 
-    pub vault_ncn_ticket: solana_program::pubkey::Pubkey,
-
-    pub ncn_vault_ticket: solana_program::pubkey::Pubkey,
-
-    pub restaking_program_id: solana_program::pubkey::Pubkey,
-
-    pub vault_program_id: solana_program::pubkey::Pubkey,
+    pub system_program: solana_program::pubkey::Pubkey,
 }
 
-impl RegisterMint {
+impl InitializeTrackedMints {
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
         self.instruction_with_remaining_accounts(&[])
     }
@@ -34,9 +28,9 @@ impl RegisterMint {
         &self,
         remaining_accounts: &[solana_program::instruction::AccountMeta],
     ) -> solana_program::instruction::Instruction {
-        let mut accounts = Vec::with_capacity(8 + remaining_accounts.len());
+        let mut accounts = Vec::with_capacity(5 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            self.restaking_config,
+            self.ncn_config,
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new(
@@ -46,27 +40,17 @@ impl RegisterMint {
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.ncn, false,
         ));
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            self.vault, false,
+        accounts.push(solana_program::instruction::AccountMeta::new(
+            self.payer, true,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            self.vault_ncn_ticket,
-            false,
-        ));
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            self.ncn_vault_ticket,
-            false,
-        ));
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            self.restaking_program_id,
-            false,
-        ));
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            self.vault_program_id,
+            self.system_program,
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let data = RegisterMintInstructionData::new().try_to_vec().unwrap();
+        let data = InitializeTrackedMintsInstructionData::new()
+            .try_to_vec()
+            .unwrap();
 
         solana_program::instruction::Instruction {
             program_id: crate::JITO_TIP_ROUTER_ID,
@@ -77,57 +61,48 @@ impl RegisterMint {
 }
 
 #[derive(BorshDeserialize, BorshSerialize)]
-pub struct RegisterMintInstructionData {
+pub struct InitializeTrackedMintsInstructionData {
     discriminator: u8,
 }
 
-impl RegisterMintInstructionData {
+impl InitializeTrackedMintsInstructionData {
     pub fn new() -> Self {
-        Self { discriminator: 5 }
+        Self { discriminator: 6 }
     }
 }
 
-impl Default for RegisterMintInstructionData {
+impl Default for InitializeTrackedMintsInstructionData {
     fn default() -> Self {
         Self::new()
     }
 }
 
-/// Instruction builder for `RegisterMint`.
+/// Instruction builder for `InitializeTrackedMints`.
 ///
 /// ### Accounts:
 ///
-///   0. `[]` restaking_config
+///   0. `[]` ncn_config
 ///   1. `[writable]` tracked_mints
 ///   2. `[]` ncn
-///   3. `[]` vault
-///   4. `[]` vault_ncn_ticket
-///   5. `[]` ncn_vault_ticket
-///   6. `[]` restaking_program_id
-///   7. `[]` vault_program_id
+///   3. `[writable, signer]` payer
+///   4. `[optional]` system_program (default to `11111111111111111111111111111111`)
 #[derive(Clone, Debug, Default)]
-pub struct RegisterMintBuilder {
-    restaking_config: Option<solana_program::pubkey::Pubkey>,
+pub struct InitializeTrackedMintsBuilder {
+    ncn_config: Option<solana_program::pubkey::Pubkey>,
     tracked_mints: Option<solana_program::pubkey::Pubkey>,
     ncn: Option<solana_program::pubkey::Pubkey>,
-    vault: Option<solana_program::pubkey::Pubkey>,
-    vault_ncn_ticket: Option<solana_program::pubkey::Pubkey>,
-    ncn_vault_ticket: Option<solana_program::pubkey::Pubkey>,
-    restaking_program_id: Option<solana_program::pubkey::Pubkey>,
-    vault_program_id: Option<solana_program::pubkey::Pubkey>,
+    payer: Option<solana_program::pubkey::Pubkey>,
+    system_program: Option<solana_program::pubkey::Pubkey>,
     __remaining_accounts: Vec<solana_program::instruction::AccountMeta>,
 }
 
-impl RegisterMintBuilder {
+impl InitializeTrackedMintsBuilder {
     pub fn new() -> Self {
         Self::default()
     }
     #[inline(always)]
-    pub fn restaking_config(
-        &mut self,
-        restaking_config: solana_program::pubkey::Pubkey,
-    ) -> &mut Self {
-        self.restaking_config = Some(restaking_config);
+    pub fn ncn_config(&mut self, ncn_config: solana_program::pubkey::Pubkey) -> &mut Self {
+        self.ncn_config = Some(ncn_config);
         self
     }
     #[inline(always)]
@@ -141,40 +116,14 @@ impl RegisterMintBuilder {
         self
     }
     #[inline(always)]
-    pub fn vault(&mut self, vault: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.vault = Some(vault);
+    pub fn payer(&mut self, payer: solana_program::pubkey::Pubkey) -> &mut Self {
+        self.payer = Some(payer);
         self
     }
+    /// `[optional account, default to '11111111111111111111111111111111']`
     #[inline(always)]
-    pub fn vault_ncn_ticket(
-        &mut self,
-        vault_ncn_ticket: solana_program::pubkey::Pubkey,
-    ) -> &mut Self {
-        self.vault_ncn_ticket = Some(vault_ncn_ticket);
-        self
-    }
-    #[inline(always)]
-    pub fn ncn_vault_ticket(
-        &mut self,
-        ncn_vault_ticket: solana_program::pubkey::Pubkey,
-    ) -> &mut Self {
-        self.ncn_vault_ticket = Some(ncn_vault_ticket);
-        self
-    }
-    #[inline(always)]
-    pub fn restaking_program_id(
-        &mut self,
-        restaking_program_id: solana_program::pubkey::Pubkey,
-    ) -> &mut Self {
-        self.restaking_program_id = Some(restaking_program_id);
-        self
-    }
-    #[inline(always)]
-    pub fn vault_program_id(
-        &mut self,
-        vault_program_id: solana_program::pubkey::Pubkey,
-    ) -> &mut Self {
-        self.vault_program_id = Some(vault_program_id);
+    pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
+        self.system_program = Some(system_program);
         self
     }
     /// Add an additional account to the instruction.
@@ -197,79 +146,61 @@ impl RegisterMintBuilder {
     }
     #[allow(clippy::clone_on_copy)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let accounts = RegisterMint {
-            restaking_config: self.restaking_config.expect("restaking_config is not set"),
+        let accounts = InitializeTrackedMints {
+            ncn_config: self.ncn_config.expect("ncn_config is not set"),
             tracked_mints: self.tracked_mints.expect("tracked_mints is not set"),
             ncn: self.ncn.expect("ncn is not set"),
-            vault: self.vault.expect("vault is not set"),
-            vault_ncn_ticket: self.vault_ncn_ticket.expect("vault_ncn_ticket is not set"),
-            ncn_vault_ticket: self.ncn_vault_ticket.expect("ncn_vault_ticket is not set"),
-            restaking_program_id: self
-                .restaking_program_id
-                .expect("restaking_program_id is not set"),
-            vault_program_id: self.vault_program_id.expect("vault_program_id is not set"),
+            payer: self.payer.expect("payer is not set"),
+            system_program: self
+                .system_program
+                .unwrap_or(solana_program::pubkey!("11111111111111111111111111111111")),
         };
 
         accounts.instruction_with_remaining_accounts(&self.__remaining_accounts)
     }
 }
 
-/// `register_mint` CPI accounts.
-pub struct RegisterMintCpiAccounts<'a, 'b> {
-    pub restaking_config: &'b solana_program::account_info::AccountInfo<'a>,
+/// `initialize_tracked_mints` CPI accounts.
+pub struct InitializeTrackedMintsCpiAccounts<'a, 'b> {
+    pub ncn_config: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub tracked_mints: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub ncn: &'b solana_program::account_info::AccountInfo<'a>,
 
-    pub vault: &'b solana_program::account_info::AccountInfo<'a>,
+    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
 
-    pub vault_ncn_ticket: &'b solana_program::account_info::AccountInfo<'a>,
-
-    pub ncn_vault_ticket: &'b solana_program::account_info::AccountInfo<'a>,
-
-    pub restaking_program_id: &'b solana_program::account_info::AccountInfo<'a>,
-
-    pub vault_program_id: &'b solana_program::account_info::AccountInfo<'a>,
+    pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
-/// `register_mint` CPI instruction.
-pub struct RegisterMintCpi<'a, 'b> {
+/// `initialize_tracked_mints` CPI instruction.
+pub struct InitializeTrackedMintsCpi<'a, 'b> {
     /// The program to invoke.
     pub __program: &'b solana_program::account_info::AccountInfo<'a>,
 
-    pub restaking_config: &'b solana_program::account_info::AccountInfo<'a>,
+    pub ncn_config: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub tracked_mints: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub ncn: &'b solana_program::account_info::AccountInfo<'a>,
 
-    pub vault: &'b solana_program::account_info::AccountInfo<'a>,
+    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
 
-    pub vault_ncn_ticket: &'b solana_program::account_info::AccountInfo<'a>,
-
-    pub ncn_vault_ticket: &'b solana_program::account_info::AccountInfo<'a>,
-
-    pub restaking_program_id: &'b solana_program::account_info::AccountInfo<'a>,
-
-    pub vault_program_id: &'b solana_program::account_info::AccountInfo<'a>,
+    pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
-impl<'a, 'b> RegisterMintCpi<'a, 'b> {
+impl<'a, 'b> InitializeTrackedMintsCpi<'a, 'b> {
     pub fn new(
         program: &'b solana_program::account_info::AccountInfo<'a>,
-        accounts: RegisterMintCpiAccounts<'a, 'b>,
+        accounts: InitializeTrackedMintsCpiAccounts<'a, 'b>,
     ) -> Self {
         Self {
             __program: program,
-            restaking_config: accounts.restaking_config,
+            ncn_config: accounts.ncn_config,
             tracked_mints: accounts.tracked_mints,
             ncn: accounts.ncn,
-            vault: accounts.vault,
-            vault_ncn_ticket: accounts.vault_ncn_ticket,
-            ncn_vault_ticket: accounts.ncn_vault_ticket,
-            restaking_program_id: accounts.restaking_program_id,
-            vault_program_id: accounts.vault_program_id,
+            payer: accounts.payer,
+            system_program: accounts.system_program,
         }
     }
     #[inline(always)]
@@ -305,9 +236,9 @@ impl<'a, 'b> RegisterMintCpi<'a, 'b> {
             bool,
         )],
     ) -> solana_program::entrypoint::ProgramResult {
-        let mut accounts = Vec::with_capacity(8 + remaining_accounts.len());
+        let mut accounts = Vec::with_capacity(5 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            *self.restaking_config.key,
+            *self.ncn_config.key,
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new(
@@ -318,24 +249,12 @@ impl<'a, 'b> RegisterMintCpi<'a, 'b> {
             *self.ncn.key,
             false,
         ));
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            *self.vault.key,
-            false,
+        accounts.push(solana_program::instruction::AccountMeta::new(
+            *self.payer.key,
+            true,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            *self.vault_ncn_ticket.key,
-            false,
-        ));
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            *self.ncn_vault_ticket.key,
-            false,
-        ));
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            *self.restaking_program_id.key,
-            false,
-        ));
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            *self.vault_program_id.key,
+            *self.system_program.key,
             false,
         ));
         remaining_accounts.iter().for_each(|remaining_account| {
@@ -345,23 +264,22 @@ impl<'a, 'b> RegisterMintCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let data = RegisterMintInstructionData::new().try_to_vec().unwrap();
+        let data = InitializeTrackedMintsInstructionData::new()
+            .try_to_vec()
+            .unwrap();
 
         let instruction = solana_program::instruction::Instruction {
             program_id: crate::JITO_TIP_ROUTER_ID,
             accounts,
             data,
         };
-        let mut account_infos = Vec::with_capacity(8 + 1 + remaining_accounts.len());
+        let mut account_infos = Vec::with_capacity(5 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
-        account_infos.push(self.restaking_config.clone());
+        account_infos.push(self.ncn_config.clone());
         account_infos.push(self.tracked_mints.clone());
         account_infos.push(self.ncn.clone());
-        account_infos.push(self.vault.clone());
-        account_infos.push(self.vault_ncn_ticket.clone());
-        account_infos.push(self.ncn_vault_ticket.clone());
-        account_infos.push(self.restaking_program_id.clone());
-        account_infos.push(self.vault_program_id.clone());
+        account_infos.push(self.payer.clone());
+        account_infos.push(self.system_program.clone());
         remaining_accounts
             .iter()
             .for_each(|remaining_account| account_infos.push(remaining_account.0.clone()));
@@ -374,45 +292,39 @@ impl<'a, 'b> RegisterMintCpi<'a, 'b> {
     }
 }
 
-/// Instruction builder for `RegisterMint` via CPI.
+/// Instruction builder for `InitializeTrackedMints` via CPI.
 ///
 /// ### Accounts:
 ///
-///   0. `[]` restaking_config
+///   0. `[]` ncn_config
 ///   1. `[writable]` tracked_mints
 ///   2. `[]` ncn
-///   3. `[]` vault
-///   4. `[]` vault_ncn_ticket
-///   5. `[]` ncn_vault_ticket
-///   6. `[]` restaking_program_id
-///   7. `[]` vault_program_id
+///   3. `[writable, signer]` payer
+///   4. `[]` system_program
 #[derive(Clone, Debug)]
-pub struct RegisterMintCpiBuilder<'a, 'b> {
-    instruction: Box<RegisterMintCpiBuilderInstruction<'a, 'b>>,
+pub struct InitializeTrackedMintsCpiBuilder<'a, 'b> {
+    instruction: Box<InitializeTrackedMintsCpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a, 'b> RegisterMintCpiBuilder<'a, 'b> {
+impl<'a, 'b> InitializeTrackedMintsCpiBuilder<'a, 'b> {
     pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
-        let instruction = Box::new(RegisterMintCpiBuilderInstruction {
+        let instruction = Box::new(InitializeTrackedMintsCpiBuilderInstruction {
             __program: program,
-            restaking_config: None,
+            ncn_config: None,
             tracked_mints: None,
             ncn: None,
-            vault: None,
-            vault_ncn_ticket: None,
-            ncn_vault_ticket: None,
-            restaking_program_id: None,
-            vault_program_id: None,
+            payer: None,
+            system_program: None,
             __remaining_accounts: Vec::new(),
         });
         Self { instruction }
     }
     #[inline(always)]
-    pub fn restaking_config(
+    pub fn ncn_config(
         &mut self,
-        restaking_config: &'b solana_program::account_info::AccountInfo<'a>,
+        ncn_config: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
-        self.instruction.restaking_config = Some(restaking_config);
+        self.instruction.ncn_config = Some(ncn_config);
         self
     }
     #[inline(always)]
@@ -429,40 +341,16 @@ impl<'a, 'b> RegisterMintCpiBuilder<'a, 'b> {
         self
     }
     #[inline(always)]
-    pub fn vault(&mut self, vault: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
-        self.instruction.vault = Some(vault);
+    pub fn payer(&mut self, payer: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
+        self.instruction.payer = Some(payer);
         self
     }
     #[inline(always)]
-    pub fn vault_ncn_ticket(
+    pub fn system_program(
         &mut self,
-        vault_ncn_ticket: &'b solana_program::account_info::AccountInfo<'a>,
+        system_program: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
-        self.instruction.vault_ncn_ticket = Some(vault_ncn_ticket);
-        self
-    }
-    #[inline(always)]
-    pub fn ncn_vault_ticket(
-        &mut self,
-        ncn_vault_ticket: &'b solana_program::account_info::AccountInfo<'a>,
-    ) -> &mut Self {
-        self.instruction.ncn_vault_ticket = Some(ncn_vault_ticket);
-        self
-    }
-    #[inline(always)]
-    pub fn restaking_program_id(
-        &mut self,
-        restaking_program_id: &'b solana_program::account_info::AccountInfo<'a>,
-    ) -> &mut Self {
-        self.instruction.restaking_program_id = Some(restaking_program_id);
-        self
-    }
-    #[inline(always)]
-    pub fn vault_program_id(
-        &mut self,
-        vault_program_id: &'b solana_program::account_info::AccountInfo<'a>,
-    ) -> &mut Self {
-        self.instruction.vault_program_id = Some(vault_program_id);
+        self.instruction.system_program = Some(system_program);
         self
     }
     /// Add an additional account to the instruction.
@@ -506,13 +394,10 @@ impl<'a, 'b> RegisterMintCpiBuilder<'a, 'b> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let instruction = RegisterMintCpi {
+        let instruction = InitializeTrackedMintsCpi {
             __program: self.instruction.__program,
 
-            restaking_config: self
-                .instruction
-                .restaking_config
-                .expect("restaking_config is not set"),
+            ncn_config: self.instruction.ncn_config.expect("ncn_config is not set"),
 
             tracked_mints: self
                 .instruction
@@ -521,27 +406,12 @@ impl<'a, 'b> RegisterMintCpiBuilder<'a, 'b> {
 
             ncn: self.instruction.ncn.expect("ncn is not set"),
 
-            vault: self.instruction.vault.expect("vault is not set"),
+            payer: self.instruction.payer.expect("payer is not set"),
 
-            vault_ncn_ticket: self
+            system_program: self
                 .instruction
-                .vault_ncn_ticket
-                .expect("vault_ncn_ticket is not set"),
-
-            ncn_vault_ticket: self
-                .instruction
-                .ncn_vault_ticket
-                .expect("ncn_vault_ticket is not set"),
-
-            restaking_program_id: self
-                .instruction
-                .restaking_program_id
-                .expect("restaking_program_id is not set"),
-
-            vault_program_id: self
-                .instruction
-                .vault_program_id
-                .expect("vault_program_id is not set"),
+                .system_program
+                .expect("system_program is not set"),
         };
         instruction.invoke_signed_with_remaining_accounts(
             signers_seeds,
@@ -551,16 +421,13 @@ impl<'a, 'b> RegisterMintCpiBuilder<'a, 'b> {
 }
 
 #[derive(Clone, Debug)]
-struct RegisterMintCpiBuilderInstruction<'a, 'b> {
+struct InitializeTrackedMintsCpiBuilderInstruction<'a, 'b> {
     __program: &'b solana_program::account_info::AccountInfo<'a>,
-    restaking_config: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    ncn_config: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     tracked_mints: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ncn: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    vault: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    vault_ncn_ticket: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    ncn_vault_ticket: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    restaking_program_id: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    vault_program_id: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    payer: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    system_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
     __remaining_accounts: Vec<(
         &'b solana_program::account_info::AccountInfo<'a>,

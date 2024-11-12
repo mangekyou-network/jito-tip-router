@@ -3,6 +3,7 @@ pub mod error;
 pub mod fees;
 pub mod instruction;
 pub mod ncn_config;
+pub mod tracked_mints;
 pub mod weight_entry;
 pub mod weight_table;
 

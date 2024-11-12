@@ -76,7 +76,7 @@ pub enum WeightTableInstruction {
 
     /// Registers a mint with the NCN config
     #[account(0, name = "restaking_config")]
-    #[account(1, writable, name = "ncn_config")]
+    #[account(1, writable, name = "tracked_mints")]
     #[account(2, name = "ncn")]
     #[account(3, name = "vault")]
     #[account(4, name = "vault_ncn_ticket")]
@@ -84,4 +84,12 @@ pub enum WeightTableInstruction {
     #[account(6, name = "restaking_program_id")]
     #[account(7, name = "vault_program_id")]
     RegisterMint,
+
+    /// Initializes the tracked mints account for an NCN
+    #[account(0, name = "ncn_config")]
+    #[account(1, writable, name = "tracked_mints")]
+    #[account(2, name = "ncn")]
+    #[account(3, writable, signer, name = "payer")]
+    #[account(4, name = "system_program")]
+    InitializeTrackedMints,
 }

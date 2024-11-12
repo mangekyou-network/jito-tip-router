@@ -35,109 +35,101 @@ import {
   type MaybeEncodedAccount,
 } from '@solana/web3.js';
 import {
-  getFeesDecoder,
-  getFeesEncoder,
-  type Fees,
-  type FeesArgs,
+  getMintEntryDecoder,
+  getMintEntryEncoder,
+  type MintEntry,
+  type MintEntryArgs,
 } from '../types';
 
-export type NcnConfig = {
+export type TrackedMints = {
   discriminator: bigint;
   ncn: Address;
-  tieBreakerAdmin: Address;
-  feeAdmin: Address;
-  fees: Fees;
   bump: number;
   reserved: Array<number>;
+  stMintList: Array<MintEntry>;
 };
 
-export type NcnConfigArgs = {
+export type TrackedMintsArgs = {
   discriminator: number | bigint;
   ncn: Address;
-  tieBreakerAdmin: Address;
-  feeAdmin: Address;
-  fees: FeesArgs;
   bump: number;
   reserved: Array<number>;
+  stMintList: Array<MintEntryArgs>;
 };
 
-export function getNcnConfigEncoder(): Encoder<NcnConfigArgs> {
+export function getTrackedMintsEncoder(): Encoder<TrackedMintsArgs> {
   return getStructEncoder([
     ['discriminator', getU64Encoder()],
     ['ncn', getAddressEncoder()],
-    ['tieBreakerAdmin', getAddressEncoder()],
-    ['feeAdmin', getAddressEncoder()],
-    ['fees', getFeesEncoder()],
     ['bump', getU8Encoder()],
-    ['reserved', getArrayEncoder(getU8Encoder(), { size: 127 })],
+    ['reserved', getArrayEncoder(getU8Encoder(), { size: 7 })],
+    ['stMintList', getArrayEncoder(getMintEntryEncoder(), { size: 64 })],
   ]);
 }
 
-export function getNcnConfigDecoder(): Decoder<NcnConfig> {
+export function getTrackedMintsDecoder(): Decoder<TrackedMints> {
   return getStructDecoder([
     ['discriminator', getU64Decoder()],
     ['ncn', getAddressDecoder()],
-    ['tieBreakerAdmin', getAddressDecoder()],
-    ['feeAdmin', getAddressDecoder()],
-    ['fees', getFeesDecoder()],
     ['bump', getU8Decoder()],
-    ['reserved', getArrayDecoder(getU8Decoder(), { size: 127 })],
+    ['reserved', getArrayDecoder(getU8Decoder(), { size: 7 })],
+    ['stMintList', getArrayDecoder(getMintEntryDecoder(), { size: 64 })],
   ]);
 }
 
-export function getNcnConfigCodec(): Codec<NcnConfigArgs, NcnConfig> {
-  return combineCodec(getNcnConfigEncoder(), getNcnConfigDecoder());
+export function getTrackedMintsCodec(): Codec<TrackedMintsArgs, TrackedMints> {
+  return combineCodec(getTrackedMintsEncoder(), getTrackedMintsDecoder());
 }
 
-export function decodeNcnConfig<TAddress extends string = string>(
+export function decodeTrackedMints<TAddress extends string = string>(
   encodedAccount: EncodedAccount<TAddress>
-): Account<NcnConfig, TAddress>;
-export function decodeNcnConfig<TAddress extends string = string>(
+): Account<TrackedMints, TAddress>;
+export function decodeTrackedMints<TAddress extends string = string>(
   encodedAccount: MaybeEncodedAccount<TAddress>
-): MaybeAccount<NcnConfig, TAddress>;
-export function decodeNcnConfig<TAddress extends string = string>(
+): MaybeAccount<TrackedMints, TAddress>;
+export function decodeTrackedMints<TAddress extends string = string>(
   encodedAccount: EncodedAccount<TAddress> | MaybeEncodedAccount<TAddress>
-): Account<NcnConfig, TAddress> | MaybeAccount<NcnConfig, TAddress> {
+): Account<TrackedMints, TAddress> | MaybeAccount<TrackedMints, TAddress> {
   return decodeAccount(
     encodedAccount as MaybeEncodedAccount<TAddress>,
-    getNcnConfigDecoder()
+    getTrackedMintsDecoder()
   );
 }
 
-export async function fetchNcnConfig<TAddress extends string = string>(
+export async function fetchTrackedMints<TAddress extends string = string>(
   rpc: Parameters<typeof fetchEncodedAccount>[0],
   address: Address<TAddress>,
   config?: FetchAccountConfig
-): Promise<Account<NcnConfig, TAddress>> {
-  const maybeAccount = await fetchMaybeNcnConfig(rpc, address, config);
+): Promise<Account<TrackedMints, TAddress>> {
+  const maybeAccount = await fetchMaybeTrackedMints(rpc, address, config);
   assertAccountExists(maybeAccount);
   return maybeAccount;
 }
 
-export async function fetchMaybeNcnConfig<TAddress extends string = string>(
+export async function fetchMaybeTrackedMints<TAddress extends string = string>(
   rpc: Parameters<typeof fetchEncodedAccount>[0],
   address: Address<TAddress>,
   config?: FetchAccountConfig
-): Promise<MaybeAccount<NcnConfig, TAddress>> {
+): Promise<MaybeAccount<TrackedMints, TAddress>> {
   const maybeAccount = await fetchEncodedAccount(rpc, address, config);
-  return decodeNcnConfig(maybeAccount);
+  return decodeTrackedMints(maybeAccount);
 }
 
-export async function fetchAllNcnConfig(
+export async function fetchAllTrackedMints(
   rpc: Parameters<typeof fetchEncodedAccounts>[0],
   addresses: Array<Address>,
   config?: FetchAccountsConfig
-): Promise<Account<NcnConfig>[]> {
-  const maybeAccounts = await fetchAllMaybeNcnConfig(rpc, addresses, config);
+): Promise<Account<TrackedMints>[]> {
+  const maybeAccounts = await fetchAllMaybeTrackedMints(rpc, addresses, config);
   assertAccountsExist(maybeAccounts);
   return maybeAccounts;
 }
 
-export async function fetchAllMaybeNcnConfig(
+export async function fetchAllMaybeTrackedMints(
   rpc: Parameters<typeof fetchEncodedAccounts>[0],
   addresses: Array<Address>,
   config?: FetchAccountsConfig
-): Promise<MaybeAccount<NcnConfig>[]> {
+): Promise<MaybeAccount<TrackedMints>[]> {
   const maybeAccounts = await fetchEncodedAccounts(rpc, addresses, config);
-  return maybeAccounts.map((maybeAccount) => decodeNcnConfig(maybeAccount));
+  return maybeAccounts.map((maybeAccount) => decodeTrackedMints(maybeAccount));
 }

@@ -7,34 +7,24 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::pubkey::Pubkey;
 
-use crate::generated::types::Fees;
+use crate::generated::types::MintEntry;
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct NcnConfig {
+pub struct TrackedMints {
     pub discriminator: u64,
     #[cfg_attr(
         feature = "serde",
         serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
     )]
     pub ncn: Pubkey,
-    #[cfg_attr(
-        feature = "serde",
-        serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
-    )]
-    pub tie_breaker_admin: Pubkey,
-    #[cfg_attr(
-        feature = "serde",
-        serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
-    )]
-    pub fee_admin: Pubkey,
-    pub fees: Fees,
     pub bump: u8,
+    pub reserved: [u8; 7],
     #[cfg_attr(feature = "serde", serde(with = "serde_with::As::<serde_with::Bytes>"))]
-    pub reserved: [u8; 127],
+    pub st_mint_list: [MintEntry; 64],
 }
 
-impl NcnConfig {
+impl TrackedMints {
     #[inline(always)]
     pub fn from_bytes(data: &[u8]) -> Result<Self, std::io::Error> {
         let mut data = data;
@@ -42,7 +32,7 @@ impl NcnConfig {
     }
 }
 
-impl<'a> TryFrom<&solana_program::account_info::AccountInfo<'a>> for NcnConfig {
+impl<'a> TryFrom<&solana_program::account_info::AccountInfo<'a>> for TrackedMints {
     type Error = std::io::Error;
 
     fn try_from(
@@ -54,26 +44,26 @@ impl<'a> TryFrom<&solana_program::account_info::AccountInfo<'a>> for NcnConfig {
 }
 
 #[cfg(feature = "anchor")]
-impl anchor_lang::AccountDeserialize for NcnConfig {
+impl anchor_lang::AccountDeserialize for TrackedMints {
     fn try_deserialize_unchecked(buf: &mut &[u8]) -> anchor_lang::Result<Self> {
         Ok(Self::deserialize(buf)?)
     }
 }
 
 #[cfg(feature = "anchor")]
-impl anchor_lang::AccountSerialize for NcnConfig {}
+impl anchor_lang::AccountSerialize for TrackedMints {}
 
 #[cfg(feature = "anchor")]
-impl anchor_lang::Owner for NcnConfig {
+impl anchor_lang::Owner for TrackedMints {
     fn owner() -> Pubkey {
         crate::JITO_TIP_ROUTER_ID
     }
 }
 
 #[cfg(feature = "anchor-idl-build")]
-impl anchor_lang::IdlBuild for NcnConfig {}
+impl anchor_lang::IdlBuild for TrackedMints {}
 
 #[cfg(feature = "anchor-idl-build")]
-impl anchor_lang::Discriminator for NcnConfig {
+impl anchor_lang::Discriminator for TrackedMints {
     const DISCRIMINATOR: [u8; 8] = [0; 8];
 }

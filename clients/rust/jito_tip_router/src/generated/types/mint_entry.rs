@@ -14,6 +14,11 @@ pub struct MintEntry {
         feature = "serde",
         serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
     )]
-    pub mint: Pubkey,
+    pub st_mint: Pubkey,
     pub vault_index: u64,
+    pub weight: u128,
+    pub slot_set: u64,
+    pub slot_updated: u64,
+    #[cfg_attr(feature = "serde", serde(with = "serde_with::As::<serde_with::Bytes>"))]
+    pub reserved: [u8; 128],
 }

@@ -7,7 +7,7 @@ use jito_jsm_core::{
 };
 use jito_restaking_core::{config::Config, ncn::Ncn};
 use jito_tip_router_core::{
-    error::TipRouterError, ncn_config::NcnConfig, weight_table::WeightTable,
+    error::TipRouterError, tracked_mints::TrackedMints, weight_table::WeightTable,
 };
 use solana_program::{
     account_info::AccountInfo, clock::Clock, entrypoint::ProgramResult, msg,
@@ -21,13 +21,13 @@ pub fn process_initialize_weight_table(
     accounts: &[AccountInfo],
     first_slot_of_ncn_epoch: Option<u64>,
 ) -> ProgramResult {
-    let [restaking_config, ncn_config, ncn, weight_table, payer, restaking_program_id, system_program] =
+    let [restaking_config, tracked_mints, ncn, weight_table, payer, restaking_program_id, system_program] =
         accounts
     else {
         return Err(ProgramError::NotEnoughAccountKeys);
     };
 
-    NcnConfig::load(program_id, ncn.key, ncn_config, false)?;
+    TrackedMints::load(program_id, ncn.key, tracked_mints, false)?;
     Config::load(restaking_program_id.key, restaking_config, false)?;
     Ncn::load(restaking_program_id.key, ncn, false)?;
 
@@ -43,8 +43,8 @@ pub fn process_initialize_weight_table(
         ncn.vault_count()
     };
 
-    let ncn_config_data: std::cell::Ref<'_, &mut [u8]> = ncn_config.data.borrow();
-    let ncn_config = NcnConfig::try_from_slice_unchecked(&ncn_config_data)?;
+    let tracked_mints_data: std::cell::Ref<'_, &mut [u8]> = tracked_mints.data.borrow();
+    let tracked_mints = TrackedMints::try_from_slice_unchecked(&tracked_mints_data)?;
 
     load_system_account(weight_table, true)?;
     load_system_program(system_program)?;
@@ -79,7 +79,7 @@ pub fn process_initialize_weight_table(
         return Err(ProgramError::InvalidAccountData);
     }
 
-    if vault_count as usize != ncn_config.mint_count() {
+    if vault_count as usize != tracked_mints.mint_count() {
         msg!("Vault count does not match supported mint count");
         return Err(ProgramError::InvalidAccountData);
     }
@@ -106,7 +106,7 @@ pub fn process_initialize_weight_table(
 
     *weight_table_account = WeightTable::new(*ncn.key, ncn_epoch, current_slot, weight_table_bump);
 
-    weight_table_account.initalize_weight_table(&ncn_config.get_unique_mints())?;
+    weight_table_account.initalize_weight_table(&tracked_mints.get_unique_mints())?;
 
     Ok(())
 }

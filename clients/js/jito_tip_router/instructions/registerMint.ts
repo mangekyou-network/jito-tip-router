@@ -36,7 +36,7 @@ export function getRegisterMintDiscriminatorBytes() {
 export type RegisterMintInstruction<
   TProgram extends string = typeof JITO_TIP_ROUTER_PROGRAM_ADDRESS,
   TAccountRestakingConfig extends string | IAccountMeta<string> = string,
-  TAccountNcnConfig extends string | IAccountMeta<string> = string,
+  TAccountTrackedMints extends string | IAccountMeta<string> = string,
   TAccountNcn extends string | IAccountMeta<string> = string,
   TAccountVault extends string | IAccountMeta<string> = string,
   TAccountVaultNcnTicket extends string | IAccountMeta<string> = string,
@@ -51,9 +51,9 @@ export type RegisterMintInstruction<
       TAccountRestakingConfig extends string
         ? ReadonlyAccount<TAccountRestakingConfig>
         : TAccountRestakingConfig,
-      TAccountNcnConfig extends string
-        ? WritableAccount<TAccountNcnConfig>
-        : TAccountNcnConfig,
+      TAccountTrackedMints extends string
+        ? WritableAccount<TAccountTrackedMints>
+        : TAccountTrackedMints,
       TAccountNcn extends string ? ReadonlyAccount<TAccountNcn> : TAccountNcn,
       TAccountVault extends string
         ? ReadonlyAccount<TAccountVault>
@@ -101,7 +101,7 @@ export function getRegisterMintInstructionDataCodec(): Codec<
 
 export type RegisterMintInput<
   TAccountRestakingConfig extends string = string,
-  TAccountNcnConfig extends string = string,
+  TAccountTrackedMints extends string = string,
   TAccountNcn extends string = string,
   TAccountVault extends string = string,
   TAccountVaultNcnTicket extends string = string,
@@ -110,7 +110,7 @@ export type RegisterMintInput<
   TAccountVaultProgramId extends string = string,
 > = {
   restakingConfig: Address<TAccountRestakingConfig>;
-  ncnConfig: Address<TAccountNcnConfig>;
+  trackedMints: Address<TAccountTrackedMints>;
   ncn: Address<TAccountNcn>;
   vault: Address<TAccountVault>;
   vaultNcnTicket: Address<TAccountVaultNcnTicket>;
@@ -121,7 +121,7 @@ export type RegisterMintInput<
 
 export function getRegisterMintInstruction<
   TAccountRestakingConfig extends string,
-  TAccountNcnConfig extends string,
+  TAccountTrackedMints extends string,
   TAccountNcn extends string,
   TAccountVault extends string,
   TAccountVaultNcnTicket extends string,
@@ -132,7 +132,7 @@ export function getRegisterMintInstruction<
 >(
   input: RegisterMintInput<
     TAccountRestakingConfig,
-    TAccountNcnConfig,
+    TAccountTrackedMints,
     TAccountNcn,
     TAccountVault,
     TAccountVaultNcnTicket,
@@ -144,7 +144,7 @@ export function getRegisterMintInstruction<
 ): RegisterMintInstruction<
   TProgramAddress,
   TAccountRestakingConfig,
-  TAccountNcnConfig,
+  TAccountTrackedMints,
   TAccountNcn,
   TAccountVault,
   TAccountVaultNcnTicket,
@@ -162,7 +162,7 @@ export function getRegisterMintInstruction<
       value: input.restakingConfig ?? null,
       isWritable: false,
     },
-    ncnConfig: { value: input.ncnConfig ?? null, isWritable: true },
+    trackedMints: { value: input.trackedMints ?? null, isWritable: true },
     ncn: { value: input.ncn ?? null, isWritable: false },
     vault: { value: input.vault ?? null, isWritable: false },
     vaultNcnTicket: { value: input.vaultNcnTicket ?? null, isWritable: false },
@@ -182,7 +182,7 @@ export function getRegisterMintInstruction<
   const instruction = {
     accounts: [
       getAccountMeta(accounts.restakingConfig),
-      getAccountMeta(accounts.ncnConfig),
+      getAccountMeta(accounts.trackedMints),
       getAccountMeta(accounts.ncn),
       getAccountMeta(accounts.vault),
       getAccountMeta(accounts.vaultNcnTicket),
@@ -195,7 +195,7 @@ export function getRegisterMintInstruction<
   } as RegisterMintInstruction<
     TProgramAddress,
     TAccountRestakingConfig,
-    TAccountNcnConfig,
+    TAccountTrackedMints,
     TAccountNcn,
     TAccountVault,
     TAccountVaultNcnTicket,
@@ -214,7 +214,7 @@ export type ParsedRegisterMintInstruction<
   programAddress: Address<TProgram>;
   accounts: {
     restakingConfig: TAccountMetas[0];
-    ncnConfig: TAccountMetas[1];
+    trackedMints: TAccountMetas[1];
     ncn: TAccountMetas[2];
     vault: TAccountMetas[3];
     vaultNcnTicket: TAccountMetas[4];
@@ -247,7 +247,7 @@ export function parseRegisterMintInstruction<
     programAddress: instruction.programAddress,
     accounts: {
       restakingConfig: getNextAccount(),
-      ncnConfig: getNextAccount(),
+      trackedMints: getNextAccount(),
       ncn: getNextAccount(),
       vault: getNextAccount(),
       vaultNcnTicket: getNextAccount(),

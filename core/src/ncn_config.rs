@@ -1,37 +1,9 @@
-use std::collections::HashSet;
-
 use bytemuck::{Pod, Zeroable};
-use jito_bytemuck::{types::PodU64, AccountDeserialize, Discriminator};
+use jito_bytemuck::{AccountDeserialize, Discriminator};
 use shank::{ShankAccount, ShankType};
 use solana_program::{account_info::AccountInfo, msg, program_error::ProgramError, pubkey::Pubkey};
 
 use crate::{discriminators::Discriminators, fees::Fees};
-
-#[derive(Debug, Clone, Copy, Zeroable, ShankType, Pod)]
-#[repr(C)]
-pub struct MintEntry {
-    mint: Pubkey,
-    vault_index: PodU64,
-}
-
-impl MintEntry {
-    pub fn new(mint: Pubkey, vault_index: u64) -> Self {
-        Self {
-            mint,
-            vault_index: PodU64::from(vault_index),
-        }
-    }
-
-    pub fn vault_index(&self) -> u64 {
-        self.vault_index.into()
-    }
-}
-
-impl Default for MintEntry {
-    fn default() -> Self {
-        Self::new(Pubkey::default(), 0)
-    }
-}
 
 #[derive(Debug, Clone, Copy, Zeroable, ShankType, Pod, AccountDeserialize, ShankAccount)]
 #[repr(C)]
@@ -45,9 +17,6 @@ pub struct NcnConfig {
 
     pub fees: Fees,
 
-    /// List of mints associated with this NCN
-    mint_list: [MintEntry; 64], // TODO is this the right size
-
     /// Bump seed for the PDA
     pub bump: u8,
     // /// Reserved space
@@ -59,13 +28,17 @@ impl Discriminator for NcnConfig {
 }
 
 impl NcnConfig {
-    pub fn new(ncn: Pubkey, tie_breaker_admin: Pubkey, fee_admin: Pubkey, fees: Fees) -> Self {
+    pub const fn new(
+        ncn: Pubkey,
+        tie_breaker_admin: Pubkey,
+        fee_admin: Pubkey,
+        fees: Fees,
+    ) -> Self {
         Self {
             ncn,
             tie_breaker_admin,
             fee_admin,
             fees,
-            mint_list: [MintEntry::default(); 64],
             bump: 0,
             reserved: [0; 127],
         }
@@ -76,51 +49,12 @@ impl NcnConfig {
     }
 
     pub fn find_program_address(program_id: &Pubkey, ncn: &Pubkey) -> (Pubkey, u8, Vec<Vec<u8>>) {
-        let seeds = vec![b"config".to_vec(), ncn.to_bytes().to_vec()];
+        let seeds = Self::seeds(ncn);
         let (address, bump) = Pubkey::find_program_address(
             &seeds.iter().map(|s| s.as_slice()).collect::<Vec<_>>(),
             program_id,
         );
         (address, bump, seeds)
-    }
-
-    pub fn add_mint(&mut self, mint: Pubkey, vault_index: u64) -> Result<(), ProgramError> {
-        // Check if (mint, vault_index) is already in the list
-        if self
-            .mint_list
-            .iter()
-            .any(|m| m.mint == mint && m.vault_index() == vault_index)
-        {
-            return Ok(());
-        }
-
-        // Insert at the first empty slot
-        let mint_entry = self
-            .mint_list
-            .iter_mut()
-            .find(|m| m.mint == MintEntry::default().mint)
-            .ok_or(ProgramError::InvalidAccountData)?; // TODO list already full error
-
-        *mint_entry = MintEntry::new(mint, vault_index);
-        Ok(())
-    }
-
-    pub fn mint_count(&self) -> usize {
-        self.mint_list
-            .iter()
-            .filter(|m| m.mint != Pubkey::default())
-            .count()
-    }
-
-    pub fn get_unique_mints(&self) -> Vec<Pubkey> {
-        let mut unique_mints: HashSet<Pubkey> = HashSet::new();
-        self.mint_list
-            .iter()
-            .filter(|m| m.mint != Pubkey::default())
-            .for_each(|m| {
-                unique_mints.insert(m.mint);
-            });
-        unique_mints.into_iter().collect()
     }
 
     /// Loads the NCN [`Config`] account
