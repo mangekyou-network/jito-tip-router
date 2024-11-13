@@ -8,6 +8,8 @@
 
 export * from './adminUpdateWeightTable';
 export * from './initializeNCNConfig';
+export * from './initializeTrackedMints';
 export * from './initializeWeightTable';
+export * from './registerMint';
 export * from './setConfigFees';
 export * from './setNewAdmin';

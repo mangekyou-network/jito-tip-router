@@ -15,7 +15,9 @@ import {
 import {
   type ParsedAdminUpdateWeightTableInstruction,
   type ParsedInitializeNCNConfigInstruction,
+  type ParsedInitializeTrackedMintsInstruction,
   type ParsedInitializeWeightTableInstruction,
+  type ParsedRegisterMintInstruction,
   type ParsedSetConfigFeesInstruction,
   type ParsedSetNewAdminInstruction,
 } from '../instructions';
@@ -25,6 +27,7 @@ export const JITO_TIP_ROUTER_PROGRAM_ADDRESS =
 
 export enum JitoTipRouterAccount {
   NcnConfig,
+  TrackedMints,
   WeightTable,
 }
 
@@ -34,6 +37,8 @@ export enum JitoTipRouterInstruction {
   SetNewAdmin,
   InitializeWeightTable,
   AdminUpdateWeightTable,
+  RegisterMint,
+  InitializeTrackedMints,
 }
 
 export function identifyJitoTipRouterInstruction(
@@ -54,6 +59,12 @@ export function identifyJitoTipRouterInstruction(
   }
   if (containsBytes(data, getU8Encoder().encode(4), 0)) {
     return JitoTipRouterInstruction.AdminUpdateWeightTable;
+  }
+  if (containsBytes(data, getU8Encoder().encode(5), 0)) {
+    return JitoTipRouterInstruction.RegisterMint;
+  }
+  if (containsBytes(data, getU8Encoder().encode(6), 0)) {
+    return JitoTipRouterInstruction.InitializeTrackedMints;
   }
   throw new Error(
     'The provided instruction could not be identified as a jitoTipRouter instruction.'
@@ -77,4 +88,10 @@ export type ParsedJitoTipRouterInstruction<
     } & ParsedInitializeWeightTableInstruction<TProgram>)
   | ({
       instructionType: JitoTipRouterInstruction.AdminUpdateWeightTable;
-    } & ParsedAdminUpdateWeightTableInstruction<TProgram>);
+    } & ParsedAdminUpdateWeightTableInstruction<TProgram>)
+  | ({
+      instructionType: JitoTipRouterInstruction.RegisterMint;
+    } & ParsedRegisterMintInstruction<TProgram>)
+  | ({
+      instructionType: JitoTipRouterInstruction.InitializeTrackedMints;
+    } & ParsedInitializeTrackedMintsInstruction<TProgram>);

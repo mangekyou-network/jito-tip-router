@@ -6,6 +6,7 @@ use solana_program_test::{processor, BanksClientError, ProgramTest, ProgramTestC
 use super::{
     restaking_client::{NcnRoot, RestakingProgramClient},
     tip_router_client::TipRouterClient,
+    vault_client::VaultProgramClient,
     TestResult,
 };
 
@@ -67,6 +68,13 @@ impl TestBuilder {
 
     pub fn restaking_program_client(&self) -> RestakingProgramClient {
         RestakingProgramClient::new(
+            self.context.banks_client.clone(),
+            self.context.payer.insecure_clone(),
+        )
+    }
+
+    pub fn vault_client(&self) -> VaultProgramClient {
+        VaultProgramClient::new(
             self.context.banks_client.clone(),
             self.context.payer.insecure_clone(),
         )

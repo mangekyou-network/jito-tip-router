@@ -7,4 +7,5 @@
  */
 
 export * from './ncnConfig';
+export * from './trackedMints';
 export * from './weightTable';
