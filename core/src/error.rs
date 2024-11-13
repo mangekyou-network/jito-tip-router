@@ -38,6 +38,8 @@ pub enum TipRouterError {
     ConfigMintListFull,
     #[error("Tracked mints are at capacity")]
     TrackedMintListFull,
+    #[error("Tracked mints are locked for the epoch")]
+    TrackedMintsLocked,
     #[error("Vault index already in use by a different mint")]
     VaultIndexAlreadyInUse,
     #[error("Fee cap exceeded")]

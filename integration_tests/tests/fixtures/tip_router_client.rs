@@ -18,6 +18,7 @@ use solana_program::{
 };
 use solana_program_test::BanksClient;
 use solana_sdk::{
+    clock::Clock,
     commitment_config::CommitmentLevel,
     signature::{Keypair, Signer},
     system_program,
@@ -262,13 +263,14 @@ impl TipRouterClient {
         let restaking_config_account = self.get_restaking_config().await?;
         let ncn_epoch = current_slot / restaking_config_account.epoch_length();
 
-        let config_pda = NcnConfig::find_program_address(&jito_tip_router_program::id(), &ncn).0;
+        let tracked_mints_pda =
+            TrackedMints::find_program_address(&jito_tip_router_program::id(), &ncn).0;
         let weight_table =
             WeightTable::find_program_address(&jito_tip_router_program::id(), &ncn, ncn_epoch).0;
 
         let ix = InitializeWeightTableBuilder::new()
             .restaking_config(restaking_config)
-            .ncn_config(config_pda)
+            .tracked_mints(tracked_mints_pda)
             .ncn(ncn)
             .weight_table(weight_table)
             .payer(self.payer.pubkey())
@@ -369,14 +371,22 @@ impl TipRouterClient {
         vault_ncn_ticket: Pubkey,
         ncn_vault_ticket: Pubkey,
     ) -> TestResult<()> {
-        let restaking_config = Config::find_program_address(&jito_restaking_program::id()).0;
+        let restaking_config_address =
+            Config::find_program_address(&jito_restaking_program::id()).0;
         let tracked_mints =
             TrackedMints::find_program_address(&jito_tip_router_program::id(), &ncn).0;
 
+        let restaking_config = self.get_restaking_config().await?;
+        let current_slot = self.banks_client.get_sysvar::<Clock>().await?.slot;
+        let ncn_epoch = current_slot / restaking_config.epoch_length();
+        let weight_table =
+            WeightTable::find_program_address(&jito_tip_router_program::id(), &ncn, ncn_epoch).0;
+
         self.register_mint(
-            restaking_config,
+            restaking_config_address,
             tracked_mints,
             ncn,
+            weight_table,
             vault,
             vault_ncn_ticket,
             ncn_vault_ticket,
@@ -389,6 +399,7 @@ impl TipRouterClient {
         restaking_config: Pubkey,
         tracked_mints: Pubkey,
         ncn: Pubkey,
+        weight_table: Pubkey,
         vault: Pubkey,
         vault_ncn_ticket: Pubkey,
         ncn_vault_ticket: Pubkey,
@@ -397,6 +408,7 @@ impl TipRouterClient {
             .restaking_config(restaking_config)
             .tracked_mints(tracked_mints)
             .ncn(ncn)
+            .weight_table(weight_table)
             .vault(vault)
             .vault_ncn_ticket(vault_ncn_ticket)
             .ncn_vault_ticket(ncn_vault_ticket)

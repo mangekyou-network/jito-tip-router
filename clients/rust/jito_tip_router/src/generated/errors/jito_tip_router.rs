@@ -60,9 +60,12 @@ pub enum JitoTipRouterError {
     /// 8715 - Tracked mints are at capacity
     #[error("Tracked mints are at capacity")]
     TrackedMintListFull = 0x220B,
-    /// 8716 - Vault index already in use by a different mint
+    /// 8716 - Tracked mints are locked for the epoch
+    #[error("Tracked mints are locked for the epoch")]
+    TrackedMintsLocked = 0x220C,
+    /// 8717 - Vault index already in use by a different mint
     #[error("Vault index already in use by a different mint")]
-    VaultIndexAlreadyInUse = 0x220C,
+    VaultIndexAlreadyInUse = 0x220D,
     /// 8960 - Fee cap exceeded
     #[error("Fee cap exceeded")]
     FeeCapExceeded = 0x2300,

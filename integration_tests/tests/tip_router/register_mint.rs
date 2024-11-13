@@ -104,4 +104,18 @@ mod tests {
 
         Ok(())
     }
+
+    #[tokio::test]
+    async fn test_register_mint_fails_with_weight_table() -> TestResult<()> {
+        let mut fixture = TestBuilder::new().await;
+        let mut tip_router_client = fixture.tip_router_client();
+        let ncn_root = fixture.setup_ncn().await?;
+
+        tip_router_client.setup_tip_router(&ncn_root).await?;
+
+        // TODO create ncn and vault with 1 mint, register mint, initialize weight table
+        // TODO verify weight table locks register_mint
+
+        Ok(())
+    }
 }

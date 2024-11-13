@@ -176,7 +176,7 @@
           "isSigner": false
         },
         {
-          "name": "ncnConfig",
+          "name": "trackedMints",
           "isMut": false,
           "isSigner": false
         },
@@ -278,6 +278,11 @@
         },
         {
           "name": "ncn",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "weightTable",
           "isMut": false,
           "isSigner": false
         },
@@ -691,6 +696,11 @@
     },
     {
       "code": 8716,
+      "name": "TrackedMintsLocked",
+      "msg": "Tracked mints are locked for the epoch"
+    },
+    {
+      "code": 8717,
       "name": "VaultIndexAlreadyInUse",
       "msg": "Vault index already in use by a different mint"
     },

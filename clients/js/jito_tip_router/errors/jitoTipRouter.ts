@@ -48,8 +48,10 @@ export const JITO_TIP_ROUTER_ERROR__CONFIG_MINTS_NOT_UPDATED = 0x2209; // 8713
 export const JITO_TIP_ROUTER_ERROR__CONFIG_MINT_LIST_FULL = 0x220a; // 8714
 /** TrackedMintListFull: Tracked mints are at capacity */
 export const JITO_TIP_ROUTER_ERROR__TRACKED_MINT_LIST_FULL = 0x220b; // 8715
+/** TrackedMintsLocked: Tracked mints are locked for the epoch */
+export const JITO_TIP_ROUTER_ERROR__TRACKED_MINTS_LOCKED = 0x220c; // 8716
 /** VaultIndexAlreadyInUse: Vault index already in use by a different mint */
-export const JITO_TIP_ROUTER_ERROR__VAULT_INDEX_ALREADY_IN_USE = 0x220c; // 8716
+export const JITO_TIP_ROUTER_ERROR__VAULT_INDEX_ALREADY_IN_USE = 0x220d; // 8717
 /** FeeCapExceeded: Fee cap exceeded */
 export const JITO_TIP_ROUTER_ERROR__FEE_CAP_EXCEEDED = 0x2300; // 8960
 /** IncorrectNcnAdmin: Incorrect NCN Admin */
@@ -78,6 +80,7 @@ export type JitoTipRouterError =
   | typeof JITO_TIP_ROUTER_ERROR__NO_MINTS_IN_TABLE
   | typeof JITO_TIP_ROUTER_ERROR__TOO_MANY_MINTS_FOR_TABLE
   | typeof JITO_TIP_ROUTER_ERROR__TRACKED_MINT_LIST_FULL
+  | typeof JITO_TIP_ROUTER_ERROR__TRACKED_MINTS_LOCKED
   | typeof JITO_TIP_ROUTER_ERROR__VAULT_INDEX_ALREADY_IN_USE
   | typeof JITO_TIP_ROUTER_ERROR__WEIGHT_MINTS_DO_NOT_MATCH_LENGTH
   | typeof JITO_TIP_ROUTER_ERROR__WEIGHT_MINTS_DO_NOT_MATCH_MINT_HASH
@@ -104,6 +107,7 @@ if (process.env.NODE_ENV !== 'production') {
     [JITO_TIP_ROUTER_ERROR__NO_MINTS_IN_TABLE]: `There are no mints in the table`,
     [JITO_TIP_ROUTER_ERROR__TOO_MANY_MINTS_FOR_TABLE]: `Too many mints for table`,
     [JITO_TIP_ROUTER_ERROR__TRACKED_MINT_LIST_FULL]: `Tracked mints are at capacity`,
+    [JITO_TIP_ROUTER_ERROR__TRACKED_MINTS_LOCKED]: `Tracked mints are locked for the epoch`,
     [JITO_TIP_ROUTER_ERROR__VAULT_INDEX_ALREADY_IN_USE]: `Vault index already in use by a different mint`,
     [JITO_TIP_ROUTER_ERROR__WEIGHT_MINTS_DO_NOT_MATCH_LENGTH]: `Weight mints do not match - length`,
     [JITO_TIP_ROUTER_ERROR__WEIGHT_MINTS_DO_NOT_MATCH_MINT_HASH]: `Weight mints do not match - mint hash`,
