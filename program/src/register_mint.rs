@@ -45,6 +45,7 @@ pub fn process_register_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
         .checked_div(epoch_length)
         .ok_or(TipRouterError::DenominatorIsZero)?;
 
+    // TODO: is there a way to DOS this by changing program owner to tiprouter or something before weight table is initialized?
     // Once tracked_mints.mint_count() == ncn.vault_count, the weight table can be initialized
     // Once the weight table is initialized, you can't add any more mints
     if weight_table.owner.eq(&system_program::ID) {
