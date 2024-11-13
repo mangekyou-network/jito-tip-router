@@ -16,4 +16,5 @@ pub struct MintEntry {
     )]
     pub st_mint: Pubkey,
     pub vault_index: u64,
+    pub reserved: [u8; 32],
 }

@@ -550,6 +550,15 @@
             "type": {
               "defined": "PodU64"
             }
+          },
+          {
+            "name": "reserved",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
           }
         ]
       }
