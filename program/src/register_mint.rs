@@ -48,13 +48,17 @@ pub fn process_register_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
     // Once tracked_mints.mint_count() == ncn.vault_count, the weight table can be initialized
     // Once the weight table is initialized, you can't add any more mints
     if weight_table.owner.eq(&system_program::ID) {
+        let expected_pubkey = WeightTable::find_program_address(program_id, ncn.key, ncn_epoch).0;
+        if weight_table.key.ne(&expected_pubkey) {
+            msg!("Weight table incorrect PDA");
+            return Err(ProgramError::InvalidAccountData);
+        }
         load_system_account(weight_table, false)?;
-    } else if weight_table.owner.eq(program_id) {
+    }
+
+    if weight_table.owner.eq(program_id) {
         WeightTable::load(program_id, weight_table, ncn, ncn_epoch, false)?;
         return Err(TipRouterError::TrackedMintsLocked.into());
-    } else {
-        msg!("Weight table account is not owned by this program or the system program");
-        return Err(ProgramError::InvalidAccountOwner);
     }
 
     // Verify tickets are active

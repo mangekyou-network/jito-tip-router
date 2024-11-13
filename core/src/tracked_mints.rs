@@ -12,6 +12,7 @@ use crate::{discriminators::Discriminators, error::TipRouterError};
 pub struct MintEntry {
     st_mint: Pubkey,
     vault_index: PodU64,
+    reserved: [u8; 32],
 }
 
 impl MintEntry {
@@ -19,6 +20,7 @@ impl MintEntry {
         Self {
             st_mint: mint,
             vault_index: PodU64::from(vault_index),
+            reserved: [0; 32],
         }
     }
 
@@ -38,7 +40,7 @@ impl Default for MintEntry {
 pub struct TrackedMints {
     pub ncn: Pubkey,
     pub bump: u8,
-    pub reserved: [u8; 7],
+    pub reserved: [u8; 7], // TODO extend to 127; figure out serde issue
     pub st_mint_list: [MintEntry; 16], // TODO extend to 64; figure out serde issue
 }
 
