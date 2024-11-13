@@ -20,7 +20,7 @@ pub struct TrackedMints {
     pub ncn: Pubkey,
     pub bump: u8,
     pub reserved: [u8; 7],
-    pub st_mint_list: [MintEntry; 2],
+    pub st_mint_list: [MintEntry; 16],
 }
 
 impl TrackedMints {
