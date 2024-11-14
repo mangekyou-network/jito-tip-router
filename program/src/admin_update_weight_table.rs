@@ -22,7 +22,7 @@ pub fn process_admin_update_weight_table(
     let ncn_weight_table_admin = {
         let ncn_data = ncn.data.borrow();
         let ncn = Ncn::try_from_slice_unchecked(&ncn_data)?;
-        ncn.admin
+        ncn.weight_table_admin
     };
 
     load_signer(weight_table_admin, true)?;
