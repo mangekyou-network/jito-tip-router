@@ -6,6 +6,8 @@
  * @see https://github.com/kinobi-so/kinobi
  */
 
+export * from './epochSnapshot';
 export * from './ncnConfig';
+export * from './operatorSnapshot';
 export * from './trackedMints';
 export * from './weightTable';

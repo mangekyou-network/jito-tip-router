@@ -10,4 +10,5 @@ export * from './configAdminRole';
 export * from './fee';
 export * from './fees';
 export * from './mintEntry';
+export * from './vaultOperatorStakeWeight';
 export * from './weightEntry';
