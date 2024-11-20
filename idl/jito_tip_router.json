@@ -567,6 +567,89 @@
   ],
   "accounts": [
     {
+      "name": "BallotBox",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "ncn",
+            "type": "publicKey"
+          },
+          {
+            "name": "ncnEpoch",
+            "type": {
+              "defined": "PodU64"
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "slotCreated",
+            "type": {
+              "defined": "PodU64"
+            }
+          },
+          {
+            "name": "slotConsensusReached",
+            "type": {
+              "defined": "PodU64"
+            }
+          },
+          {
+            "name": "reserved",
+            "type": {
+              "array": [
+                "u8",
+                128
+              ]
+            }
+          },
+          {
+            "name": "operatorsVoted",
+            "type": {
+              "defined": "PodU64"
+            }
+          },
+          {
+            "name": "uniqueBallots",
+            "type": {
+              "defined": "PodU64"
+            }
+          },
+          {
+            "name": "winningBallot",
+            "type": {
+              "defined": "Ballot"
+            }
+          },
+          {
+            "name": "operatorVotes",
+            "type": {
+              "array": [
+                {
+                  "defined": "OperatorVote"
+                },
+                32
+              ]
+            }
+          },
+          {
+            "name": "ballotTallies",
+            "type": {
+              "array": [
+                {
+                  "defined": "BallotTally"
+                },
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "EpochSnapshot",
       "type": {
         "kind": "struct",
@@ -684,6 +767,12 @@
             "name": "isActive",
             "type": {
               "defined": "PodBool"
+            }
+          },
+          {
+            "name": "ncnOperatorIndex",
+            "type": {
+              "defined": "PodU64"
             }
           },
           {
@@ -870,6 +959,106 @@
     }
   ],
   "types": [
+    {
+      "name": "Ballot",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "merkleRoot",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "reserved",
+            "type": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "BallotTally",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "ballot",
+            "type": {
+              "defined": "Ballot"
+            }
+          },
+          {
+            "name": "stakeWeight",
+            "type": {
+              "defined": "PodU128"
+            }
+          },
+          {
+            "name": "tally",
+            "type": {
+              "defined": "PodU64"
+            }
+          },
+          {
+            "name": "reserved",
+            "type": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "OperatorVote",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "operator",
+            "type": "publicKey"
+          },
+          {
+            "name": "slotVoted",
+            "type": {
+              "defined": "PodU64"
+            }
+          },
+          {
+            "name": "stakeWeight",
+            "type": {
+              "defined": "PodU128"
+            }
+          },
+          {
+            "name": "ballotIndex",
+            "type": {
+              "defined": "PodU16"
+            }
+          },
+          {
+            "name": "reserved",
+            "type": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          }
+        ]
+      }
+    },
     {
       "name": "VaultOperatorStakeWeight",
       "type": {
@@ -1190,6 +1379,31 @@
       "code": 8728,
       "name": "DuplicateVaultOperatorDelegation",
       "msg": "Duplicate vault operator delegation"
+    },
+    {
+      "code": 8729,
+      "name": "DuplicateVoteCast",
+      "msg": "Duplicate Vote Cast"
+    },
+    {
+      "code": 8730,
+      "name": "OperatorVotesFull",
+      "msg": "Operator votes full"
+    },
+    {
+      "code": 8731,
+      "name": "BallotTallyFull",
+      "msg": "Merkle root tally full"
+    },
+    {
+      "code": 8732,
+      "name": "ConsensusAlreadyReached",
+      "msg": "Consensus already reached"
+    },
+    {
+      "code": 8733,
+      "name": "ConsensusNotReached",
+      "msg": "Consensus not reached"
     }
   ],
   "metadata": {

@@ -99,6 +99,21 @@ pub enum JitoTipRouterError {
     /// 8728 - Duplicate vault operator delegation
     #[error("Duplicate vault operator delegation")]
     DuplicateVaultOperatorDelegation = 0x2218,
+    /// 8729 - Duplicate Vote Cast
+    #[error("Duplicate Vote Cast")]
+    DuplicateVoteCast = 0x2219,
+    /// 8730 - Operator votes full
+    #[error("Operator votes full")]
+    OperatorVotesFull = 0x221A,
+    /// 8731 - Merkle root tally full
+    #[error("Merkle root tally full")]
+    BallotTallyFull = 0x221B,
+    /// 8732 - Consensus already reached
+    #[error("Consensus already reached")]
+    ConsensusAlreadyReached = 0x221C,
+    /// 8733 - Consensus not reached
+    #[error("Consensus not reached")]
+    ConsensusNotReached = 0x221D,
 }
 
 impl solana_program::program_error::PrintProgramError for JitoTipRouterError {
