@@ -108,12 +108,33 @@ pub enum JitoTipRouterError {
     /// 8731 - Merkle root tally full
     #[error("Merkle root tally full")]
     BallotTallyFull = 0x221B,
-    /// 8732 - Consensus already reached
-    #[error("Consensus already reached")]
+    /// 8732 - Consensus already reached, cannot change vote
+    #[error("Consensus already reached, cannot change vote")]
     ConsensusAlreadyReached = 0x221C,
     /// 8733 - Consensus not reached
     #[error("Consensus not reached")]
     ConsensusNotReached = 0x221D,
+    /// 8734 - Epoch snapshot not finalized
+    #[error("Epoch snapshot not finalized")]
+    EpochSnapshotNotFinalized = 0x221E,
+    /// 8735 - Voting not valid, too many slots after consensus reached
+    #[error("Voting not valid, too many slots after consensus reached")]
+    VotingNotValid = 0x221F,
+    /// 8736 - Tie breaker admin invalid
+    #[error("Tie breaker admin invalid")]
+    TieBreakerAdminInvalid = 0x2220,
+    /// 8737 - Voting not finalized
+    #[error("Voting not finalized")]
+    VotingNotFinalized = 0x2221,
+    /// 8738 - Tie breaking ballot must be one of the prior votes
+    #[error("Tie breaking ballot must be one of the prior votes")]
+    TieBreakerNotInPriorVotes = 0x2222,
+    /// 8739 - Invalid merkle proof
+    #[error("Invalid merkle proof")]
+    InvalidMerkleProof = 0x2223,
+    /// 8740 - Operator admin needs to sign its vote
+    #[error("Operator admin needs to sign its vote")]
+    OperatorAdminInvalid = 0x2224,
 }
 
 impl solana_program::program_error::PrintProgramError for JitoTipRouterError {
