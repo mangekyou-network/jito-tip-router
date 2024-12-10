@@ -10,7 +10,7 @@ mod tests {
         let mut fixture = TestBuilder::new().await;
         let mut tip_router_client = fixture.tip_router_client();
 
-        let test_ncn = fixture.create_initial_test_ncn(1, 1).await?;
+        let test_ncn = fixture.create_initial_test_ncn(1, 1, None).await?;
 
         fixture.warp_slot_incremental(1000).await?;
 
@@ -32,7 +32,7 @@ mod tests {
             ballot_box.slot_consensus_reached(),
             DEFAULT_CONSENSUS_REACHED_SLOT
         );
-        assert!(ballot_box.get_winning_ballot().is_err(),);
+        assert!(ballot_box.get_winning_ballot_tally().is_err(),);
 
         Ok(())
     }

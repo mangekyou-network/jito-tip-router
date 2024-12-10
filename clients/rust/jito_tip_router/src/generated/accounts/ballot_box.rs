@@ -27,8 +27,8 @@ pub struct BallotBox {
     pub operators_voted: u64,
     pub unique_ballots: u64,
     pub winning_ballot: Ballot,
-    pub operator_votes: [OperatorVote; 32],
-    pub ballot_tallies: [BallotTally; 32],
+    pub operator_votes: [OperatorVote; 16],
+    pub ballot_tallies: [BallotTally; 16],
 }
 
 impl BallotBox {

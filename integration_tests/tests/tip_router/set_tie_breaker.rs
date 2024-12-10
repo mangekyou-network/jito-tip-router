@@ -11,11 +11,10 @@ mod tests {
         let mut tip_router_client = fixture.tip_router_client();
 
         // Each operator gets 50% voting share
-        let test_ncn = fixture.create_initial_test_ncn(2, 1).await?;
+        let test_ncn = fixture.create_initial_test_ncn(2, 1, None).await?;
 
         ///// TipRouter Setup /////
         fixture.snapshot_test_ncn(&test_ncn).await?;
-        //////
 
         let clock = fixture.clock().await;
         let slot = clock.slot;
@@ -57,7 +56,10 @@ mod tests {
 
         let ballot = Ballot::new(meta_merkle_root);
         assert!(ballot_box.has_ballot(&ballot));
-        assert_eq!(ballot_box.get_winning_ballot().unwrap(), ballot);
+        assert_eq!(
+            ballot_box.get_winning_ballot_tally().unwrap().ballot(),
+            ballot
+        );
         // No official consensus reached so no slot set
         assert_eq!(
             ballot_box.slot_consensus_reached(),
