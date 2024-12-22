@@ -749,6 +749,10 @@
       ],
       "args": [
         {
+          "name": "maxIterations",
+          "type": "u16"
+        },
+        {
           "name": "epoch",
           "type": "u64"
         }
@@ -801,6 +805,10 @@
         {
           "name": "ncnFeeGroup",
           "type": "u8"
+        },
+        {
+          "name": "maxIterations",
+          "type": "u16"
         },
         {
           "name": "epoch",
@@ -2040,6 +2048,16 @@
             }
           },
           {
+            "name": "lastNcnGroupIndex",
+            "type": "u8"
+          },
+          {
+            "name": "lastVoteIndex",
+            "type": {
+              "defined": "PodU16"
+            }
+          },
+          {
             "name": "baseFeeGroupRewards",
             "type": {
               "array": [
@@ -2377,6 +2395,18 @@
                 "u8",
                 128
               ]
+            }
+          },
+          {
+            "name": "lastRewardsToProcess",
+            "type": {
+              "defined": "PodU64"
+            }
+          },
+          {
+            "name": "lastVaultOperatorDelegationIndex",
+            "type": {
+              "defined": "PodU16"
             }
           },
           {
@@ -3359,11 +3389,16 @@
     },
     {
       "code": 8765,
+      "name": "RouterStillRouting",
+      "msg": "Router still routing"
+    },
+    {
+      "code": 8766,
       "name": "InvalidEpochsBeforeStall",
       "msg": "Invalid epochs before stall"
     },
     {
-      "code": 8766,
+      "code": 8767,
       "name": "InvalidSlotsAfterConsensus",
       "msg": "Invalid slots after consensus"
     }

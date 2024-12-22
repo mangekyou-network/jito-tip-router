@@ -38,7 +38,7 @@ use jito_vault_core::{
     vault_ncn_ticket::VaultNcnTicket, vault_operator_delegation::VaultOperatorDelegation,
 };
 use solana_program::{
-    instruction::InstructionError, native_token::sol_to_lamports, pubkey::Pubkey,
+    hash::Hash, instruction::InstructionError, native_token::sol_to_lamports, pubkey::Pubkey,
     system_instruction::transfer,
 };
 use solana_program_test::{BanksClient, ProgramTestBanksClientExt};
@@ -78,6 +78,16 @@ impl TipRouterClient {
             )
             .await?;
         Ok(())
+    }
+
+    pub async fn get_best_latest_blockhash(&mut self) -> TestResult<Hash> {
+        let blockhash = self.banks_client.get_latest_blockhash().await?;
+        let new_blockhash = self
+            .banks_client
+            .get_new_latest_blockhash(&blockhash)
+            .await?;
+
+        Ok(new_blockhash)
     }
 
     pub async fn airdrop(&mut self, to: &Pubkey, sol: f64) -> TestResult<()> {
@@ -1527,16 +1537,29 @@ impl TipRouterClient {
         let (base_reward_receiver, _, _) =
             BaseRewardReceiver::find_program_address(&jito_tip_router_program::id(), &ncn, epoch);
 
-        self.route_base_rewards(
-            ncn,
-            restaking_config,
-            epoch_snapshot,
-            ballot_box,
-            base_reward_router,
-            base_reward_receiver,
-            epoch,
-        )
-        .await
+        //Pretty close to max
+        let max_iterations: u16 = BaseRewardRouter::MAX_ROUTE_BASE_ITERATIONS;
+
+        let mut still_routing = true;
+        while still_routing {
+            self.route_base_rewards(
+                ncn,
+                restaking_config,
+                epoch_snapshot,
+                ballot_box,
+                base_reward_router,
+                base_reward_receiver,
+                max_iterations,
+                epoch,
+            )
+            .await?;
+
+            let base_reward_router_account = self.get_base_reward_router(ncn, epoch).await?;
+
+            still_routing = base_reward_router_account.still_routing();
+        }
+
+        Ok(())
     }
 
     pub async fn route_base_rewards(
@@ -1547,6 +1570,7 @@ impl TipRouterClient {
         ballot_box: Pubkey,
         base_reward_router: Pubkey,
         base_reward_receiver: Pubkey,
+        max_iterations: u16,
         epoch: u64,
     ) -> TestResult<()> {
         let ix = RouteBaseRewardsBuilder::new()
@@ -1557,11 +1581,12 @@ impl TipRouterClient {
             .base_reward_router(base_reward_router)
             .base_reward_receiver(base_reward_receiver)
             .restaking_program(jito_restaking_program::id())
+            .max_iterations(max_iterations)
             .epoch(epoch)
             .instruction();
 
-        let blockhash = self.banks_client.get_latest_blockhash().await?;
-        self.process_transaction(&Transaction::new_signed_with_payer(
+        let blockhash = self.get_best_latest_blockhash().await?;
+        let tx = &Transaction::new_signed_with_payer(
             &[
                 ComputeBudgetInstruction::set_compute_unit_limit(1_400_000),
                 ix,
@@ -1569,8 +1594,24 @@ impl TipRouterClient {
             Some(&self.payer.pubkey()),
             &[&self.payer],
             blockhash,
-        ))
-        .await
+        );
+
+        {
+            let simulation = self
+                .banks_client
+                .simulate_transaction(tx.clone())
+                .await
+                .unwrap();
+
+            let details = simulation.simulation_details.unwrap();
+
+            println!("\n -------- TX ----------");
+            println!("CU: {:?}/{}\n", details.units_consumed, 1_400_000);
+            println!("{:?}\n", details);
+            println!("\n ----------------------");
+        }
+
+        self.process_transaction(tx).await
     }
 
     pub async fn do_route_ncn_rewards(
@@ -1605,17 +1646,31 @@ impl TipRouterClient {
             epoch,
         );
 
-        self.route_ncn_rewards(
-            ncn_fee_group,
-            ncn,
-            operator,
-            restaking_config,
-            operator_snapshot,
-            ncn_reward_router,
-            ncn_reward_receiver,
-            epoch,
-        )
-        .await
+        let max_iterations: u16 = NcnRewardRouter::MAX_ROUTE_NCN_ITERATIONS;
+        let mut still_routing = true;
+
+        while still_routing {
+            self.route_ncn_rewards(
+                ncn_fee_group,
+                ncn,
+                operator,
+                restaking_config,
+                operator_snapshot,
+                ncn_reward_router,
+                ncn_reward_receiver,
+                max_iterations,
+                epoch,
+            )
+            .await?;
+
+            let ncn_reward_router_account = self
+                .get_ncn_reward_router(ncn_fee_group, operator, ncn, epoch)
+                .await?;
+
+            still_routing = ncn_reward_router_account.still_routing();
+        }
+
+        Ok(())
     }
 
     pub async fn route_ncn_rewards(
@@ -1627,6 +1682,7 @@ impl TipRouterClient {
         operator_snapshot: Pubkey,
         ncn_reward_router: Pubkey,
         ncn_reward_receiver: Pubkey,
+        max_iterations: u16,
         epoch: u64,
     ) -> TestResult<()> {
         let ix = RouteNcnRewardsBuilder::new()
@@ -1638,10 +1694,11 @@ impl TipRouterClient {
             .ncn_reward_receiver(ncn_reward_receiver)
             .restaking_program(jito_restaking_program::id())
             .ncn_fee_group(ncn_fee_group.group)
+            .max_iterations(max_iterations)
             .epoch(epoch)
             .instruction();
 
-        let blockhash = self.banks_client.get_latest_blockhash().await?;
+        let blockhash = self.get_best_latest_blockhash().await?;
         self.process_transaction(&Transaction::new_signed_with_payer(
             &[
                 // TODO: should make this instruction much more efficient

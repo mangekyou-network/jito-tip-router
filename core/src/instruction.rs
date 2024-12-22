@@ -187,6 +187,7 @@ pub enum TipRouterInstruction {
     #[account(5, writable, name = "base_reward_receiver")]
     #[account(6, name = "restaking_program")]
     RouteBaseRewards{
+        max_iterations: u16,
         epoch: u64,
     },
 
@@ -200,6 +201,7 @@ pub enum TipRouterInstruction {
     #[account(6, name = "restaking_program")]
     RouteNcnRewards{
         ncn_fee_group: u8,
+        max_iterations: u16,
         epoch: u64,
     },
 
