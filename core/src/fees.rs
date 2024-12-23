@@ -14,21 +14,23 @@ use crate::{
 #[derive(Debug, Clone, Copy, Zeroable, ShankType, Pod)]
 #[repr(C)]
 pub struct FeeConfig {
-    /// Carbon Copy
+    /// The block engine fee - this is a carbon copy from the tip payment program used for some calculations
     block_engine_fee_bps: PodU16,
-
-    // Wallets
+    /// Base fee wallets - one for each base fee group
     base_fee_wallets: [Pubkey; 8],
-
+    /// Reserved space
     reserved: [u8; 128],
 
+    // Two fees so that we can update one and use the other, on the epoch boundary we switch
+    /// Fee 1
     fee_1: Fees,
+    /// Fee 2
     fee_2: Fees,
 }
 
 impl FeeConfig {
     pub fn new(
-        dao_fee_wallet: Pubkey,
+        dao_fee_wallet: &Pubkey,
         block_engine_fee_bps: u16,
         dao_fee_bps: u16,
         default_ncn_fee_bps: u16,
@@ -46,7 +48,7 @@ impl FeeConfig {
 
         let mut fee_config = Self {
             block_engine_fee_bps: PodU16::from(block_engine_fee_bps),
-            base_fee_wallets: [dao_fee_wallet; BaseFeeGroup::FEE_GROUP_COUNT],
+            base_fee_wallets: [*dao_fee_wallet; BaseFeeGroup::FEE_GROUP_COUNT],
             reserved: [0; 128],
             fee_1: fee,
             fee_2: fee,
@@ -240,18 +242,18 @@ impl FeeConfig {
 
     // ------------------- WALLETS -------------------
 
-    pub fn base_fee_wallet(&self, base_fee_group: BaseFeeGroup) -> Result<Pubkey, TipRouterError> {
+    pub fn base_fee_wallet(&self, base_fee_group: BaseFeeGroup) -> Result<&Pubkey, TipRouterError> {
         let group_index = base_fee_group.group_index()?;
-        Ok(self.base_fee_wallets[group_index])
+        Ok(&self.base_fee_wallets[group_index])
     }
 
     pub fn set_base_fee_wallet(
         &mut self,
         base_fee_group: BaseFeeGroup,
-        wallet: Pubkey,
+        wallet: &Pubkey,
     ) -> Result<(), TipRouterError> {
         let group_index = base_fee_group.group_index()?;
-        self.base_fee_wallets[group_index] = wallet;
+        self.base_fee_wallets[group_index] = *wallet;
         Ok(())
     }
 
@@ -300,7 +302,7 @@ impl FeeConfig {
         let base_fee_group = base_fee_group.unwrap_or_default();
 
         if let Some(new_base_fee_wallet) = new_base_fee_wallet {
-            self.set_base_fee_wallet(base_fee_group, new_base_fee_wallet)?;
+            self.set_base_fee_wallet(base_fee_group, &new_base_fee_wallet)?;
         }
 
         if let Some(new_base_fee_bps) = new_base_fee_bps {
@@ -546,7 +548,7 @@ mod tests {
         let dao_fee_wallet = Pubkey::new_unique();
 
         let fee_config = FeeConfig::new(
-            dao_fee_wallet,
+            &dao_fee_wallet,
             BLOCK_ENGINE_FEE,
             DAO_FEE,
             DEFAULT_NCN_FEE,
@@ -561,7 +563,7 @@ mod tests {
         let dao_fee_group = BaseFeeGroup::default();
 
         assert_eq!(
-            fee_config.base_fee_wallet(dao_fee_group).unwrap(),
+            *fee_config.base_fee_wallet(dao_fee_group).unwrap(),
             dao_fee_wallet
         );
 
@@ -595,23 +597,23 @@ mod tests {
         let ok_wallet = Pubkey::new_unique();
 
         // DEFAULT WALLET
-        let error = FeeConfig::new(Pubkey::default(), OK_FEE, OK_FEE, OK_FEE, OK_EPOCH);
+        let error = FeeConfig::new(&Pubkey::default(), OK_FEE, OK_FEE, OK_FEE, OK_EPOCH);
         assert_eq!(error.err().unwrap(), TipRouterError::DefaultDaoWallet);
 
         // BLOCK ENGINE FEE
-        let error = FeeConfig::new(ok_wallet, MAX_FEE_BPS + 1, OK_FEE, OK_FEE, OK_EPOCH);
+        let error = FeeConfig::new(&ok_wallet, MAX_FEE_BPS + 1, OK_FEE, OK_FEE, OK_EPOCH);
         assert_eq!(error.err().unwrap(), TipRouterError::FeeCapExceeded);
 
         // DAO FEE
-        let error = FeeConfig::new(ok_wallet, OK_FEE, MAX_FEE_BPS + 1, OK_FEE, OK_EPOCH);
+        let error = FeeConfig::new(&ok_wallet, OK_FEE, MAX_FEE_BPS + 1, OK_FEE, OK_EPOCH);
         assert_eq!(error.err().unwrap(), TipRouterError::FeeCapExceeded);
 
         // NCN FEE
-        let error = FeeConfig::new(ok_wallet, OK_FEE, OK_FEE, MAX_FEE_BPS + 1, OK_EPOCH);
+        let error = FeeConfig::new(&ok_wallet, OK_FEE, OK_FEE, MAX_FEE_BPS + 1, OK_EPOCH);
         assert_eq!(error.err().unwrap(), TipRouterError::FeeCapExceeded);
 
         // ADJUSTED FEE ERROR
-        let error = FeeConfig::new(ok_wallet, MAX_FEE_BPS, OK_FEE, OK_FEE, OK_EPOCH);
+        let error = FeeConfig::new(&ok_wallet, MAX_FEE_BPS, OK_FEE, OK_FEE, OK_EPOCH);
         assert_eq!(error.err().unwrap(), TipRouterError::DenominatorIsZero);
 
         //TODO should it be an error if adjusted fee is 0?
@@ -635,7 +637,7 @@ mod tests {
         let new_dao_fee_wallet = Pubkey::new_unique();
 
         let mut fee_config = FeeConfig::new(
-            dao_fee_wallet,
+            &dao_fee_wallet,
             BLOCK_ENGINE_FEE,
             DAO_FEE,
             DEFAULT_NCN_FEE,
@@ -660,7 +662,7 @@ mod tests {
         let dao_fee_group = BaseFeeGroup::default();
 
         assert_eq!(
-            fee_config.base_fee_wallet(dao_fee_group).unwrap(),
+            *fee_config.base_fee_wallet(dao_fee_group).unwrap(),
             new_dao_fee_wallet
         );
 
@@ -702,7 +704,7 @@ mod tests {
         let dao_fee_group = BaseFeeGroup::default();
 
         assert_eq!(
-            fee_config.base_fee_wallet(dao_fee_group).unwrap(),
+            *fee_config.base_fee_wallet(dao_fee_group).unwrap(),
             new_dao_fee_wallet
         );
 
@@ -740,7 +742,7 @@ mod tests {
         let dao_fee_wallet = Pubkey::new_unique();
 
         let mut fee_config = FeeConfig::new(
-            dao_fee_wallet,
+            &dao_fee_wallet,
             BLOCK_ENGINE_FEE,
             DAO_FEE,
             DEFAULT_NCN_FEE,
@@ -757,7 +759,7 @@ mod tests {
         let dao_fee_group = BaseFeeGroup::default();
 
         assert_eq!(
-            fee_config.base_fee_wallet(dao_fee_group).unwrap(),
+            *fee_config.base_fee_wallet(dao_fee_group).unwrap(),
             dao_fee_wallet
         );
 
@@ -795,7 +797,7 @@ mod tests {
         let new_base_fee = Pubkey::new_unique();
 
         let mut fee_config = FeeConfig::new(
-            dao_fee_wallet,
+            &dao_fee_wallet,
             BLOCK_ENGINE_FEE,
             DAO_FEE,
             DEFAULT_NCN_FEE,
@@ -817,7 +819,7 @@ mod tests {
                 .unwrap();
 
             assert_eq!(
-                fee_config.base_fee_wallet(*base_fee_group).unwrap(),
+                *fee_config.base_fee_wallet(*base_fee_group).unwrap(),
                 new_base_fee
             );
 
@@ -880,7 +882,7 @@ mod tests {
         let dao_fee_wallet = Pubkey::new_unique();
 
         let fee_config = FeeConfig::new(
-            dao_fee_wallet,
+            &dao_fee_wallet,
             BLOCK_ENGINE_FEE,
             DAO_FEE,
             DEFAULT_NCN_FEE,
@@ -893,7 +895,7 @@ mod tests {
 
     #[test]
     fn test_current_fee() {
-        let mut fee_config = FeeConfig::new(Pubkey::new_unique(), 100, 200, 300, 5).unwrap();
+        let mut fee_config = FeeConfig::new(&Pubkey::new_unique(), 100, 200, 300, 5).unwrap();
 
         assert_eq!(fee_config.current_fees(5).activation_epoch(), 5);
 
@@ -910,7 +912,7 @@ mod tests {
 
     #[test]
     fn test_get_updatable_fee_mut() {
-        let mut fee_config = FeeConfig::new(Pubkey::new_unique(), 100, 200, 300, 5).unwrap();
+        let mut fee_config = FeeConfig::new(&Pubkey::new_unique(), 100, 200, 300, 5).unwrap();
 
         let base_fee_group = BaseFeeGroup::default();
 

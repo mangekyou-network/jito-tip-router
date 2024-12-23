@@ -4,7 +4,7 @@ use jito_jsm_core::{
     realloc,
 };
 use jito_tip_router_core::{
-    ncn_config::NcnConfig, utils::get_new_size, vault_registry::VaultRegistry,
+    config::Config as NcnConfig, utils::get_new_size, vault_registry::VaultRegistry,
     weight_table::WeightTable,
 };
 use solana_program::{
@@ -61,7 +61,7 @@ pub fn process_realloc_weight_table(
             WeightTable::try_from_slice_unchecked_mut(&mut weight_table_data)?;
 
         weight_table_account.initialize(
-            *ncn.key,
+            ncn.key,
             epoch,
             Clock::get()?.slot,
             vault_count,

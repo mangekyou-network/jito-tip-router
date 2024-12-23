@@ -21,31 +21,34 @@ use crate::{
 #[derive(Debug, Clone, Copy, Zeroable, ShankType, Pod, AccountDeserialize, ShankAccount)]
 #[repr(C)]
 pub struct NcnRewardRouter {
+    /// The NcnFeeGroup this router is associated with
     ncn_fee_group: NcnFeeGroup,
-
+    /// The operator the router is associated with
     operator: Pubkey,
-
+    /// The NCN the router is associated with
     ncn: Pubkey,
-
-    ncn_epoch: PodU64,
-
+    /// The epoch the router is associated with
+    epoch: PodU64,
+    /// The bump seed for the PDA
     bump: u8,
-
+    /// The slot the router was created
     slot_created: PodU64,
-
+    /// The total rewards that have been routed ( in lamports )
     total_rewards: PodU64,
-
+    /// The rewards in the reward pool ( in lamports )
     reward_pool: PodU64,
-
+    /// The rewards that have been processed ( in lamports )
     rewards_processed: PodU64,
-
+    /// Rewards to go to the operator ( in lamports )
     operator_rewards: PodU64,
-
+    /// Reserved space
     reserved: [u8; 128],
-
+    // Routing state - so we can recover from a partial routing
+    /// The last rewards to process
     last_rewards_to_process: PodU64,
+    /// The last vault operator delegation index
     last_vault_operator_delegation_index: PodU16,
-
+    /// Routes to vaults
     vault_reward_routes: [VaultRewardRoute; 64],
 }
 
@@ -62,17 +65,17 @@ impl NcnRewardRouter {
 
     pub fn new(
         ncn_fee_group: NcnFeeGroup,
-        operator: Pubkey,
-        ncn: Pubkey,
+        operator: &Pubkey,
+        ncn: &Pubkey,
         ncn_epoch: u64,
         bump: u8,
         slot_created: u64,
     ) -> Self {
         Self {
             ncn_fee_group,
-            operator,
-            ncn,
-            ncn_epoch: PodU64::from(ncn_epoch),
+            operator: *operator,
+            ncn: *ncn,
+            epoch: PodU64::from(ncn_epoch),
             bump,
             slot_created: PodU64::from(slot_created),
             total_rewards: PodU64::from(0),
@@ -164,16 +167,16 @@ impl NcnRewardRouter {
         self.ncn_fee_group
     }
 
-    pub const fn operator(&self) -> Pubkey {
-        self.operator
+    pub const fn operator(&self) -> &Pubkey {
+        &self.operator
     }
 
-    pub const fn ncn(&self) -> Pubkey {
-        self.ncn
+    pub const fn ncn(&self) -> &Pubkey {
+        &self.ncn
     }
 
     pub fn ncn_epoch(&self) -> u64 {
-        self.ncn_epoch.into()
+        self.epoch.into()
     }
 
     pub fn slot_created(&self) -> u64 {
@@ -552,7 +555,7 @@ impl NcnRewardRouter {
 
     pub fn route_to_vault_reward_route(
         &mut self,
-        vault: Pubkey,
+        vault: &Pubkey,
         rewards: u64,
     ) -> Result<(), TipRouterError> {
         if rewards == 0 {
@@ -562,7 +565,7 @@ impl NcnRewardRouter {
         self.increment_rewards_processed(rewards)?;
 
         for vault_reward in self.vault_reward_routes.iter_mut() {
-            if vault_reward.vault().eq(&vault) {
+            if vault_reward.vault().eq(vault) {
                 vault_reward.increment_rewards(rewards)?;
                 return Ok(());
             }
@@ -665,14 +668,16 @@ impl NcnRewardReceiver {
 #[derive(Default, Debug, Clone, PartialEq, Eq, Copy, Zeroable, ShankType, Pod)]
 #[repr(C)]
 pub struct VaultRewardRoute {
+    /// The vault the rewards are routed to
     vault: Pubkey,
+    /// The amount of rewards ( in lamports )
     rewards: PodU64,
 }
 
 impl VaultRewardRoute {
-    pub fn new(vault: Pubkey, rewards: u64) -> Result<Self, TipRouterError> {
+    pub fn new(vault: &Pubkey, rewards: u64) -> Result<Self, TipRouterError> {
         Ok(Self {
-            vault,
+            vault: *vault,
             rewards: PodU64::from(rewards),
         })
     }
@@ -751,11 +756,11 @@ mod tests {
     fn test_route_incoming_rewards() {
         let mut router = NcnRewardRouter::new(
             NcnFeeGroup::default(),
-            Pubkey::new_unique(), // ncn
-            Pubkey::new_unique(), // ncn
-            1,                    // ncn_epoch
-            1,                    // bump
-            100,                  // slot_created
+            &Pubkey::new_unique(), // ncn
+            &Pubkey::new_unique(), // ncn
+            1,                     // ncn_epoch
+            1,                     // bump
+            100,                   // slot_created
         );
 
         // Initial state checks

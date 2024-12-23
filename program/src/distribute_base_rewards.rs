@@ -1,12 +1,12 @@
 use jito_bytemuck::AccountDeserialize;
 use jito_jsm_core::loader::load_associated_token_account;
-use jito_restaking_core::{config::Config, ncn::Ncn};
+use jito_restaking_core::ncn::Ncn;
 use jito_tip_router_core::{
     base_fee_group::BaseFeeGroup,
     base_reward_router::{BaseRewardReceiver, BaseRewardRouter},
-    constants::JITO_SOL_MINT,
+    config::Config as NcnConfig,
+    constants::JITOSOL_MINT,
     error::TipRouterError,
-    ncn_config::NcnConfig,
 };
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, msg, program::invoke_signed,
@@ -20,7 +20,7 @@ pub fn process_distribute_base_rewards(
     base_fee_group: u8,
     epoch: u64,
 ) -> ProgramResult {
-    let [restaking_config, ncn_config, ncn, base_reward_router, base_reward_receiver, base_fee_wallet, base_fee_wallet_ata, restaking_program, stake_pool_program, stake_pool, stake_pool_withdraw_authority, reserve_stake, manager_fee_account, referrer_pool_tokens_account, pool_mint, token_program, system_program] =
+    let [ncn_config, ncn, base_reward_router, base_reward_receiver, base_fee_wallet, base_fee_wallet_ata, restaking_program, stake_pool_program, stake_pool, stake_pool_withdraw_authority, reserve_stake, manager_fee_account, referrer_pool_tokens_account, pool_mint, token_program, system_program] =
         accounts
     else {
         return Err(ProgramError::NotEnoughAccountKeys);
@@ -31,12 +31,11 @@ pub fn process_distribute_base_rewards(
         return Err(ProgramError::InvalidAccountData);
     }
 
-    Config::load(restaking_program.key, restaking_config, false)?;
     Ncn::load(restaking_program.key, ncn, false)?;
     NcnConfig::load(program_id, ncn.key, ncn_config, false)?;
     BaseRewardRouter::load(program_id, ncn.key, epoch, base_reward_router, true)?;
     BaseRewardReceiver::load(program_id, base_reward_receiver, ncn.key, epoch, true)?;
-    load_associated_token_account(base_fee_wallet_ata, base_fee_wallet.key, &JITO_SOL_MINT)?;
+    load_associated_token_account(base_fee_wallet_ata, base_fee_wallet.key, &JITOSOL_MINT)?;
 
     if stake_pool_program.key.ne(&spl_stake_pool::id()) {
         msg!("Incorrect stake pool program ID");
