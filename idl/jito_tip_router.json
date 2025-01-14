@@ -3720,11 +3720,16 @@
     },
     {
       "code": 8768,
+      "name": "VaultNeedsUpdate",
+      "msg": "Vault needs to be updated"
+    },
+    {
+      "code": 8769,
       "name": "InvalidAccountStatus",
       "msg": "Invalid Account Status"
     },
     {
-      "code": 8769,
+      "code": 8770,
       "name": "AccountAlreadyInitialized",
       "msg": "Account already initialized"
     }
