@@ -193,10 +193,7 @@ impl Progress {
         if self.is_invalid() {
             false
         } else {
-            //TODO: Set back when we can figure out why weight tally was:
-            // Crank State: SetWeight Progress { tally: PodU64(3), total: PodU64(2) }
             self.tally.eq(&self.total)
-            // self.tally().ge(&self.total())
         }
     }
 }

@@ -96,6 +96,8 @@ pub enum TipRouterError {
     BallotTallyFull,
     #[error("Ballot tally not found")]
     BallotTallyNotFoundFull,
+    #[error("Ballot tally not empty")]
+    BallotTallyNotEmpty,
     #[error("Consensus already reached, cannot change vote")]
     ConsensusAlreadyReached,
     #[error("Consensus not reached")]
@@ -157,6 +159,8 @@ pub enum TipRouterError {
     InvalidAccountStatus,
     #[error("Account already initialized")]
     AccountAlreadyInitialized,
+    #[error("Cannot vote with uninitialized account")]
+    BadBallot,
 }
 
 impl<T> DecodeError<T> for TipRouterError {
