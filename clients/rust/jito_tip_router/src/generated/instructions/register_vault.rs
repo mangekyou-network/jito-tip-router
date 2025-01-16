@@ -10,15 +10,13 @@ use borsh::BorshSerialize;
 
 /// Accounts.
 pub struct RegisterVault {
-    pub restaking_config: solana_program::pubkey::Pubkey,
+    pub config: solana_program::pubkey::Pubkey,
 
     pub vault_registry: solana_program::pubkey::Pubkey,
 
     pub ncn: solana_program::pubkey::Pubkey,
 
     pub vault: solana_program::pubkey::Pubkey,
-
-    pub vault_ncn_ticket: solana_program::pubkey::Pubkey,
 
     pub ncn_vault_ticket: solana_program::pubkey::Pubkey,
 }
@@ -32,9 +30,9 @@ impl RegisterVault {
         &self,
         remaining_accounts: &[solana_program::instruction::AccountMeta],
     ) -> solana_program::instruction::Instruction {
-        let mut accounts = Vec::with_capacity(6 + remaining_accounts.len());
+        let mut accounts = Vec::with_capacity(5 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            self.restaking_config,
+            self.config,
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new(
@@ -46,10 +44,6 @@ impl RegisterVault {
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.vault, false,
-        ));
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            self.vault_ncn_ticket,
-            false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.ncn_vault_ticket,
@@ -87,19 +81,17 @@ impl Default for RegisterVaultInstructionData {
 ///
 /// ### Accounts:
 ///
-///   0. `[]` restaking_config
+///   0. `[]` config
 ///   1. `[writable]` vault_registry
 ///   2. `[]` ncn
 ///   3. `[]` vault
-///   4. `[]` vault_ncn_ticket
-///   5. `[]` ncn_vault_ticket
+///   4. `[]` ncn_vault_ticket
 #[derive(Clone, Debug, Default)]
 pub struct RegisterVaultBuilder {
-    restaking_config: Option<solana_program::pubkey::Pubkey>,
+    config: Option<solana_program::pubkey::Pubkey>,
     vault_registry: Option<solana_program::pubkey::Pubkey>,
     ncn: Option<solana_program::pubkey::Pubkey>,
     vault: Option<solana_program::pubkey::Pubkey>,
-    vault_ncn_ticket: Option<solana_program::pubkey::Pubkey>,
     ncn_vault_ticket: Option<solana_program::pubkey::Pubkey>,
     __remaining_accounts: Vec<solana_program::instruction::AccountMeta>,
 }
@@ -109,11 +101,8 @@ impl RegisterVaultBuilder {
         Self::default()
     }
     #[inline(always)]
-    pub fn restaking_config(
-        &mut self,
-        restaking_config: solana_program::pubkey::Pubkey,
-    ) -> &mut Self {
-        self.restaking_config = Some(restaking_config);
+    pub fn config(&mut self, config: solana_program::pubkey::Pubkey) -> &mut Self {
+        self.config = Some(config);
         self
     }
     #[inline(always)]
@@ -129,14 +118,6 @@ impl RegisterVaultBuilder {
     #[inline(always)]
     pub fn vault(&mut self, vault: solana_program::pubkey::Pubkey) -> &mut Self {
         self.vault = Some(vault);
-        self
-    }
-    #[inline(always)]
-    pub fn vault_ncn_ticket(
-        &mut self,
-        vault_ncn_ticket: solana_program::pubkey::Pubkey,
-    ) -> &mut Self {
-        self.vault_ncn_ticket = Some(vault_ncn_ticket);
         self
     }
     #[inline(always)]
@@ -168,11 +149,10 @@ impl RegisterVaultBuilder {
     #[allow(clippy::clone_on_copy)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
         let accounts = RegisterVault {
-            restaking_config: self.restaking_config.expect("restaking_config is not set"),
+            config: self.config.expect("config is not set"),
             vault_registry: self.vault_registry.expect("vault_registry is not set"),
             ncn: self.ncn.expect("ncn is not set"),
             vault: self.vault.expect("vault is not set"),
-            vault_ncn_ticket: self.vault_ncn_ticket.expect("vault_ncn_ticket is not set"),
             ncn_vault_ticket: self.ncn_vault_ticket.expect("ncn_vault_ticket is not set"),
         };
 
@@ -182,15 +162,13 @@ impl RegisterVaultBuilder {
 
 /// `register_vault` CPI accounts.
 pub struct RegisterVaultCpiAccounts<'a, 'b> {
-    pub restaking_config: &'b solana_program::account_info::AccountInfo<'a>,
+    pub config: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub vault_registry: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub ncn: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub vault: &'b solana_program::account_info::AccountInfo<'a>,
-
-    pub vault_ncn_ticket: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub ncn_vault_ticket: &'b solana_program::account_info::AccountInfo<'a>,
 }
@@ -200,15 +178,13 @@ pub struct RegisterVaultCpi<'a, 'b> {
     /// The program to invoke.
     pub __program: &'b solana_program::account_info::AccountInfo<'a>,
 
-    pub restaking_config: &'b solana_program::account_info::AccountInfo<'a>,
+    pub config: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub vault_registry: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub ncn: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub vault: &'b solana_program::account_info::AccountInfo<'a>,
-
-    pub vault_ncn_ticket: &'b solana_program::account_info::AccountInfo<'a>,
 
     pub ncn_vault_ticket: &'b solana_program::account_info::AccountInfo<'a>,
 }
@@ -220,11 +196,10 @@ impl<'a, 'b> RegisterVaultCpi<'a, 'b> {
     ) -> Self {
         Self {
             __program: program,
-            restaking_config: accounts.restaking_config,
+            config: accounts.config,
             vault_registry: accounts.vault_registry,
             ncn: accounts.ncn,
             vault: accounts.vault,
-            vault_ncn_ticket: accounts.vault_ncn_ticket,
             ncn_vault_ticket: accounts.ncn_vault_ticket,
         }
     }
@@ -261,9 +236,9 @@ impl<'a, 'b> RegisterVaultCpi<'a, 'b> {
             bool,
         )],
     ) -> solana_program::entrypoint::ProgramResult {
-        let mut accounts = Vec::with_capacity(6 + remaining_accounts.len());
+        let mut accounts = Vec::with_capacity(5 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            *self.restaking_config.key,
+            *self.config.key,
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new(
@@ -276,10 +251,6 @@ impl<'a, 'b> RegisterVaultCpi<'a, 'b> {
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.vault.key,
-            false,
-        ));
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            *self.vault_ncn_ticket.key,
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
@@ -300,13 +271,12 @@ impl<'a, 'b> RegisterVaultCpi<'a, 'b> {
             accounts,
             data,
         };
-        let mut account_infos = Vec::with_capacity(6 + 1 + remaining_accounts.len());
+        let mut account_infos = Vec::with_capacity(5 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
-        account_infos.push(self.restaking_config.clone());
+        account_infos.push(self.config.clone());
         account_infos.push(self.vault_registry.clone());
         account_infos.push(self.ncn.clone());
         account_infos.push(self.vault.clone());
-        account_infos.push(self.vault_ncn_ticket.clone());
         account_infos.push(self.ncn_vault_ticket.clone());
         remaining_accounts
             .iter()
@@ -324,12 +294,11 @@ impl<'a, 'b> RegisterVaultCpi<'a, 'b> {
 ///
 /// ### Accounts:
 ///
-///   0. `[]` restaking_config
+///   0. `[]` config
 ///   1. `[writable]` vault_registry
 ///   2. `[]` ncn
 ///   3. `[]` vault
-///   4. `[]` vault_ncn_ticket
-///   5. `[]` ncn_vault_ticket
+///   4. `[]` ncn_vault_ticket
 #[derive(Clone, Debug)]
 pub struct RegisterVaultCpiBuilder<'a, 'b> {
     instruction: Box<RegisterVaultCpiBuilderInstruction<'a, 'b>>,
@@ -339,22 +308,21 @@ impl<'a, 'b> RegisterVaultCpiBuilder<'a, 'b> {
     pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
         let instruction = Box::new(RegisterVaultCpiBuilderInstruction {
             __program: program,
-            restaking_config: None,
+            config: None,
             vault_registry: None,
             ncn: None,
             vault: None,
-            vault_ncn_ticket: None,
             ncn_vault_ticket: None,
             __remaining_accounts: Vec::new(),
         });
         Self { instruction }
     }
     #[inline(always)]
-    pub fn restaking_config(
+    pub fn config(
         &mut self,
-        restaking_config: &'b solana_program::account_info::AccountInfo<'a>,
+        config: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
-        self.instruction.restaking_config = Some(restaking_config);
+        self.instruction.config = Some(config);
         self
     }
     #[inline(always)]
@@ -373,14 +341,6 @@ impl<'a, 'b> RegisterVaultCpiBuilder<'a, 'b> {
     #[inline(always)]
     pub fn vault(&mut self, vault: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.vault = Some(vault);
-        self
-    }
-    #[inline(always)]
-    pub fn vault_ncn_ticket(
-        &mut self,
-        vault_ncn_ticket: &'b solana_program::account_info::AccountInfo<'a>,
-    ) -> &mut Self {
-        self.instruction.vault_ncn_ticket = Some(vault_ncn_ticket);
         self
     }
     #[inline(always)]
@@ -435,10 +395,7 @@ impl<'a, 'b> RegisterVaultCpiBuilder<'a, 'b> {
         let instruction = RegisterVaultCpi {
             __program: self.instruction.__program,
 
-            restaking_config: self
-                .instruction
-                .restaking_config
-                .expect("restaking_config is not set"),
+            config: self.instruction.config.expect("config is not set"),
 
             vault_registry: self
                 .instruction
@@ -448,11 +405,6 @@ impl<'a, 'b> RegisterVaultCpiBuilder<'a, 'b> {
             ncn: self.instruction.ncn.expect("ncn is not set"),
 
             vault: self.instruction.vault.expect("vault is not set"),
-
-            vault_ncn_ticket: self
-                .instruction
-                .vault_ncn_ticket
-                .expect("vault_ncn_ticket is not set"),
 
             ncn_vault_ticket: self
                 .instruction
@@ -469,11 +421,10 @@ impl<'a, 'b> RegisterVaultCpiBuilder<'a, 'b> {
 #[derive(Clone, Debug)]
 struct RegisterVaultCpiBuilderInstruction<'a, 'b> {
     __program: &'b solana_program::account_info::AccountInfo<'a>,
-    restaking_config: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    config: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     vault_registry: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ncn: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     vault: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    vault_ncn_ticket: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ncn_vault_ticket: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
     __remaining_accounts: Vec<(

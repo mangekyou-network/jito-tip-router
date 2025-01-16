@@ -137,7 +137,7 @@
       "name": "RegisterVault",
       "accounts": [
         {
-          "name": "restakingConfig",
+          "name": "config",
           "isMut": false,
           "isSigner": false
         },
@@ -153,11 +153,6 @@
         },
         {
           "name": "vault",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "vaultNcnTicket",
           "isMut": false,
           "isSigner": false
         },

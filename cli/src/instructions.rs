@@ -273,25 +273,21 @@ pub async fn register_vault(handler: &CliHandler, vault: &Pubkey) -> Result<()> 
     let ncn = *handler.ncn()?;
     let vault = *vault;
 
+    let (tip_router_config, _, _) =
+        TipRouterConfig::find_program_address(&handler.tip_router_program_id, &ncn);
+
     let (vault_registry, _, _) =
         VaultRegistry::find_program_address(&handler.tip_router_program_id, &ncn);
-
-    let (restaking_config, _, _) =
-        RestakingConfig::find_program_address(&handler.restaking_program_id);
 
     let (ncn_vault_ticket, _, _) =
         NcnVaultTicket::find_program_address(&handler.restaking_program_id, &ncn, &vault);
 
-    let (vault_ncn_ticket, _, _) =
-        VaultNcnTicket::find_program_address(&handler.vault_program_id, &vault, &ncn);
-
     let register_vault_ix = RegisterVaultBuilder::new()
+        .config(tip_router_config)
         .vault_registry(vault_registry)
         .vault(vault)
         .ncn(ncn)
         .ncn_vault_ticket(ncn_vault_ticket)
-        .restaking_config(restaking_config)
-        .vault_ncn_ticket(vault_ncn_ticket)
         .vault_registry(vault_registry)
         .instruction();
 
