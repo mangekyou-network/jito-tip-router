@@ -126,8 +126,8 @@ export const JITO_TIP_ROUTER_ERROR__VOTING_NOT_FINALIZED = 0x222c; // 8748
 export const JITO_TIP_ROUTER_ERROR__TIE_BREAKER_NOT_IN_PRIOR_VOTES = 0x222d; // 8749
 /** InvalidMerkleProof: Invalid merkle proof */
 export const JITO_TIP_ROUTER_ERROR__INVALID_MERKLE_PROOF = 0x222e; // 8750
-/** OperatorAdminInvalid: Operator admin needs to sign its vote */
-export const JITO_TIP_ROUTER_ERROR__OPERATOR_ADMIN_INVALID = 0x222f; // 8751
+/** InvalidOperatorVoter: Operator voter needs to sign its vote */
+export const JITO_TIP_ROUTER_ERROR__INVALID_OPERATOR_VOTER = 0x222f; // 8751
 /** InvalidNcnFeeGroup: Not a valid NCN fee group */
 export const JITO_TIP_ROUTER_ERROR__INVALID_NCN_FEE_GROUP = 0x2230; // 8752
 /** InvalidBaseFeeGroup: Not a valid base fee group */
@@ -239,6 +239,7 @@ export type JitoTipRouterError =
   | typeof JITO_TIP_ROUTER_ERROR__INVALID_MERKLE_PROOF
   | typeof JITO_TIP_ROUTER_ERROR__INVALID_MINT_FOR_WEIGHT_TABLE
   | typeof JITO_TIP_ROUTER_ERROR__INVALID_NCN_FEE_GROUP
+  | typeof JITO_TIP_ROUTER_ERROR__INVALID_OPERATOR_VOTER
   | typeof JITO_TIP_ROUTER_ERROR__INVALID_SLOTS_AFTER_CONSENSUS
   | typeof JITO_TIP_ROUTER_ERROR__MINT_ENTRY_NOT_FOUND
   | typeof JITO_TIP_ROUTER_ERROR__MINT_IN_TABLE
@@ -251,7 +252,6 @@ export type JitoTipRouterError =
   | typeof JITO_TIP_ROUTER_ERROR__NO_OPERATORS
   | typeof JITO_TIP_ROUTER_ERROR__NO_REWARDS
   | typeof JITO_TIP_ROUTER_ERROR__NO_VAULTS_IN_REGISTRY
-  | typeof JITO_TIP_ROUTER_ERROR__OPERATOR_ADMIN_INVALID
   | typeof JITO_TIP_ROUTER_ERROR__OPERATOR_FINALIZED
   | typeof JITO_TIP_ROUTER_ERROR__OPERATOR_IS_NOT_IN_SNAPSHOT
   | typeof JITO_TIP_ROUTER_ERROR__OPERATOR_REWARD_LIST_FULL
@@ -332,6 +332,7 @@ if (process.env.NODE_ENV !== 'production') {
     [JITO_TIP_ROUTER_ERROR__INVALID_MERKLE_PROOF]: `Invalid merkle proof`,
     [JITO_TIP_ROUTER_ERROR__INVALID_MINT_FOR_WEIGHT_TABLE]: `Invalid mint for weight table`,
     [JITO_TIP_ROUTER_ERROR__INVALID_NCN_FEE_GROUP]: `Not a valid NCN fee group`,
+    [JITO_TIP_ROUTER_ERROR__INVALID_OPERATOR_VOTER]: `Operator voter needs to sign its vote`,
     [JITO_TIP_ROUTER_ERROR__INVALID_SLOTS_AFTER_CONSENSUS]: `Invalid slots after consensus`,
     [JITO_TIP_ROUTER_ERROR__MINT_ENTRY_NOT_FOUND]: `Mint Entry not found`,
     [JITO_TIP_ROUTER_ERROR__MINT_IN_TABLE]: `Mint is already in the table`,
@@ -344,7 +345,6 @@ if (process.env.NODE_ENV !== 'production') {
     [JITO_TIP_ROUTER_ERROR__NO_OPERATORS]: `No operators in ncn`,
     [JITO_TIP_ROUTER_ERROR__NO_REWARDS]: `No rewards to distribute`,
     [JITO_TIP_ROUTER_ERROR__NO_VAULTS_IN_REGISTRY]: `There are no vaults in the registry`,
-    [JITO_TIP_ROUTER_ERROR__OPERATOR_ADMIN_INVALID]: `Operator admin needs to sign its vote`,
     [JITO_TIP_ROUTER_ERROR__OPERATOR_FINALIZED]: `Operator is already finalized - should not happen`,
     [JITO_TIP_ROUTER_ERROR__OPERATOR_IS_NOT_IN_SNAPSHOT]: `Operator is not in snapshot`,
     [JITO_TIP_ROUTER_ERROR__OPERATOR_REWARD_LIST_FULL]: `Operator reward list full`,
