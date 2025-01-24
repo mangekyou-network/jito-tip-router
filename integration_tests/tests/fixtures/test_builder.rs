@@ -882,6 +882,9 @@ impl TestBuilder {
         // Should be able to route twice
         tip_router_client.do_route_base_rewards(ncn, epoch).await?;
 
+        // Should be able to route twice
+        tip_router_client.do_route_base_rewards(ncn, epoch).await?;
+
         let base_reward_router = tip_router_client.get_base_reward_router(ncn, epoch).await?;
 
         // Base Rewards
