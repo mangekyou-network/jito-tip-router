@@ -3,7 +3,7 @@ use std::mem::size_of;
 
 use crate::handler::CliHandler;
 use anyhow::Result;
-use borsh::BorshDeserialize;
+use borsh1::BorshDeserialize;
 use jito_bytemuck::AccountDeserialize;
 use jito_restaking_core::{
     config::Config as RestakingConfig, ncn::Ncn, ncn_operator_state::NcnOperatorState,
@@ -640,6 +640,7 @@ pub async fn get_all_sorted_operators_for_vault(
             min_context_slot: None,
         },
         with_context: Some(false),
+        sort_results: None,
     };
 
     let results = client
@@ -699,6 +700,7 @@ pub async fn get_all_operators_in_ncn(handler: &CliHandler) -> Result<Vec<Pubkey
             min_context_slot: None,
         },
         with_context: Some(false),
+        sort_results: None,
     };
 
     let results = client
@@ -746,6 +748,7 @@ pub async fn get_all_vaults_in_ncn(handler: &CliHandler) -> Result<Vec<Pubkey>> 
             min_context_slot: None,
         },
         with_context: Some(false),
+        sort_results: None,
     };
 
     let results = client
@@ -1000,6 +1003,7 @@ impl NcnTickets {
             .unwrap()
             .ncn_opt_in_state
             .is_active(self.slot, self.epoch_length)
+            .unwrap()
         {
             return Self::ACTIVE;
         }
@@ -1018,6 +1022,7 @@ impl NcnTickets {
             .unwrap()
             .operator_opt_in_state
             .is_active(self.slot, self.epoch_length)
+            .unwrap()
         {
             return Self::ACTIVE;
         }
@@ -1036,6 +1041,7 @@ impl NcnTickets {
             .unwrap()
             .state
             .is_active(self.slot, self.epoch_length)
+            .unwrap()
         {
             return Self::ACTIVE;
         }
@@ -1054,6 +1060,7 @@ impl NcnTickets {
             .unwrap()
             .state
             .is_active(self.slot, self.epoch_length)
+            .unwrap()
         {
             return Self::ACTIVE;
         }
@@ -1072,6 +1079,7 @@ impl NcnTickets {
             .unwrap()
             .state
             .is_active(self.slot, self.epoch_length)
+            .unwrap()
         {
             return Self::ACTIVE;
         }
