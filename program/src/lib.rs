@@ -36,7 +36,6 @@ mod switchboard_set_weight;
 
 use admin_set_new_admin::process_admin_set_new_admin;
 use borsh::BorshDeserialize;
-use const_str_to_pubkey::str_to_pubkey;
 use initialize_epoch_state::process_initialize_epoch_state;
 use jito_tip_router_core::instruction::TipRouterInstruction;
 use realloc_epoch_state::process_realloc_epoch_state;
@@ -78,7 +77,7 @@ use crate::{
     switchboard_set_weight::process_switchboard_set_weight,
 };
 
-declare_id!(str_to_pubkey(env!("TIP_ROUTER_PROGRAM_ID")));
+declare_id!(env!("TIP_ROUTER_PROGRAM_ID"));
 
 #[cfg(not(feature = "no-entrypoint"))]
 security_txt! {
@@ -298,6 +297,7 @@ pub fn process_instruction(
         //                        ADMIN                         //
         // ---------------------------------------------------- //
         TipRouterInstruction::AdminSetParameters {
+            starting_valid_epoch,
             epochs_before_stall,
             epochs_after_consensus_before_close,
             valid_slots_after_consensus,
@@ -306,6 +306,7 @@ pub fn process_instruction(
             process_admin_set_parameters(
                 program_id,
                 accounts,
+                starting_valid_epoch,
                 epochs_before_stall,
                 epochs_after_consensus_before_close,
                 valid_slots_after_consensus,

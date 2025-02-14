@@ -13,8 +13,8 @@ pub const MIN_EPOCHS_BEFORE_STALL: u64 = 1;
 pub const MAX_EPOCHS_BEFORE_STALL: u64 = 50;
 pub const MIN_EPOCHS_AFTER_CONSENSUS_BEFORE_CLOSE: u64 = 10;
 pub const MAX_EPOCHS_AFTER_CONSENSUS_BEFORE_CLOSE: u64 = 100;
-pub const MIN_SLOTS_AFTER_CONSENSUS: u64 = 1000;
-pub const MAX_SLOTS_AFTER_CONSENSUS: u64 = 50 * DEFAULT_SLOTS_PER_EPOCH;
+pub const MIN_VALID_SLOTS_AFTER_CONSENSUS: u64 = 1000;
+pub const MAX_VALID_SLOTS_AFTER_CONSENSUS: u64 = 50 * DEFAULT_SLOTS_PER_EPOCH;
 const PRECISE_CONSENSUS_NUMERATOR: u128 = 2;
 const PRECISE_CONSENSUS_DENOMINATOR: u128 = 3;
 pub fn precise_consensus() -> Result<PreciseNumber, TipRouterError> {
@@ -40,3 +40,6 @@ pub const JITOSOL_POOL_ADDRESS: Pubkey = pubkey!("Jito4APyf642JPZPx3hGc6WWJ8zPKt
 pub const JITOSOL_POOL_MANAGER: Pubkey = pubkey!("5eosrve6LktMZgVNszYzebgmmC7BjLK8NoWyRQtcmGTF");
 pub const JITOSOL_POOL_FEE: Pubkey = pubkey!("5eosrve6LktMZgVNszYzebgmmC7BjLK8NoWyRQtcmGTF");
 pub const JITOSOL_RESERVE_STAKE: Pubkey = pubkey!("BgKUXdS29YcHCFrPm5M8oLHiTzZaMDjsebggjoaQ6KFL");
+
+// There is only one of these
+pub const SWITCHBOARD_QUEUE: Pubkey = pubkey!("A43DyUGA7s8eXPxqEjJY6EBu1KKbNgfxF8h17VAHn13w");

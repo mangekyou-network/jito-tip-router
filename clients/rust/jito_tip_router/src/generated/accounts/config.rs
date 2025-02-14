@@ -14,6 +14,7 @@ use borsh::BorshDeserialize;
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Config {
+<<<<<<< HEAD
 pub discriminator: u64,
 #[cfg_attr(feature = "serde", serde(with = "serde_with::As::<serde_with::DisplayFromStr>"))]
 pub ncn: Pubkey,
@@ -28,6 +29,32 @@ pub bump: u8,
 pub epochs_after_consensus_before_close: u64,
 #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
 pub reserved: [u8; 119],
+=======
+    pub discriminator: u64,
+    #[cfg_attr(
+        feature = "serde",
+        serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
+    )]
+    pub ncn: Pubkey,
+    #[cfg_attr(
+        feature = "serde",
+        serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
+    )]
+    pub tie_breaker_admin: Pubkey,
+    #[cfg_attr(
+        feature = "serde",
+        serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
+    )]
+    pub fee_admin: Pubkey,
+    pub valid_slots_after_consensus: u64,
+    pub epochs_before_stall: u64,
+    pub fee_config: FeeConfig,
+    pub bump: u8,
+    pub epochs_after_consensus_before_close: u64,
+    pub starting_valid_epoch: u64,
+    #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
+    pub reserved: [u8; 111],
+>>>>>>> cf534adfb33ea5afa9eccb11b35199f5b149fea2
 }
 
 
@@ -74,6 +101,10 @@ impl anchor_lang::IdlBuild for Config {}
 
 #[cfg(feature = "anchor-idl-build")]
 impl anchor_lang::Discriminator for Config {
+<<<<<<< HEAD
   const DISCRIMINATOR: [u8; 8] = [0; 8];
+=======
+    const DISCRIMINATOR: &'static [u8] = &[0; 8];
+>>>>>>> cf534adfb33ea5afa9eccb11b35199f5b149fea2
 }
 

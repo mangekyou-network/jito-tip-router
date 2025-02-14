@@ -5,6 +5,7 @@ use jito_tip_router_core::{
     account_payer::AccountPayer,
     config::Config,
     constants::MAX_REALLOC_BYTES,
+    epoch_marker::EpochMarker,
     epoch_snapshot::{EpochSnapshot, OperatorSnapshot},
     epoch_state::EpochState,
     error::TipRouterError,
@@ -20,14 +21,14 @@ pub fn process_initialize_operator_snapshot(
     accounts: &[AccountInfo],
     epoch: u64,
 ) -> ProgramResult {
-    let [epoch_state, config, ncn, operator, ncn_operator_state, epoch_snapshot, operator_snapshot, account_payer, system_program] =
+    let [epoch_marker, epoch_state, config, ncn, operator, ncn_operator_state, epoch_snapshot, operator_snapshot, account_payer, system_program] =
         accounts
     else {
         return Err(ProgramError::NotEnoughAccountKeys);
     };
 
-    EpochState::load(program_id, ncn.key, epoch, epoch_state, false)?;
-    Config::load(program_id, ncn.key, config, false)?;
+    EpochState::load_and_check_is_closing(program_id, epoch_state, ncn.key, epoch, false)?;
+    Config::load(program_id, config, ncn.key, false)?;
     Ncn::load(&jito_restaking_program::id(), ncn, false)?;
     Operator::load(&jito_restaking_program::id(), operator, false)?;
     NcnOperatorState::load(
@@ -37,11 +38,12 @@ pub fn process_initialize_operator_snapshot(
         operator,
         false,
     )?;
-    EpochSnapshot::load(program_id, ncn.key, epoch, epoch_snapshot, false)?;
+    EpochSnapshot::load(program_id, epoch_snapshot, ncn.key, epoch, false)?;
 
     load_system_account(operator_snapshot, true)?;
     load_system_program(system_program)?;
-    AccountPayer::load(program_id, ncn.key, account_payer, true)?;
+    AccountPayer::load(program_id, account_payer, ncn.key, true)?;
+    EpochMarker::check_dne(program_id, epoch_marker, ncn.key, epoch)?;
 
     let (operator_snapshot_pubkey, operator_snapshot_bump, mut operator_snapshot_seeds) =
         OperatorSnapshot::find_program_address(program_id, operator.key, ncn.key, epoch);

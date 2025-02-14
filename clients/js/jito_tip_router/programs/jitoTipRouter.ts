@@ -51,12 +51,13 @@ import {
 } from '../instructions';
 
 export const JITO_TIP_ROUTER_PROGRAM_ADDRESS =
-  'Ap2AH3VcZGuuauEDq87uhgjNoUKcCAafc4DTyTByLMFf' as Address<'Ap2AH3VcZGuuauEDq87uhgjNoUKcCAafc4DTyTByLMFf'>;
+  'RouterBmuRBkPUbgEDMtdvTZ75GBdSREZR5uGUxxxpb' as Address<'RouterBmuRBkPUbgEDMtdvTZ75GBdSREZR5uGUxxxpb'>;
 
 export enum JitoTipRouterAccount {
   BallotBox,
   BaseRewardRouter,
   Config,
+  EpochMarker,
   EpochSnapshot,
   OperatorSnapshot,
   EpochState,
@@ -218,7 +219,7 @@ export function identifyJitoTipRouterInstruction(
 }
 
 export type ParsedJitoTipRouterInstruction<
-  TProgram extends string = 'Ap2AH3VcZGuuauEDq87uhgjNoUKcCAafc4DTyTByLMFf',
+  TProgram extends string = 'RouterBmuRBkPUbgEDMtdvTZ75GBdSREZR5uGUxxxpb',
 > =
   | ({
       instructionType: JitoTipRouterInstruction.InitializeConfig;

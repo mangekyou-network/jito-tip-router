@@ -76,6 +76,10 @@ impl anchor_lang::IdlBuild for EpochSnapshot {}
 
 #[cfg(feature = "anchor-idl-build")]
 impl anchor_lang::Discriminator for EpochSnapshot {
+<<<<<<< HEAD
   const DISCRIMINATOR: [u8; 8] = [0; 8];
+=======
+    const DISCRIMINATOR: &'static [u8] = &[0; 8];
+>>>>>>> cf534adfb33ea5afa9eccb11b35199f5b149fea2
 }
 

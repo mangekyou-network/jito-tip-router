@@ -75,11 +75,19 @@ impl Default for AdminSetParametersInstructionData {
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct AdminSetParametersInstructionArgs {
+<<<<<<< HEAD
                   pub epochs_before_stall: Option<u64>,
                 pub epochs_after_consensus_before_close: Option<u64>,
                 pub valid_slots_after_consensus: Option<u64>,
       }
 
+=======
+    pub starting_valid_epoch: Option<u64>,
+    pub epochs_before_stall: Option<u64>,
+    pub epochs_after_consensus_before_close: Option<u64>,
+    pub valid_slots_after_consensus: Option<u64>,
+}
+>>>>>>> cf534adfb33ea5afa9eccb11b35199f5b149fea2
 
 /// Instruction builder for `AdminSetParameters`.
 ///
@@ -90,6 +98,7 @@ pub struct AdminSetParametersInstructionArgs {
                 ///   2. `[signer]` ncn_admin
 #[derive(Clone, Debug, Default)]
 pub struct AdminSetParametersBuilder {
+<<<<<<< HEAD
             config: Option<solana_program::pubkey::Pubkey>,
                 ncn: Option<solana_program::pubkey::Pubkey>,
                 ncn_admin: Option<solana_program::pubkey::Pubkey>,
@@ -97,6 +106,16 @@ pub struct AdminSetParametersBuilder {
                 epochs_after_consensus_before_close: Option<u64>,
                 valid_slots_after_consensus: Option<u64>,
         __remaining_accounts: Vec<solana_program::instruction::AccountMeta>,
+=======
+    config: Option<solana_program::pubkey::Pubkey>,
+    ncn: Option<solana_program::pubkey::Pubkey>,
+    ncn_admin: Option<solana_program::pubkey::Pubkey>,
+    starting_valid_epoch: Option<u64>,
+    epochs_before_stall: Option<u64>,
+    epochs_after_consensus_before_close: Option<u64>,
+    valid_slots_after_consensus: Option<u64>,
+    __remaining_accounts: Vec<solana_program::instruction::AccountMeta>,
+>>>>>>> cf534adfb33ea5afa9eccb11b35199f5b149fea2
 }
 
 impl AdminSetParametersBuilder {
@@ -118,9 +137,21 @@ impl AdminSetParametersBuilder {
                         self.ncn_admin = Some(ncn_admin);
                     self
     }
+<<<<<<< HEAD
                     /// `[optional argument]`
 #[inline(always)]
       pub fn epochs_before_stall(&mut self, epochs_before_stall: u64) -> &mut Self {
+=======
+    /// `[optional argument]`
+    #[inline(always)]
+    pub fn starting_valid_epoch(&mut self, starting_valid_epoch: u64) -> &mut Self {
+        self.starting_valid_epoch = Some(starting_valid_epoch);
+        self
+    }
+    /// `[optional argument]`
+    #[inline(always)]
+    pub fn epochs_before_stall(&mut self, epochs_before_stall: u64) -> &mut Self {
+>>>>>>> cf534adfb33ea5afa9eccb11b35199f5b149fea2
         self.epochs_before_stall = Some(epochs_before_stall);
         self
       }
@@ -135,6 +166,7 @@ impl AdminSetParametersBuilder {
       pub fn valid_slots_after_consensus(&mut self, valid_slots_after_consensus: u64) -> &mut Self {
         self.valid_slots_after_consensus = Some(valid_slots_after_consensus);
         self
+<<<<<<< HEAD
       }
         /// Add an additional account to the instruction.
   #[inline(always)]
@@ -163,6 +195,43 @@ impl AdminSetParametersBuilder {
     
     accounts.instruction_with_remaining_accounts(args, &self.__remaining_accounts)
   }
+=======
+    }
+    /// Add an additional account to the instruction.
+    #[inline(always)]
+    pub fn add_remaining_account(
+        &mut self,
+        account: solana_program::instruction::AccountMeta,
+    ) -> &mut Self {
+        self.__remaining_accounts.push(account);
+        self
+    }
+    /// Add additional accounts to the instruction.
+    #[inline(always)]
+    pub fn add_remaining_accounts(
+        &mut self,
+        accounts: &[solana_program::instruction::AccountMeta],
+    ) -> &mut Self {
+        self.__remaining_accounts.extend_from_slice(accounts);
+        self
+    }
+    #[allow(clippy::clone_on_copy)]
+    pub fn instruction(&self) -> solana_program::instruction::Instruction {
+        let accounts = AdminSetParameters {
+            config: self.config.expect("config is not set"),
+            ncn: self.ncn.expect("ncn is not set"),
+            ncn_admin: self.ncn_admin.expect("ncn_admin is not set"),
+        };
+        let args = AdminSetParametersInstructionArgs {
+            starting_valid_epoch: self.starting_valid_epoch.clone(),
+            epochs_before_stall: self.epochs_before_stall.clone(),
+            epochs_after_consensus_before_close: self.epochs_after_consensus_before_close.clone(),
+            valid_slots_after_consensus: self.valid_slots_after_consensus.clone(),
+        };
+
+        accounts.instruction_with_remaining_accounts(args, &self.__remaining_accounts)
+    }
+>>>>>>> cf534adfb33ea5afa9eccb11b35199f5b149fea2
 }
 
   /// `admin_set_parameters` CPI accounts.
@@ -285,6 +354,7 @@ pub struct AdminSetParametersCpiBuilder<'a, 'b> {
 }
 
 impl<'a, 'b> AdminSetParametersCpiBuilder<'a, 'b> {
+<<<<<<< HEAD
   pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
     let instruction = Box::new(AdminSetParametersCpiBuilderInstruction {
       __program: program,
@@ -302,6 +372,21 @@ impl<'a, 'b> AdminSetParametersCpiBuilder<'a, 'b> {
     pub fn config(&mut self, config: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
                         self.instruction.config = Some(config);
                     self
+=======
+    pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
+        let instruction = Box::new(AdminSetParametersCpiBuilderInstruction {
+            __program: program,
+            config: None,
+            ncn: None,
+            ncn_admin: None,
+            starting_valid_epoch: None,
+            epochs_before_stall: None,
+            epochs_after_consensus_before_close: None,
+            valid_slots_after_consensus: None,
+            __remaining_accounts: Vec::new(),
+        });
+        Self { instruction }
+>>>>>>> cf534adfb33ea5afa9eccb11b35199f5b149fea2
     }
       #[inline(always)]
     pub fn ncn(&mut self, ncn: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
@@ -313,9 +398,21 @@ impl<'a, 'b> AdminSetParametersCpiBuilder<'a, 'b> {
                         self.instruction.ncn_admin = Some(ncn_admin);
                     self
     }
+<<<<<<< HEAD
                     /// `[optional argument]`
 #[inline(always)]
       pub fn epochs_before_stall(&mut self, epochs_before_stall: u64) -> &mut Self {
+=======
+    /// `[optional argument]`
+    #[inline(always)]
+    pub fn starting_valid_epoch(&mut self, starting_valid_epoch: u64) -> &mut Self {
+        self.instruction.starting_valid_epoch = Some(starting_valid_epoch);
+        self
+    }
+    /// `[optional argument]`
+    #[inline(always)]
+    pub fn epochs_before_stall(&mut self, epochs_before_stall: u64) -> &mut Self {
+>>>>>>> cf534adfb33ea5afa9eccb11b35199f5b149fea2
         self.instruction.epochs_before_stall = Some(epochs_before_stall);
         self
       }
@@ -330,6 +427,7 @@ impl<'a, 'b> AdminSetParametersCpiBuilder<'a, 'b> {
       pub fn valid_slots_after_consensus(&mut self, valid_slots_after_consensus: u64) -> &mut Self {
         self.instruction.valid_slots_after_consensus = Some(valid_slots_after_consensus);
         self
+<<<<<<< HEAD
       }
         /// Add an additional account to the instruction.
   #[inline(always)]
@@ -358,6 +456,59 @@ impl<'a, 'b> AdminSetParametersCpiBuilder<'a, 'b> {
                                                                   epochs_after_consensus_before_close: self.instruction.epochs_after_consensus_before_close.clone(),
                                                                   valid_slots_after_consensus: self.instruction.valid_slots_after_consensus.clone(),
                                     };
+=======
+    }
+    /// Add an additional account to the instruction.
+    #[inline(always)]
+    pub fn add_remaining_account(
+        &mut self,
+        account: &'b solana_program::account_info::AccountInfo<'a>,
+        is_writable: bool,
+        is_signer: bool,
+    ) -> &mut Self {
+        self.instruction
+            .__remaining_accounts
+            .push((account, is_writable, is_signer));
+        self
+    }
+    /// Add additional accounts to the instruction.
+    ///
+    /// Each account is represented by a tuple of the `AccountInfo`, a `bool` indicating whether the account is writable or not,
+    /// and a `bool` indicating whether the account is a signer or not.
+    #[inline(always)]
+    pub fn add_remaining_accounts(
+        &mut self,
+        accounts: &[(
+            &'b solana_program::account_info::AccountInfo<'a>,
+            bool,
+            bool,
+        )],
+    ) -> &mut Self {
+        self.instruction
+            .__remaining_accounts
+            .extend_from_slice(accounts);
+        self
+    }
+    #[inline(always)]
+    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed(&[])
+    }
+    #[allow(clippy::clone_on_copy)]
+    #[allow(clippy::vec_init_then_push)]
+    pub fn invoke_signed(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+    ) -> solana_program::entrypoint::ProgramResult {
+        let args = AdminSetParametersInstructionArgs {
+            starting_valid_epoch: self.instruction.starting_valid_epoch.clone(),
+            epochs_before_stall: self.instruction.epochs_before_stall.clone(),
+            epochs_after_consensus_before_close: self
+                .instruction
+                .epochs_after_consensus_before_close
+                .clone(),
+            valid_slots_after_consensus: self.instruction.valid_slots_after_consensus.clone(),
+        };
+>>>>>>> cf534adfb33ea5afa9eccb11b35199f5b149fea2
         let instruction = AdminSetParametersCpi {
         __program: self.instruction.__program,
                   
@@ -374,6 +525,7 @@ impl<'a, 'b> AdminSetParametersCpiBuilder<'a, 'b> {
 
 #[derive(Clone, Debug)]
 struct AdminSetParametersCpiBuilderInstruction<'a, 'b> {
+<<<<<<< HEAD
   __program: &'b solana_program::account_info::AccountInfo<'a>,
             config: Option<&'b solana_program::account_info::AccountInfo<'a>>,
                 ncn: Option<&'b solana_program::account_info::AccountInfo<'a>>,
@@ -383,5 +535,21 @@ struct AdminSetParametersCpiBuilderInstruction<'a, 'b> {
                 valid_slots_after_consensus: Option<u64>,
         /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
   __remaining_accounts: Vec<(&'b solana_program::account_info::AccountInfo<'a>, bool, bool)>,
+=======
+    __program: &'b solana_program::account_info::AccountInfo<'a>,
+    config: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    ncn: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    ncn_admin: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    starting_valid_epoch: Option<u64>,
+    epochs_before_stall: Option<u64>,
+    epochs_after_consensus_before_close: Option<u64>,
+    valid_slots_after_consensus: Option<u64>,
+    /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
+    __remaining_accounts: Vec<(
+        &'b solana_program::account_info::AccountInfo<'a>,
+        bool,
+        bool,
+    )>,
+>>>>>>> cf534adfb33ea5afa9eccb11b35199f5b149fea2
 }
 

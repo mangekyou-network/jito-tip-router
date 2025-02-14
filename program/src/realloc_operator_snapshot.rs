@@ -28,8 +28,8 @@ pub fn process_realloc_operator_snapshot(
         return Err(ProgramError::NotEnoughAccountKeys);
     };
 
-    EpochState::load(program_id, ncn.key, epoch, epoch_state, true)?;
-    NcnConfig::load(program_id, ncn.key, ncn_config, false)?;
+    EpochState::load(program_id, epoch_state, ncn.key, epoch, true)?;
+    NcnConfig::load(program_id, ncn_config, ncn.key, false)?;
     Config::load(&jito_restaking_program::id(), restaking_config, false)?;
     Ncn::load(&jito_restaking_program::id(), ncn, false)?;
     Operator::load(&jito_restaking_program::id(), operator, false)?;
@@ -40,8 +40,8 @@ pub fn process_realloc_operator_snapshot(
         operator,
         false,
     )?;
-    EpochSnapshot::load(program_id, ncn.key, epoch, epoch_snapshot, true)?;
-    AccountPayer::load(program_id, ncn.key, account_payer, true)?;
+    EpochSnapshot::load(program_id, epoch_snapshot, ncn.key, epoch, true)?;
+    AccountPayer::load(program_id, account_payer, ncn.key, true)?;
 
     load_system_program(system_program)?;
 
@@ -84,13 +84,13 @@ pub fn process_realloc_operator_snapshot(
             // If the NCN removes an operator, it should immediately be barred from the snapshot
             let ncn_operator_okay = ncn_operator_state_account
                 .ncn_opt_in_state
-                .is_active(current_slot, ncn_epoch_length);
+                .is_active(current_slot, ncn_epoch_length)?;
 
             // If the operator removes itself from the ncn, it should still be able to participate
             // while it is cooling down
             let operator_ncn_okay = ncn_operator_state_account
                 .operator_opt_in_state
-                .is_active_or_cooldown(current_slot, ncn_epoch_length);
+                .is_active_or_cooldown(current_slot, ncn_epoch_length)?;
 
             let ncn_operator_index = ncn_operator_state_account.index();
 

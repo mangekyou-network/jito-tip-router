@@ -11,9 +11,15 @@ use borsh::BorshDeserialize;
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Progress {
+<<<<<<< HEAD
 pub tally: u64,
 pub total: u64,
 pub reserved: [u8; 32],
+=======
+    pub tally: u64,
+    pub total: u64,
+    pub reserved: [u8; 8],
+>>>>>>> cf534adfb33ea5afa9eccb11b35199f5b149fea2
 }
 
 

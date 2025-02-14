@@ -15,6 +15,7 @@ use borsh::BorshDeserialize;
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct EpochState {
+<<<<<<< HEAD
 pub discriminator: u64,
 #[cfg_attr(feature = "serde", serde(with = "serde_with::As::<serde_with::DisplayFromStr>"))]
 pub ncn: Pubkey,
@@ -39,6 +40,36 @@ pub base_distribution_progress: Progress,
 pub ncn_distribution_progress: [Progress; 2048],
 #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
 pub reserved: [u8; 1024],
+=======
+    pub discriminator: u64,
+    #[cfg_attr(
+        feature = "serde",
+        serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
+    )]
+    pub ncn: Pubkey,
+    pub epoch: u64,
+    pub bump: u8,
+    pub slot_created: u64,
+    pub was_tie_breaker_set: bool,
+    pub slot_consensus_reached: u64,
+    pub operator_count: u64,
+    pub vault_count: u64,
+    pub account_status: EpochAccountStatus,
+    pub set_weight_progress: Progress,
+    pub epoch_snapshot_progress: Progress,
+    #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
+    pub operator_snapshot_progress: [Progress; 256],
+    pub voting_progress: Progress,
+    pub validation_progress: Progress,
+    pub upload_progress: Progress,
+    pub total_distribution_progress: Progress,
+    pub base_distribution_progress: Progress,
+    #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
+    pub ncn_distribution_progress: [Progress; 2048],
+    pub is_closing: bool,
+    #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
+    pub reserved: [u8; 1023],
+>>>>>>> cf534adfb33ea5afa9eccb11b35199f5b149fea2
 }
 
 
@@ -85,6 +116,10 @@ impl anchor_lang::IdlBuild for EpochState {}
 
 #[cfg(feature = "anchor-idl-build")]
 impl anchor_lang::Discriminator for EpochState {
+<<<<<<< HEAD
   const DISCRIMINATOR: [u8; 8] = [0; 8];
+=======
+    const DISCRIMINATOR: &'static [u8] = &[0; 8];
+>>>>>>> cf534adfb33ea5afa9eccb11b35199f5b149fea2
 }
 

@@ -8,10 +8,18 @@ description = "CLI for Jito Tip Router"
 anchor-lang = { workspace = true }
 anyhow = "1.0"
 base64 = "0.13"
+<<<<<<< HEAD
 borsh = "0.10"
 clap = { version = "4.0", features = ["derive"] }
 ellipsis-client = "0.2"
 env_logger = "0.10"
+=======
+clap = { workspace = true }
+clap_old = { workspace = true }
+crossbeam-channel = "0.5"
+ellipsis-client = "1.1"
+env_logger = { workspace = true }
+>>>>>>> cf534adfb33ea5afa9eccb11b35199f5b149fea2
 hex = "0.4"
 im = "15.1"
 itertools = "0.11"
@@ -24,19 +32,43 @@ jito-tip-router-core = { path = "../core" }
 jito-tip-router-program = { workspace = true }
 log = "0.4"
 meta-merkle-tree = { workspace = true }
+<<<<<<< HEAD
 rand = "0.8"
+=======
+rand = { workspace = true }
+>>>>>>> cf534adfb33ea5afa9eccb11b35199f5b149fea2
 serde = { workspace = true }
 serde_json = { workspace = true }
+solana-account-decoder = { workspace = true }
 solana-accounts-db = { workspace = true }
+<<<<<<< HEAD
 solana-client = "1.16"
 solana-ledger = { workspace = true }
 solana-metrics = "1.16"
 solana-program = "1.16"
 solana-rpc-client = "1.16"
+=======
+solana-clap-utils = { workspace = true }
+solana-client = { workspace = true }
+solana-core = { workspace = true }
+solana-geyser-plugin-manager = { workspace = true }
+solana-gossip = { workspace = true }
+solana-ledger = { workspace = true }
+solana-measure = { workspace = true }
+solana-metrics = { workspace = true }
+solana-program = { workspace = true }
+solana-rpc = { workspace = true }
+solana-rpc-client = { workspace = true }
+solana-rpc-client-api = { workspace = true }
+>>>>>>> cf534adfb33ea5afa9eccb11b35199f5b149fea2
 solana-runtime = { workspace = true }
 solana-sdk = "1.16"
 solana-stake-program = { workspace = true }
+solana-streamer = { workspace = true }
+solana-transaction-status = { workspace = true }
+solana-unified-scheduler-pool = { workspace = true }
 solana-vote = { workspace = true }
+spl-memo = { workspace = true }
 thiserror = { workspace = true }
 tokio = { version = "1.0", features = ["full"] }
 
