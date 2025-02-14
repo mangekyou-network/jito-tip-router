@@ -7,14 +7,16 @@
 
 use crate::generated::types::Ballot;
 use crate::generated::types::StakeWeights;
-use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
+use borsh::BorshDeserialize;
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct BallotTally {
-    pub index: u16,
-    pub ballot: Ballot,
-    pub stake_weights: StakeWeights,
-    pub tally: u64,
+pub index: u16,
+pub ballot: Ballot,
+pub stake_weights: StakeWeights,
+pub tally: u64,
 }
+
+

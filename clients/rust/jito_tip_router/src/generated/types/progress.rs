@@ -5,13 +5,15 @@
 //! <https://github.com/kinobi-so/kinobi>
 //!
 
-use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
+use borsh::BorshDeserialize;
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Progress {
-    pub tally: u64,
-    pub total: u64,
-    pub reserved: [u8; 32],
+pub tally: u64,
+pub total: u64,
+pub reserved: [u8; 32],
 }
+
+

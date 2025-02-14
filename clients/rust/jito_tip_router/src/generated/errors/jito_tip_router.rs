@@ -284,3 +284,4 @@ impl solana_program::program_error::PrintProgramError for JitoTipRouterError {
         solana_program::msg!(&self.to_string());
     }
 }
+

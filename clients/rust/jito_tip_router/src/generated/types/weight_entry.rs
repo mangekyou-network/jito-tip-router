@@ -6,16 +6,18 @@
 //!
 
 use crate::generated::types::StMintEntry;
-use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
+use borsh::BorshDeserialize;
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct WeightEntry {
-    pub st_mint_entry: StMintEntry,
-    pub weight: u128,
-    pub slot_set: u64,
-    pub slot_updated: u64,
-    #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
-    pub reserved: [u8; 128],
+pub st_mint_entry: StMintEntry,
+pub weight: u128,
+pub slot_set: u64,
+pub slot_updated: u64,
+#[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
+pub reserved: [u8; 128],
 }
+
+

@@ -5,18 +5,20 @@
 //! <https://github.com/kinobi-so/kinobi>
 //!
 
-use crate::generated::types::Fees;
-use borsh::BorshDeserialize;
-use borsh::BorshSerialize;
 use solana_program::pubkey::Pubkey;
+use crate::generated::types::Fees;
+use borsh::BorshSerialize;
+use borsh::BorshDeserialize;
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FeeConfig {
-    pub block_engine_fee_bps: u16,
-    pub base_fee_wallets: [Pubkey; 8],
-    #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
-    pub reserved: [u8; 128],
-    pub fee1: Fees,
-    pub fee2: Fees,
+pub block_engine_fee_bps: u16,
+pub base_fee_wallets: [Pubkey; 8],
+#[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
+pub reserved: [u8; 128],
+pub fee1: Fees,
+pub fee2: Fees,
 }
+
+

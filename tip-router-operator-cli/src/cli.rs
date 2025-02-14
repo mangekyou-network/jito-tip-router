@@ -1,19 +1,32 @@
 use std::path::PathBuf;
 
-use clap::Parser;
+use clap::{Parser, Subcommand};
 use solana_sdk::pubkey::Pubkey;
 
 #[derive(Parser)]
-#[command(author, version, about)]
+#[clap(version = "1.0")]
 pub struct Cli {
-    #[arg(short, long)]
+    #[clap(subcommand)]
+    pub command: Commands,
+
+    #[clap(long, default_value = "~/.config/solana/id.json")]
     pub keypair_path: String,
+
+    #[clap(long, default_value = "https://api.devnet.solana.com")]
+    pub rpc_url: String,
+
+    // VRF-specific options
+    #[clap(long)]
+    pub vrf_enabled: bool,
+
+    #[clap(long, default_value = "BfwfooykCSdb1vgu6FcP75ncUgdcdt4ciUaeaSLzxM4D")]
+    pub vrf_coordinator_program: String,
+
+    #[clap(long, default_value = "4qqRVYJAeBynm2yTydBkTJ9wVay3CrUfZ7gf9chtWS5Y")]
+    pub vrf_verify_program: String,
 
     #[arg(short, long)]
     pub operator_address: String,
-
-    #[arg(short, long, default_value = "http://localhost:8899")]
-    pub rpc_url: String,
 
     #[arg(short, long)]
     pub ledger_path: PathBuf,
@@ -26,24 +39,25 @@ pub struct Cli {
 
     #[arg(short, long)]
     pub snapshot_output_dir: PathBuf,
-
-    #[command(subcommand)]
-    pub command: Commands,
 }
 
-#[derive(clap::Subcommand)]
+#[derive(Subcommand)]
 pub enum Commands {
     Run {
-        #[arg(short, long)]
-        ncn_address: Pubkey,
+        #[clap(long)]
+        ncn_address: String,
 
-        #[arg(long)]
-        tip_distribution_program_id: Pubkey,
+        #[clap(long)]
+        tip_distribution_program_id: String,
 
-        #[arg(long)]
-        tip_payment_program_id: Pubkey,
+        #[clap(long)]
+        tip_payment_program_id: String,
 
-        #[arg(long, default_value = "false")]
+        #[clap(long)]
         enable_snapshots: bool,
+
+        // VRF-specific options
+        #[clap(long)]
+        vrf_subscription: Option<String>,
     },
 }

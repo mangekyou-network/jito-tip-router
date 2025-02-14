@@ -8,6 +8,7 @@ tip-router-operator-cli/scripts/validators.txt
 tip-router-operator-cli/tests/fixtures/local_validators.txt
 tip-router-operator-cli/tests/fixtures/keys/
 tip-router-operator-cli/tests/fixtures/tda-accounts/
+mangekyou
 
 # Debugging
 program_errors.json
